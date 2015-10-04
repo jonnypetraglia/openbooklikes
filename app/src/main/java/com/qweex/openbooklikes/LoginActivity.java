@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.User;
 
 import org.json.JSONException;
@@ -28,11 +29,8 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity {
-    private final String USER_DATA_PREFS = "UserData";
+    public static final String USER_DATA_PREFS = "UserData";
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -47,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE);
         Log.d("OBL:LOGIN", prefs.getString("usr_token", "NULL"));
         if(prefs.getString("usr_token", null)!=null) {
-            MainActivity.user = new User(prefs);
+            MainActivity.user = new Me(prefs);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             LoginActivity.this.finish();
             return;
@@ -82,11 +80,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     private void attemptLogin() {
         // Reset errors.
         mEmailView.setError(null);
@@ -149,12 +142,21 @@ public class LoginActivity extends AppCompatActivity {
 
                 mEmailView.setError(null);
                 mPasswordView.setError(null);
-                MainActivity.user = new User(response, getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE).edit());
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                LoginActivity.this.finish();
+                MainActivity.user = new Me(response, new AndThen() {
+                    @Override
+                    public void call(Object o) {
+                        if(MainActivity.user.token!=null)
+                            saveAsMe();
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        LoginActivity.this.finish();
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                mPasswordView.setError("!!!: " + e.getMessage());
             }
         }
 
@@ -165,6 +167,28 @@ public class LoginActivity extends AppCompatActivity {
             mPasswordView.setError("Error " + statusCode + " " + error.getMessage());
         }
     };
+
+    private void saveAsMe() {
+        SharedPreferences.Editor prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE).edit();
+        prefs.putString("id_user", MainActivity.user.id);
+        prefs.putString("usr_username", MainActivity.user.username);
+        prefs.putString("usr_domain", MainActivity.user.domain);
+        prefs.putString("usr_photo", MainActivity.user.photo);
+
+        prefs.putString("usr_email", MainActivity.user.email);
+        prefs.putString("usr_blog_title", MainActivity.user.blog_title);
+        prefs.putString("usr_blog_desc", MainActivity.user.blog_desc);
+        prefs.putString("usr_following_count", MainActivity.user.following_count);
+        prefs.putString("usr_followed_count", MainActivity.user.followed_count);
+        prefs.putInt("usr_book_count", MainActivity.user.book_count);
+
+        if(MainActivity.user.bitmap!=null)
+            prefs.putString("usr_bitmap", ImageUtils.BitMapToString(MainActivity.user.bitmap));
+
+        prefs.putString("usr_token", MainActivity.user.token);
+        Log.d("OBL:saveAsMe", MainActivity.user.token);
+        prefs.apply();
+    }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic

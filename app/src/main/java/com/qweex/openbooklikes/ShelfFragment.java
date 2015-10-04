@@ -1,103 +1,111 @@
 package com.qweex.openbooklikes;
 
-import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Shelf;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
-import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
-
-/**
- * A placeholder fragment containing a simple view.
- */
 public class ShelfFragment extends Fragment {
-
-    ArrayAdapter spinnerAdapter;
-
-    public ShelfFragment() {
-    }
+    Shelf shelf;
+    List<Book> books;
+    GridView gridView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View contentView = inflater.inflate(R.layout.fragment_main, container, false);
-        return contentView;
+        View view = inflater.inflate(R.layout.fragment_shelf, container, false);
+        gridView = (GridView) view.findViewById(R.id.gridView);
+        return view;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        ((TextView) view.findViewById(R.id.username)).setText(MainActivity.user.username);
-
-        ApiClient.get("user/GetUserCategories", ShelfHandler);
-
-
-
-        ArrayList spinnerlist = new ArrayList<String>();
-        spinnerlist.add("All");
-        spinnerlist.add("Shelf 1");
-
-
-        spinnerAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_dropdown_item_1line, spinnerlist);
-        Spinner shelfSpinner = new Spinner(getActivity());
-        shelfSpinner.setAdapter(spinnerAdapter);
-        shelfSpinner.setOnItemSelectedListener(changeShelf);
-
-        spinnerAdapter.add("All Again");
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setCustomView(shelfSpinner);
-
-        ApiClient.post("user/GetUserCategories", ShelfHandler);
+    public void onStart() {
+        super.onStart();
+        if(shelf!=null)
+            ((Toolbar)getActivity().findViewById(R.id.toolbar)).setTitle(shelf.name);
+        Log.d("OBL:Adapter", "() " + books);
+        if(books!=null)
+            gridView.setAdapter(new CoverAdapter(getActivity()));
     }
 
-    private AdapterView.OnItemSelectedListener changeShelf = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            Log.d("OBL", "Change to " + spinnerAdapter.getItem(position));
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+
+    class CoverAdapter extends ArrayAdapter<Book> {
+
+        public CoverAdapter(Context context) {
+            super(context, 0, books);
         }
 
         @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-            Log.d("OBL", "Nothing selected");
-        }
-    };
-
-    private JsonHttpResponseHandler ShelfHandler = new JsonHttpResponseHandler() {
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-            try {
-                for(int i=0; i<response.length(); i++) {
-                    Shelf s = new Shelf(response.getJSONObject(i));
-                    Log.d("OBL:Cat", s.name + " (" + s.book_count + ")");
-                    spinnerAdapter.add(s.name + " (" + s.book_count + ")");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+        public View getView(int position, View row, ViewGroup parent) {
+            if(row == null) {
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                row = inflater.inflate(R.layout.shelf_cover, parent, false);
             }
+            TextView title = ((TextView) row.findViewById(R.id.text));
+            title.setText(books.get(position).title);
+            title.setVisibility(View.GONE);
+
+            ImageView cover = ((ImageView) row.findViewById(R.id.image));
+            cover.setImageBitmap(books.get(position).bitmap);
+
+            return row;
         }
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody)
-        {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
+    }
+    /* TODO
+        IMMEDIATE
+            - fetch multiple images asyncronously & cache them
+              - do it inside a custom ImageView class
+              - after it is fetched, cache it to SQL/SharedPreferences/disk
+                - map from 'imageUrl' -> 'imageData'
+              - check cache when loading
+              - https://github.com/nostra13/Android-Universal-Image-Loader
+            - All books as default shelf
+            - Infinite scroll for shelves
+            - Filter by status & special
+              - Move out of drawer and to Options?
+             - Book screen
+
+        LATER
+            - create Profile screen & move Logout to it
+              - add "Are you sure?"
+            - Option to switch between grid & list view (create ListAdapter for latter)
+            - add "Friends" to drawer, or "Following/Followers" to Profile?
+            - Add "Reading Challenge" to drawer
+                - only display if user has an active one
+            - cache shelves?
+
+        MUCH LATER
+            - Loading screens
+            - Make drawer same width as Gmail...somehow
+            - setting: custom default shelf/fragment
+            - add background image to shelf view
+            - better Login screen
+            - About screen
+            - Ability to search for books on Amazon; IndieBound; share on social media
+            - Search books / AddBookToShelf
+            - Add shelf
+
+        NOTHER LIFETIME
+            - Blog
+            - Register
+     */
 }

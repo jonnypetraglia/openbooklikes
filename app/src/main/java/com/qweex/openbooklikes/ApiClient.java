@@ -18,7 +18,7 @@ public class ApiClient {
             params.put("usr_token", MainActivity.user.token);
             params.put("uid", MainActivity.user.id);
         }
-        Log.d("OBL:Getting", params.toString());
+        Log.d("OBL:Getting", getAbsoluteUrl(url) + "?" + params.toString());
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
     public static void get(String url, AsyncHttpResponseHandler responseHandler) {
@@ -31,7 +31,7 @@ public class ApiClient {
             params.put("usr_token", MainActivity.user.token);
             params.put("uid", MainActivity.user.id);
         }
-        Log.d("OBL:Posting", params.toString());
+        Log.d("OBL:Posting", getAbsoluteUrl(url) + "?" + params.toString());
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
     public static void post(String url, AsyncHttpResponseHandler responseHandler) {
