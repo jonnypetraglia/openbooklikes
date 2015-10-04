@@ -7,17 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
     public static User user;
@@ -44,31 +35,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Log.d("OBL:MASTER", user.token);
-
-        ((TextView) findViewById(R.id.username)).setText(user.username);
-
-        ApiClient.get("user/GetUserCategories", ShelfHandler);
     }
 
-    private JsonHttpResponseHandler ShelfHandler = new JsonHttpResponseHandler() {
 
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-            try {
-                for(int i=0; i<response.length(); i++) {
-                    Shelf s = new Shelf(response.getJSONObject(i));
-                    Log.d("OBL:Cat", s.name + " (" + s.book_count + ")");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody)
-        {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
+
+
 
     // user/GetUserFollowers
     //   user/GetUserInfo

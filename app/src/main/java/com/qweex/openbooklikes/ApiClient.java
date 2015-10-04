@@ -1,5 +1,7 @@
 package com.qweex.openbooklikes;
 
+import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -16,6 +18,7 @@ public class ApiClient {
             params.put("usr_token", MainActivity.user.token);
             params.put("uid", MainActivity.user.id);
         }
+        Log.d("OBL:Getting", params.toString());
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
     public static void get(String url, AsyncHttpResponseHandler responseHandler) {
@@ -28,6 +31,7 @@ public class ApiClient {
             params.put("usr_token", MainActivity.user.token);
             params.put("uid", MainActivity.user.id);
         }
+        Log.d("OBL:Posting", params.toString());
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
     public static void post(String url, AsyncHttpResponseHandler responseHandler) {

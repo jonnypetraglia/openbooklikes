@@ -27,7 +27,7 @@ public class User {
             followed_count = json.getString("usr_followed_count");
             book_count = json.getInt("usr_book_count");
             if (json.has("usr_token")) {
-                token = json.getString("token");
+                token = json.getString("usr_token");
                 prefs.putString("id_user", id);
                 prefs.putString("usr_username", username);
                 prefs.putString("usr_domain", domain);

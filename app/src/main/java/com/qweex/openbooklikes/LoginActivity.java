@@ -144,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
             // If the response is JSONObject instead of expected JSONArray
             try {
-                if(response.getInt("status")!=0)
+                if(response.getInt("status")!=0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
 
                 mEmailView.setError(null);
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.finish();
             } catch (JSONException e) {
                 e.printStackTrace();
-                mPasswordView.setError(e.getMessage());
+                mPasswordView.setError(statusCode + ": " + e.getMessage());
             }
         }
 
