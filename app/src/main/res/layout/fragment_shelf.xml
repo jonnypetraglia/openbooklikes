@@ -11,12 +11,21 @@
         android:background="#aaa"
         android:id="@+id/gridView"
 
-        android:columnWidth="140dp"
         android:drawSelectorOnTop="true"
         android:gravity="center"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#aaa"
+        android:id="@+id/listView"
+
         android:focusable="true"
         android:clickable="true"
         />

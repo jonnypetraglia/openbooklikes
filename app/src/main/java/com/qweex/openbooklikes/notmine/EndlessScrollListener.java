@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.notmine;
 
 import android.widget.AbsListView;
 

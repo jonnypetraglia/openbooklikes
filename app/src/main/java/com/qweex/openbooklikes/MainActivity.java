@@ -1,7 +1,7 @@
 package com.qweex.openbooklikes;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,7 +35,6 @@ public class MainActivity extends AppCompatActivity
     public static ArrayList<Shelf> shelves = new ArrayList<>();
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
-    public Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("OBL:MASTER", "token: " + user.token);
 
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -68,11 +68,10 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        ///////////////////////////////////////////////
 
 
-        // Load user info
-        ((TextView)findViewById(R.id.user_username)).setText(user.username);
-        ((TextView)findViewById(R.id.user_email)).setText(user.email);
+        // Init imageLoader
         imageLoader = ImageLoader.getInstance();
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .showImageOnLoading(android.R.drawable.ic_menu_compass)
@@ -84,8 +83,11 @@ public class MainActivity extends AppCompatActivity
                 .defaultDisplayImageOptions(options)
                 .build();
         imageLoader.init(config);
-        imageLoader.displayImage(user.photo, (ImageView) findViewById(R.id.user_pic));
 
+        // Load user info
+        ((TextView) findViewById(R.id.user_username)).setText(user.username);
+        ((TextView)findViewById(R.id.user_email)).setText(user.email);
+        imageLoader.displayImage(user.photo, (ImageView) findViewById(R.id.user_pic));
 
         // Add shelfMap to menu
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity
         MenuItem startItem = shelfNav.findItem(R.id.nav_all_shelf);
         //startItem.setChecked(true);
         onNavigationItemSelected(startItem);
+
     }
 
     @Override
@@ -117,9 +120,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -128,16 +131,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        switch(id) {
-            case R.id.action_logout:
-                SharedPreferences.Editor prefs = getSharedPreferences(LoginActivity.USER_DATA_PREFS, MODE_PRIVATE).edit();
-                prefs.clear();
-                prefs.apply();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                MainActivity.this.finish();
-                return true;
+        if(id==R.id.action_logout) {
+            logout();
+            return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -150,8 +147,8 @@ public class MainActivity extends AppCompatActivity
         switch(id) {
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
-                Log.d("OBL:nav_shelf", shelves.get(shelfMenuItems.indexOf(item)) .name);
-                fetchShelves(shelfMenuItems.indexOf(item));
+                Log.d("OBL:nav_shelf", shelves.get(shelfMenuItems.indexOf(item)).name);
+                loadShelf(shelves.get(shelfMenuItems.indexOf(item)));
                 break;
             case R.id.nav_blog:
             //TODO: Special & Status shelfMap
@@ -162,22 +159,40 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void fetchShelves(int shelfIndex) {
-        Log.d("OBL", "fetchShelves");
+    private void loadShelf(Shelf shelf) {
+        Log.d("OBL", "loadShelf");
 
         Bundle b = new Bundle();
-        b.putInt("shelfIndex", shelfIndex);
-        if(!shelves.get(shelfIndex).id.equals("-1"))
-            b.putString("Cat", shelves.get(shelfIndex).id);
-        //b.putBoolean("BookisWish", false);
-        //b.putBoolean("Favorite", false);
-        //b.putString("BookStatus", "read|currently|planning");
-        //b.putString("BookUserRating", "0.5");
+        if(!shelf.id.equals("-1"))
+            b.putString("Cat", shelf.id);
+        Bundle bx = new Bundle();
+        bx.putBundle("params", b);
 
         ShelfFragment shelfFragment = new ShelfFragment();
-        shelfFragment.setShelf(this, shelves.get(shelfIndex));
-        shelfFragment.setArguments(b);
+        shelfFragment.setArguments(bx);
+        shelfFragment.setShelf(this, shelf);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
+        Log.d("OBL", "loadShelf END");
+    }
+
+    public void logout() {
+        //Ask the user if they want to quit
+        new AlertDialog.Builder(this)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setTitle("Logout")
+            .setMessage("Really logout?")
+            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    getSharedPreferences(LoginActivity.USER_DATA_PREFS, MODE_PRIVATE)
+                            .edit().clear().apply();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    MainActivity.this.finish();
+                }
+            })
+            .setNegativeButton(android.R.string.no, null)
+            .show();
     }
 
 

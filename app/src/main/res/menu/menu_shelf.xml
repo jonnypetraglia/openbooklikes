@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/filter_status"
+        android:title="Status">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/filter_all"
+                    android:title="All" />
+                <item android:id="@+id/filter_read"
+                    android:title="Read" />
+                <item android:id="@+id/filter_planning"
+                    android:title="Planning to Read" />
+                <item android:id="@+id/filter_currently"
+                    android:title="Currently Reading" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:id="@+id/filter_special"
+        android:title="Special">
+        <menu>
+            <group android:checkableBehavior="all">
+                <item android:id="@+id/filter_favourite"
+                    android:title="Favourite" />
+                <item android:id="@+id/filter_wishlist"
+                    android:title="Wishlist" />
+                <item android:id="@+id/filter_reviewed"
+                    android:enabled="false"
+                    android:title="Reviewed" />
+                <item android:id="@+id/filter_private"
+                    android:enabled="false"
+                    android:title="Private" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:id="@+id/change_view"
+        android:title="Change View" />
+
+</menu>

@@ -13,7 +13,7 @@ public class Shelf extends Base {
     public Shelf(JSONObject data) throws JSONException {
         id = data.getString("id_category");
         user_id = data.getString("id_user");
-        name = data.getString("category_name");
+        name = unescapeXML(data.getString("category_name"));
         book_count = data.getInt("category_book_count");
     }
 

@@ -4,30 +4,6 @@
     <group android:checkableBehavior="single" android:id="@+id/nav_group">
         <item android:id="@+id/nav_blog" android:icon="@android:drawable/ic_menu_edit"
             android:title="Blog" />
-        <item android:id="@+id/nav_shelves_special"
-            android:title="Special">
-            <menu>
-                <item android:id="@+id/nav_favorite" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Favorite" />
-                <item android:id="@+id/nav_wishlist" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Wishlist" />
-                <item android:id="@+id/nav_reviewed" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Reviewed" />
-                <item android:id="@+id/nav_private" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Private" />
-            </menu>
-        </item>
-        <item android:id="@+id/nav_shelves_status"
-            android:title="Status">
-            <menu>
-                <item android:id="@+id/nav_read" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Read" />
-                <item android:id="@+id/nav_planning" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Planning to Read" />
-                <item android:id="@+id/nav_currently" android:icon="@android:drawable/ic_menu_compass"
-                    android:title="Currently Reading" />
-            </menu>
-        </item>
         <item android:id="@+id/nav_shelves"
             android:title="Shelves">
             <menu></menu>

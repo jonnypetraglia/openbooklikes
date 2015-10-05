@@ -1,30 +1,36 @@
 package com.qweex.openbooklikes;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Shelf;
+import com.qweex.openbooklikes.notmine.EndlessScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -32,21 +38,26 @@ import cz.msebera.android.httpclient.Header;
 public class ShelfFragment extends Fragment {
     Shelf shelf;
     GridView gridView;
-    ArrayAdapter<Book> adapter;
+    ListView listView;
+    AdapterBase adapter;
+    static int IMG_SIZE = dpToPx(140);
 
-    public void setShelf(MainActivity a, Shelf s) {
-        shelf = s;
-        ArrayList<Book> bookList = new ArrayList<>();
-        Log.d("OBL:Adapter", shelf.name + "() " + bookList);
-        adapter = new CoverAdapter(a, bookList);
-        a.getSupportActionBar().setTitle(shelf.name);
-        Log.d("OBL:setShelf", a.toolbar + " - " + a.toolbar.getTitle());
+    static CheckTracker statusTracker, specialTracker;
+
+    static {
+        statusTracker = new ShelfFragment.CheckTracker();
+        statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_currently);
+        statusTracker.checkEx(R.id.filter_all); //TODO: Settings
+
+        specialTracker = new ShelfFragment.CheckTracker();
+        specialTracker.add(R.id.filter_favourite, R.id.filter_wishlist, R.id.filter_reviewed, R.id.filter_private);
+        //TODO: Settings
     }
 
     @Override
-    public void setArguments(Bundle b) {
-        super.setArguments(b);
-        //shelf = MainActivity.shelves.get(b.getInt("shelfIndex"));
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -55,7 +66,7 @@ public class ShelfFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_shelf, container, false);
 
         gridView = (GridView) view.findViewById(R.id.gridView);
-        gridView.setAdapter(adapter);
+        gridView.setColumnWidth(IMG_SIZE);
         gridView.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
@@ -68,26 +79,109 @@ public class ShelfFragment extends Fragment {
             }
         });
 
+        listView = (ListView) view.findViewById(R.id.listView);
+
+        changeWidget();
         return view;
     }
 
-    public static int dpToPx(int dp)
-    {
+    public void changeWidget() {
+        if(adapter instanceof DetailsAdapter) {
+            gridView.setVisibility(View.GONE);
+            gridView.setAdapter(null);
+            listView.setVisibility(View.VISIBLE);
+            listView.setAdapter(adapter);
+        } else {
+            listView.setVisibility(View.GONE);
+            listView.setAdapter(null);
+            gridView.setVisibility(View.VISIBLE);
+            gridView.setAdapter(adapter);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_shelf, menu);
+        getActivity().onCreateOptionsMenu(menu);
+        Log.d("OBL:createOptions", "?");
+        Menu submenu = menu.findItem(R.id.filter_status).getSubMenu();
+        for(int id : statusTracker.getChecked()) {
+            Log.d("OBL:checkedT", id + "!" + submenu.findItem(id).getTitle());
+            submenu.findItem(id).setChecked(true);
+        }
+        submenu = menu.findItem(R.id.filter_special).getSubMenu();
+        for(int id : specialTracker.getChecked()) {
+            Log.d("OBL:checkedP", id + "!" + submenu.findItem(id).getTitle());
+            submenu.findItem(id).setChecked(true);
+        }
+        menu.findItem(R.id.change_view).setTitle("List view"); //TODO: settings
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Log.d("OBL", "OptionSelected");
+
+        if(id==R.id.change_view) {
+            if(adapter instanceof DetailsAdapter) {
+                adapter = new CoverAdapter(getActivity(), adapter.getData());
+                item.setTitle("List view");
+            } else {
+                adapter = new DetailsAdapter(getActivity(), adapter.getData());
+                item.setTitle("Grid view");
+            }
+            changeWidget();
+            return true;
+        }
+
+        if(statusTracker.has(id)) {
+            item.setChecked(true);
+            statusTracker.checkEx(id);
+            onStart();
+            Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
+            return true;
+        }
+        if(specialTracker.has(id)) {
+            item.setChecked(!item.isChecked());
+            specialTracker.check(id, item.isChecked());
+            onStart();
+            Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setShelf(MainActivity a, Shelf s) {
+        shelf = s;
+        ArrayList<Book> bookList = new ArrayList<>();
+        Log.d("OBL:Adapter", shelf.name + "() " + bookList);
+        adapter = new CoverAdapter(a, bookList);
+        a.getSupportActionBar().setTitle(shelf.name);
+    }
+
+    public static int dpToPx(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
     public void fetchMore(int page) {
-        int heightDp = 140, widthDp = 140;
-
-        int numberOfRows = (int) Math.ceil(gridView.getHeight() / dpToPx(heightDp));
-        int numberPerRow = (int) Math.floor(gridView.getWidth() / dpToPx(widthDp));
-        Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
-
         RequestParams params = new RequestParams();
-        params.put("PerPage", numberOfRows * numberPerRow);
+        params.put("PerPage", adapter.perScreen());
         params.put("Page", page);
-        if(getArguments().getString("Cat")!=null)
-            params.put("Cat", getArguments().getString("Cat"));
+        if(specialTracker.isChecked(R.id.filter_wishlist))
+            params.put("BookIsWish", "1");
+        if(specialTracker.isChecked(R.id.filter_favourite))
+            params.put("Favourite", "1");
+        if(statusTracker.isChecked(R.id.filter_read))
+            params.put("BookStatus", "read");
+        else if(statusTracker.isChecked(R.id.filter_planning))
+            params.put("BookStatus", "planning");
+        else if(statusTracker.isChecked(R.id.filter_currently))
+            params.put("BookStatus", "currently");
+        //for(String s : getArguments().getBundle("params").keySet())
+            //params.put(s, getArguments().getBundle("params").get(s));
+
         //TODO other params
         ApiClient.get("book/GetUserBooks", params, shelfHandler);
     }
@@ -98,6 +192,7 @@ public class ShelfFragment extends Fragment {
         if (shelf == null)
             return;
 
+        adapter.clear();
         gridView.post(new Runnable() {
             @Override
             public void run() {
@@ -106,13 +201,22 @@ public class ShelfFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    abstract class AdapterBase extends ArrayAdapter<Book> {
+        ArrayList<Book> data;
+
+        public AdapterBase(Context context, int i, ArrayList<Book> objects) {
+            super(context, i, objects);
+            data = objects;
+        }
+
+        abstract public int perScreen();
+
+        public ArrayList<Book> getData() {
+            return this.data;
+        }
     }
 
-
-    class CoverAdapter extends ArrayAdapter<Book> {
+    class CoverAdapter extends AdapterBase {
 
         public CoverAdapter(Context context, ArrayList<Book> books) {
             super(context, 0, books);
@@ -124,14 +228,54 @@ public class ShelfFragment extends Fragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 row = inflater.inflate(R.layout.shelf_cover, parent, false);
             }
-            TextView title = ((TextView) row.findViewById(R.id.text));
+            TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).title);
             title.setVisibility(View.GONE);
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image));
+            cover.setLayoutParams(new LinearLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
             MainActivity.imageLoader.displayImage(getItem(position).cover, cover);
 
             return row;
+        }
+
+        @Override
+        public int perScreen() {
+            int numberOfRows = (int) Math.ceil(gridView.getHeight() / dpToPx(gridView.getColumnWidth())); //140
+            int numberPerRow = (int) Math.floor(gridView.getWidth() / dpToPx(gridView.getColumnWidth()));  //140
+            Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
+            return numberOfRows * numberPerRow;
+        }
+    }
+
+    class DetailsAdapter extends AdapterBase {
+
+        public DetailsAdapter(Context context, ArrayList<Book> objects) {
+            super(context, 0, objects);
+        }
+
+        @Override
+        public View getView(int position, View row, ViewGroup parent) {
+            if (row == null) {
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                row = inflater.inflate(R.layout.shelf_details, parent, false);
+            }
+            TextView title = ((TextView) row.findViewById(R.id.title));
+            title.setText(getItem(position).title);
+
+            TextView author = ((TextView) row.findViewById(R.id.author));
+            author.setText(getItem(position).author);
+
+            ImageView cover = ((ImageView) row.findViewById(R.id.image));
+            cover.setLayoutParams(new RelativeLayout.LayoutParams(IMG_SIZE / 2, IMG_SIZE / 2));
+            MainActivity.imageLoader.displayImage(getItem(position).cover, cover);
+
+            return row;
+        }
+
+        @Override
+        public int perScreen() {
+            return 10; //TODO
         }
     }
 
@@ -163,11 +307,45 @@ public class ShelfFragment extends Fragment {
         }
     };
 
+
+    public static class CheckTracker {
+        HashMap<Integer, Boolean> group = new HashMap<>();
+
+        public boolean has(int id) {
+            return group.containsKey(id);
+        }
+
+        public void add(Integer...ids) {
+            for(int id : ids)
+                group.put(id, false);
+        }
+
+        public void check(int id, boolean stat) {
+            group.put(id, stat);
+        }
+
+        public boolean isChecked(int id) {
+            return group.get(id);
+        }
+
+        public void checkEx(int id) {
+            for(Integer i : group.keySet())
+                group.put(i, false);
+            Log.d("OBL:checkEx", id + " True");
+            group.put(id, true);
+        }
+
+        public ArrayList<Integer> getChecked() {
+            ArrayList<Integer> what = new ArrayList<>();
+            for(Integer i : group.keySet())
+                if(group.get(i))
+                    what.add(i);
+            return what;
+        }
+    }
+
     /* TODO
         IMMEDIATE
-            - Infinite scroll for shelves
-            - Filter by status & special
-              - Move out of drawer and to Options?
              - Book screen
 
         LATER
