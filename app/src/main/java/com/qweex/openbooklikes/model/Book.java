@@ -1,8 +1,6 @@
 package com.qweex.openbooklikes.model;
 
 
-import com.qweex.openbooklikes.AndThen;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,7 +11,7 @@ public class Book extends Base {
     // These should be better data types
     public String pages, publish_date;
 
-    public Book(JSONObject json, AndThen then) throws JSONException {
+    public Book(JSONObject json) throws JSONException {
         id = json.getString("id_book");
         title = json.getString("book_title");
         author = json.getString("book_author");
@@ -25,8 +23,6 @@ public class Book extends Base {
         language = json.getString("book_language");
         pages = json.getString("book_pages");
         publish_date = json.getString("book_publish_date");
-
-        downloadImage(cover, then);
     }
 
 

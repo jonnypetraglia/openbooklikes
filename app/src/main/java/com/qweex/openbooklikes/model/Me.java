@@ -2,9 +2,6 @@ package com.qweex.openbooklikes.model;
 
 import android.content.SharedPreferences;
 
-import com.qweex.openbooklikes.AndThen;
-import com.qweex.openbooklikes.ImageUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,8 +9,8 @@ import org.json.JSONObject;
 public class Me extends User {
     public String token = null; // Only applicable for Me
 
-    public Me(JSONObject json, AndThen then) throws JSONException, Exception {
-        super(json, then);
+    public Me(JSONObject json) throws JSONException, Exception {
+        super(json);
         if(!json.has("usr_token"))
             throw new Exception("tried to initialize Me without a token");
         token = json.getString("usr_token");
@@ -31,8 +28,5 @@ public class Me extends User {
         followed_count = prefs.getString("usr_followed_count", null);
         book_count = prefs.getInt("usr_book_count", -1);
         token = prefs.getString("usr_token", null);
-
-        bitmap = ImageUtils.StringToBitMap(prefs.getString("usr_bitmap", null));
-
     }
 }

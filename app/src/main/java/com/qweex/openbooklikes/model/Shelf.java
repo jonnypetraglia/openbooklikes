@@ -4,6 +4,7 @@ package com.qweex.openbooklikes.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 public class Shelf extends Base {
     public String id, user_id;
     public String name;

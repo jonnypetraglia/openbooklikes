@@ -22,8 +22,10 @@ import android.widget.TextView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Me;
+import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,8 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("OBL:LOGIN", prefs.getString("usr_token", "NULL"));
         if(prefs.getString("usr_token", null)!=null) {
             MainActivity.user = new Me(prefs);
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            LoginActivity.this.finish();
+            startApp();
             return;
         }
 
@@ -126,6 +127,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void startApp() {
+        Log.d("OBL", "startApp");
+        ApiClient.get("user/GetUserCategories", ShelfHandler);
+    }
+
     private JsonHttpResponseHandler LoginHandler = new JsonHttpResponseHandler() {
 
         @Override
@@ -142,15 +148,10 @@ public class LoginActivity extends AppCompatActivity {
 
                 mEmailView.setError(null);
                 mPasswordView.setError(null);
-                MainActivity.user = new Me(response, new AndThen() {
-                    @Override
-                    public void call(Object o) {
-                        if(MainActivity.user.token!=null)
-                            saveAsMe();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        LoginActivity.this.finish();
-                    }
-                });
+                MainActivity.user = new Me(response);
+                if(MainActivity.user.token!=null)
+                    saveMe();
+                startApp();
             } catch (JSONException e) {
                 e.printStackTrace();
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
@@ -168,7 +169,48 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private void saveAsMe() {
+    private JsonHttpResponseHandler ShelfHandler = new JsonHttpResponseHandler(){
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            Log.d("OBL:cat.", "Success " + response.length());
+
+            try {
+                if (response.getInt("status") != 0 || statusCode >= 400)
+                    throw new JSONException(response.getString("message"));
+                JSONArray categories = response.getJSONArray("categories");
+
+                //MenuItem item = shelfNav.add(R.id.nav_group, R.id.nav_all_shelf, 0, "All books").setCheckable(true);
+                JSONObject allBooks = new JSONObject();
+                allBooks.put("id_category", "-1");
+                allBooks.put("id_user", MainActivity.user.id);
+                allBooks.put("category_name", "All books");
+                allBooks.put("category_book_count", MainActivity.user.book_count);
+                Shelf s = new Shelf(allBooks);
+                MainActivity.shelves.add(s);
+
+                for (int i = 0; i < categories.length(); i++) {
+                    s = new Shelf(categories.getJSONObject(i));
+                    MainActivity.shelves.add(s);
+                    Log.d("OBL:Cat", s.name);
+                }
+
+                Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                LoginActivity.this.startActivity(i);
+                LoginActivity.this.finish();
+            } catch (JSONException e) {
+                Log.e("OBL:Cat!", "Failed cause " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
+        }
+    };
+
+    private void saveMe() {
         SharedPreferences.Editor prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE).edit();
         prefs.putString("id_user", MainActivity.user.id);
         prefs.putString("usr_username", MainActivity.user.username);
@@ -181,9 +223,6 @@ public class LoginActivity extends AppCompatActivity {
         prefs.putString("usr_following_count", MainActivity.user.following_count);
         prefs.putString("usr_followed_count", MainActivity.user.followed_count);
         prefs.putInt("usr_book_count", MainActivity.user.book_count);
-
-        if(MainActivity.user.bitmap!=null)
-            prefs.putString("usr_bitmap", ImageUtils.BitMapToString(MainActivity.user.bitmap));
 
         prefs.putString("usr_token", MainActivity.user.token);
         Log.d("OBL:saveAsMe", MainActivity.user.token);

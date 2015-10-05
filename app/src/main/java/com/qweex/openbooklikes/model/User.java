@@ -1,7 +1,5 @@
 package com.qweex.openbooklikes.model;
 
-import com.qweex.openbooklikes.AndThen;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,7 +13,7 @@ public class User extends Base {
         // Only used for subclass constructors
     }
 
-    public User(JSONObject json, AndThen then) throws JSONException {
+    public User(JSONObject json) throws JSONException {
         id = json.getString("id_user");
         username = json.getString("usr_username");
         domain = json.getString("usr_domain");
@@ -29,7 +27,6 @@ public class User extends Base {
             followed_count = json.getString("usr_followed_count");
             book_count = json.getInt("usr_book_count");
         }
-        downloadImage(photo, then);
     }
 
 

@@ -18,29 +18,23 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.qweex.openbooklikes.model.Book;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static Me user;
-    public Menu shelfNav;
-    private Map<MenuItem, Shelf> shelves = new HashMap<MenuItem, Shelf>();
-    private Map<Shelf, ArrayList<Book>> shelfBooks = new HashMap<Shelf, ArrayList<Book>>();
+    public static ImageLoader imageLoader;
+    public static ArrayList<Shelf> shelves = new ArrayList<>();
+
+    private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
+    public Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("OBL:MASTER", "token: " + user.token);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -79,13 +73,38 @@ public class MainActivity extends AppCompatActivity
         // Load user info
         ((TextView)findViewById(R.id.user_username)).setText(user.username);
         ((TextView)findViewById(R.id.user_email)).setText(user.email);
-        ((ImageView)findViewById(R.id.user_pic)).setImageBitmap(user.bitmap);
+        imageLoader = ImageLoader.getInstance();
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(android.R.drawable.ic_menu_compass)
+                .showImageForEmptyUri(android.R.drawable.ic_menu_gallery)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .defaultDisplayImageOptions(options)
+                .build();
+        imageLoader.init(config);
+        imageLoader.displayImage(user.photo, (ImageView) findViewById(R.id.user_pic));
 
-        // Set up nav menu
+
+        // Add shelfMap to menu
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
-        shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
+        Menu shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
+        shelfNav.clear();
+        for(Shelf s : shelves) {
+            MenuItem mitem = shelfNav.add(R.id.nav_group,
+                    s.id.equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
+                    0,
+                    s.name + " (" + s.book_count + ")")
+                .setCheckable(true)
+                .setIcon(android.R.drawable.ic_menu_compass); //TODO: Icon
+            shelfMenuItems.add(mitem);
+        }
 
-        ApiClient.get("user/GetUserCategories", ShelvesHandler);
+        // Select default fragment
+        MenuItem startItem = shelfNav.findItem(R.id.nav_all_shelf);
+        //startItem.setChecked(true);
+        onNavigationItemSelected(startItem);
     }
 
     @Override
@@ -129,13 +148,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch(id) {
-            case R.id.nav_shelf:
-                Log.d("OBL:nav_shelf", shelves.get(item).name);
-                fetchShelves(shelves.get(item));
-                break;
             case R.id.nav_all_shelf:
+            case R.id.nav_shelf:
+                Log.d("OBL:nav_shelf", shelves.get(shelfMenuItems.indexOf(item)) .name);
+                fetchShelves(shelfMenuItems.indexOf(item));
+                break;
             case R.id.nav_blog:
-            //TODO: Special & Status shelves
+            //TODO: Special & Status shelfMap
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -143,102 +162,23 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void fetchShelves(Shelf shelf) {
-        RequestParams params = new RequestParams();
-        params.put("Cat", shelf.id);
-        params.put("PerPage", 25); //DEBUG
-        //params.put("BookIsWish", "0");
-        //params.put("Favorite", "0");
-        //params.put("BookStatus", "read|currently|planning");
-        ////params.put("BookUserRating", "0.5");
-        ApiClient.get("book/GetUserBooks", params, new ShelfHandler(shelf));
+    private void fetchShelves(int shelfIndex) {
+        Log.d("OBL", "fetchShelves");
+
+        Bundle b = new Bundle();
+        b.putInt("shelfIndex", shelfIndex);
+        if(!shelves.get(shelfIndex).id.equals("-1"))
+            b.putString("Cat", shelves.get(shelfIndex).id);
+        //b.putBoolean("BookisWish", false);
+        //b.putBoolean("Favorite", false);
+        //b.putString("BookStatus", "read|currently|planning");
+        //b.putString("BookUserRating", "0.5");
+
+        ShelfFragment shelfFragment = new ShelfFragment();
+        shelfFragment.setShelf(this, shelves.get(shelfIndex));
+        shelfFragment.setArguments(b);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
     }
-
-    class ShelfHandler extends JsonHttpResponseHandler {
-        Shelf shelf;
-        JSONArray books;
-        int iter = 0;
-
-        public ShelfHandler(Shelf s) {
-            this.shelf = s;
-        }
-
-        AndThen createBook = new AndThen() {
-            @Override
-            public void call(Object o) {
-                try {
-                    if(iter>=books.length()) {
-                        complete();
-                        return;
-                    }
-                    Book b = new Book(books.getJSONObject(iter++), this);
-                    Log.d("OBL:book", "Book: " + b.title);
-                    shelfBooks.get(shelf).add(0, b);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        private void complete() {
-            ShelfFragment shelfFragment = new ShelfFragment();
-            shelfFragment.shelf = shelf;
-            shelfFragment.books = shelfBooks.get(shelf);
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
-        }
-
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            Log.d("OBL:book.", "Success " + response.length());
-
-            try {
-                if (response.getInt("status") != 0 || statusCode >= 400)
-                    throw new JSONException(response.getString("message"));
-                books = response.getJSONArray("books");
-                createBook.call(null);
-            } catch (JSONException e) {
-                Log.e("OBL:Book!", "Failed cause " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
-
-    private JsonHttpResponseHandler ShelvesHandler = new JsonHttpResponseHandler() {
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            Log.d("OBL:cat.", "Success " + response.length());
-
-            try {
-                if(response.getInt("status")!=0 || statusCode >= 400)
-                    throw new JSONException(response.getString("message"));
-                JSONArray categories = response.getJSONArray("categories");
-                shelfNav.add(R.id.nav_group, R.id.nav_all_shelf, 0, "All books").setCheckable(true);
-                for(int i=0; i<categories.length(); i++) {
-                    Shelf s = new Shelf(categories.getJSONObject(i));
-                    Log.d("OBL:Cat", s.name);
-                    MenuItem item = shelfNav.add(R.id.nav_group, R.id.nav_shelf, 0, s.name + " (" + s.book_count + ")")
-                            .setCheckable(true)
-                            .setIcon(android.R.drawable.ic_menu_compass); //TODO: Icon
-                    shelves.put(item, s);
-                    shelfBooks.put(s, new ArrayList<Book>());
-                }
-            } catch (JSONException e) {
-                Log.e("OBL:Cat!", "Failed cause " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
 
 
     // user/GetUserFollowers user/GetUserFollowings
