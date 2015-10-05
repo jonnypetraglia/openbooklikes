@@ -104,10 +104,9 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Select default fragment
-        MenuItem startItem = shelfNav.findItem(R.id.nav_all_shelf);
-        //startItem.setChecked(true);
-        onNavigationItemSelected(startItem);
-
+        int start = R.id.nav_all_shelf;  //TODO: Settings
+        onNavigationItemSelected(shelfNav.findItem(start));
+        navView.setCheckedItem(start);
     }
 
     @Override
@@ -160,16 +159,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadShelf(Shelf shelf) {
-        Log.d("OBL", "loadShelf");
+        Log.d("OBL", "loadShelf " + shelf.name);
 
         Bundle b = new Bundle();
         if(!shelf.id.equals("-1"))
-            b.putString("Cat", shelf.id);
-        Bundle bx = new Bundle();
-        bx.putBundle("params", b);
+            b.putString("Cat", shelf.id);;
 
         ShelfFragment shelfFragment = new ShelfFragment();
-        shelfFragment.setArguments(bx);
+        shelfFragment.setArguments(b);
         shelfFragment.setShelf(this, shelf);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
         Log.d("OBL", "loadShelf END");

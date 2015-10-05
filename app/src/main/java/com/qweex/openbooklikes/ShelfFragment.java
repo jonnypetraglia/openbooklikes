@@ -169,6 +169,8 @@ public class ShelfFragment extends Fragment {
         RequestParams params = new RequestParams();
         params.put("PerPage", adapter.perScreen());
         params.put("Page", page);
+        if(getArguments().containsKey("Cat"))
+            params.put("Cat", getArguments().get("Cat"));
         if(specialTracker.isChecked(R.id.filter_wishlist))
             params.put("BookIsWish", "1");
         if(specialTracker.isChecked(R.id.filter_favourite))
@@ -241,8 +243,8 @@ public class ShelfFragment extends Fragment {
 
         @Override
         public int perScreen() {
-            int numberOfRows = (int) Math.ceil(gridView.getHeight() / dpToPx(gridView.getColumnWidth())); //140
-            int numberPerRow = (int) Math.floor(gridView.getWidth() / dpToPx(gridView.getColumnWidth()));  //140
+            int numberOfRows = (int) Math.ceil(gridView.getHeight() / IMG_SIZE); //140
+            int numberPerRow = (int) Math.floor(gridView.getWidth() / IMG_SIZE);  //140
             Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
             return numberOfRows * numberPerRow;
         }
@@ -346,14 +348,13 @@ public class ShelfFragment extends Fragment {
 
     /* TODO
         IMMEDIATE
-             - Book screen
+             - Book screen (!! as right drawer!)
 
         LATER
-            - Default shelf is not visually checked
-            - create Profile screen & move Logout to it
-              - add "Are you sure?"
-            - Option to switch between grid & list view (create ListAdapter for latter)
-            - add "Friends" to drawer, or "Following/Followers" to Profile?
+            - create User screen
+              - Add "Profile" to drawer
+            - Move Logout to either footer of drawer or inside Settings screen
+            - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
             - Add "Reading Challenge" to drawer
                 - only display if user has an active one
             - cache shelves?
@@ -372,5 +373,10 @@ public class ShelfFragment extends Fragment {
         NOTHER LIFETIME
             - Blog
             - Register
+
+        FUCKED
+            - Private: omitted from API
+            - Timeline
+            - "Reviewed"?
      */
 }
