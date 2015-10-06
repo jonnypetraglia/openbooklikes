@@ -2,6 +2,8 @@ package com.qweex.openbooklikes;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,15 +15,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     public static ArrayList<Shelf> shelves = new ArrayList<>();
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
+    private DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +65,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity
 
         ///////////////////////////////////////////////
 
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
 
         // Init imageLoader
         imageLoader = ImageLoader.getInstance();
@@ -107,12 +114,42 @@ public class MainActivity extends AppCompatActivity
         int start = R.id.nav_all_shelf;  //TODO: Settings
         onNavigationItemSelected(shelfNav.findItem(start));
         navView.setCheckedItem(start);
+
+
+        View v = findViewById(R.id.nav_view2);
+        //DrawerLayout.LayoutParams lp = new DrawerLayout.LayoutParams(v.getLayoutParams());
+        //lp.setMargins(lp.leftMargin, lp.topMargin + getStatusBarHeight(), lp.rightMargin, lp.bottomMargin);
+        //v.setLayoutParams(lp);
+        //v.setPadding(v.getPaddingLeft(), v.getPaddingTop() + getStatusBarHeight(), v.getPaddingRight(), v.getPaddingBottom());
+
+        toolbar = (Toolbar) findViewById(R.id.side_toolbar);
+        toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+            }
+        });
+
+        //toolbar.setPadding(toolbar.getPaddingLeft(), toolbar.getPaddingTop()+123, toolbar.getPaddingRight(), toolbar.getPaddingBottom());
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(toolbar.getLayoutParams());
+        lp.topMargin += getStatusBarHeight();
+        //getActivity().findViewById(R.id.herp).setLayoutParams(lp);
+        toolbar.setLayoutParams(lp);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.END)) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+        } else if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
@@ -153,7 +190,6 @@ public class MainActivity extends AppCompatActivity
             //TODO: Special & Status shelfMap
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -164,6 +200,8 @@ public class MainActivity extends AppCompatActivity
         Bundle b = new Bundle();
         if(!shelf.id.equals("-1"))
             b.putString("Cat", shelf.id);;
+
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
 
         ShelfFragment shelfFragment = new ShelfFragment();
         shelfFragment.setArguments(b);
@@ -192,37 +230,30 @@ public class MainActivity extends AppCompatActivity
             .show();
     }
 
-
-    // user/GetUserFollowers user/GetUserFollowings
-    //   user/GetUserInfo
-
-    // GET book/SetPageCurrent
-
-    // book/SearchBooks
-
-    // GET book/AddBookToShelf
-    // user/AddUserCategory
-
-    // post/GetUserPost
-
-    // POST post/PostCreate
-    // GET post/PostDelete
-
-    // GET user/register
-
-    /* Reading Challenge
-        http://booklikes.com/apps/reading-challenge/69841
-            $$('.challenge.container nav')
-            finds two nav's, both of which contain:
-                <a class="nav-active" href="http://booklikes.com/apps/reading-challenge/69841/2015">2015</a>
+    public void openBook() {
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
+    }
 
 
-        http://booklikes.com/apps/reading-challenge/69841/2015
-        http://booklikes.com/widget/readingchallenge?id=69841&year=2015
-            progress: .info > span:nth-of-type(1)
-            total: .info > span:nth-of-type(2)
-     */
-
-    // http://stackoverflow.com/questions/22096324/cache-data-locally-waiting-for-an-internet-connection-in-android
-    // https://www.google.com/search?q=android+cache+data+from+server&oq=android+cache+data+from+server&gs_l=serp.3..0.8255.13634.0.13739.35.21.2.8.8.0.131.2145.2j18.20.0....0...1c.1.64.serp..6.29.2050.LqumgIv21mY
+    public static int dpToPx(int dp) {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+    }
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+    public int getActionBarHeight() {
+        int result = 0;
+        TypedValue tv = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
+        if (tv.resourceId > 0) {
+            result = getResources().getDimensionPixelSize(tv.resourceId);
+        }
+        return result;
+    }
 }

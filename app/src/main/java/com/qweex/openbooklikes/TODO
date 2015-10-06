@@ -1,0 +1,116 @@
+    /* TODO
+IMMEDIATE
+     - Book screen (!! as right drawer!)
+
+
+LATER
+    - create User screen
+      - Add "Profile" to drawer
+    - Move Logout to either footer of drawer or inside Settings screen
+    - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
+    - Add "Reading Challenge" to drawer
+        - only display if user has an active one
+    - cache shelves?
+    - shelf counts on right
+
+MUCH LATER
+    - Loading screens
+    - Make drawer same width as Gmail...somehow
+      - Width = Screen width - 56dp; max: 320dp
+    - setting: custom default shelf/fragment
+    - add background image to shelf view
+    - better Login screen
+    - About screen
+    - Ability to search for books on Amazon; IndieBound; share on social media
+    - Search books / AddBookToShelf
+    - Add shelf
+    - truncate drawer entries that are too long?
+    - Make drawer permanently expanded
+
+NOTHER LIFETIME
+    - Blog
+    - Register
+    - Search & add
+
+IMAGES NEEDED
+    - no profile pic = account circle
+    - Profile
+    - Blog
+    - Friends
+    - Shelf (in nav) = book?
+    - Search
+    - Settings = settings
+    - Refresh = autorenew / cached
+    - close right drawer
+    - cover is loading
+    - BIG:
+      - no cover
+      - cover has failed
+      - done = done
+    - view list = view list
+    - view grid = view
+    - status?
+    - special?
+    - logout?
+    - register?
+    - Blog
+      - delete = delete
+      - add =
+      - [done]
+
+FUCKING RETARDED (ignoring all the missing endpoints)
+    - docs page is a mess
+      - mispellings in parameters (usr_tokem, ) [poor grammar is one thing, but the params?]
+      - different language ("redirect_url = url, na który nastapi przekierowanie po zalogowaniu")
+      - doesn't say _why_ optional args are optiona (e.g. usr_token and uid)
+      - naming is inconsistent ("BookIsWish" vs "Favorite", vs "usr_username")
+      - GetBookstores is jut plain missing
+    - "Private" is missing (private books are omitted from API)
+      - But it can be set when adding book to shelf; meaning once added, it can't be retrieved via the API
+    - Timeline is missing
+      - nothing has "date_added" or similar (except for posts)
+    - ?"Reviewed" is missing
+    - difference between author/editor/contributor (all squished into "author"
+    - Having "&quot;" in API responses
+    - Publisher for 1591020646 has newlines and then trailing spaces
+    - Dates are varying formats ("March 28th 2006" vs "2011-02-09")
+    - Entities are Strings that shouldn't be
+      - e.g. book_pages, post_is_review, post_tag
+      - maybe usr_following_count?, usr_followed_count?, usr_book_count?
+    - docs don't tell returned data types OR what the vars mean
+      - example: book_format is a numerical string. wtf?
+
+https://www.google.com/design/spec/layout/structure.html#structure-side-nav
+https://github.com/google/material-design-icons/releases/tag/1.0.0
+
+
+
+    // user/GetUserFollowers user/GetUserFollowings
+    //   user/GetUserInfo
+
+    // GET book/SetPageCurrent
+
+    // book/SearchBooks
+
+    // GET book/AddBookToShelf
+    // user/AddUserCategory
+
+    // post/GetUserPost
+
+    // POST post/PostCreate
+    // GET post/PostDelete
+
+    // GET user/register
+
+    /* Reading Challenge
+        http://booklikes.com/apps/reading-challenge/69841
+            $$('.challenge.container nav')
+            finds two nav's, both of which contain:
+                <a class="nav-active" href="http://booklikes.com/apps/reading-challenge/69841/2015">2015</a>
+
+
+        http://booklikes.com/apps/reading-challenge/69841/2015
+        http://booklikes.com/widget/readingchallenge?id=69841&year=2015
+            progress: .info > span:nth-of-type(1)
+            total: .info > span:nth-of-type(2)
+     */

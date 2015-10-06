@@ -8,7 +8,7 @@ abstract public class Base {
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
     public static String unescapeXML(String str) {
         if (str == null || str.length() == 0)
-            return "";
+            return null;
 
         StringBuffer buf = new StringBuffer();
         int len = str.length();
@@ -43,6 +43,6 @@ abstract public class Base {
                 buf.append(c);
             }
         }
-        return buf.toString();
+        return buf.toString().replaceAll("\\r\\n|\\r|\\n", "").trim();
     }
 }

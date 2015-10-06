@@ -1,7 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -40,7 +41,7 @@ public class ShelfFragment extends Fragment {
     GridView gridView;
     ListView listView;
     AdapterBase adapter;
-    static int IMG_SIZE = dpToPx(140);
+    static int IMG_SIZE = MainActivity.dpToPx(140), MIN_PER_PAGE = 25;
 
     static CheckTracker statusTracker, specialTracker;
 
@@ -61,6 +62,11 @@ public class ShelfFragment extends Fragment {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_shelf, container, false);
@@ -78,8 +84,10 @@ public class ShelfFragment extends Fragment {
                 return true; // ONLY if more data is actually being loaded; false otherwise.
             }
         });
+        gridView.setOnItemClickListener(selectBook);
 
         listView = (ListView) view.findViewById(R.id.listView);
+        listView.setOnItemClickListener(selectBook);
 
         changeWidget();
         return view;
@@ -161,13 +169,9 @@ public class ShelfFragment extends Fragment {
         a.getSupportActionBar().setTitle(shelf.name);
     }
 
-    public static int dpToPx(int dp) {
-        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
-    }
-
     public void fetchMore(int page) {
         RequestParams params = new RequestParams();
-        params.put("PerPage", adapter.perScreen());
+        params.put("PerPage", Math.min(adapter.perScreen(), MIN_PER_PAGE));
         params.put("Page", page);
         if(getArguments().containsKey("Cat"))
             params.put("Cat", getArguments().get("Cat"));
@@ -346,37 +350,17 @@ public class ShelfFragment extends Fragment {
         }
     }
 
-    /* TODO
-        IMMEDIATE
-             - Book screen (!! as right drawer!)
+    AdapterView.OnItemClickListener selectBook = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Book b = adapter.getItem(position);
+            ((MainActivity)getActivity()).openBook();
+            BookFragment bookFragment = new BookFragment();
+            int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
+            bookFragment.setBook(b, imgHeight);
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.side_fragment, bookFragment).commit();
+        }
+    };
 
-        LATER
-            - create User screen
-              - Add "Profile" to drawer
-            - Move Logout to either footer of drawer or inside Settings screen
-            - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
-            - Add "Reading Challenge" to drawer
-                - only display if user has an active one
-            - cache shelves?
 
-        MUCH LATER
-            - Loading screens
-            - Make drawer same width as Gmail...somehow
-            - setting: custom default shelf/fragment
-            - add background image to shelf view
-            - better Login screen
-            - About screen
-            - Ability to search for books on Amazon; IndieBound; share on social media
-            - Search books / AddBookToShelf
-            - Add shelf
-
-        NOTHER LIFETIME
-            - Blog
-            - Register
-
-        FUCKED
-            - Private: omitted from API
-            - Timeline
-            - "Reviewed"?
-     */
 }

@@ -11,6 +11,8 @@
         android:background="#aaa"
         android:id="@+id/gridView"
 
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
         android:drawSelectorOnTop="true"
         android:gravity="center"
         android:numColumns="auto_fit"
