@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,7 +39,7 @@ public class ShelfFragment extends Fragment {
     Shelf shelf;
     GridView gridView;
     ListView listView;
-    AdapterBase adapter;
+    AdapterBase<Book> adapter;
     static int IMG_SIZE = MainActivity.dpToPx(140), MIN_PER_PAGE = 25;
 
     static CheckTracker statusTracker, specialTracker;
@@ -207,22 +206,7 @@ public class ShelfFragment extends Fragment {
         });
     }
 
-    abstract class AdapterBase extends ArrayAdapter<Book> {
-        ArrayList<Book> data;
-
-        public AdapterBase(Context context, int i, ArrayList<Book> objects) {
-            super(context, i, objects);
-            data = objects;
-        }
-
-        abstract public int perScreen();
-
-        public ArrayList<Book> getData() {
-            return this.data;
-        }
-    }
-
-    class CoverAdapter extends AdapterBase {
+    class CoverAdapter extends AdapterBase<Book> {
 
         public CoverAdapter(Context context, ArrayList<Book> books) {
             super(context, 0, books);
@@ -254,7 +238,7 @@ public class ShelfFragment extends Fragment {
         }
     }
 
-    class DetailsAdapter extends AdapterBase {
+    class DetailsAdapter extends AdapterBase<Book> {
 
         public DetailsAdapter(Context context, ArrayList<Book> objects) {
             super(context, 0, objects);
@@ -290,7 +274,6 @@ public class ShelfFragment extends Fragment {
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             Log.d("OBL:book.", "Success " + response.length());
-
 
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)

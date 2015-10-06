@@ -6,11 +6,16 @@ import org.json.JSONObject;
 public class User extends Base {
     public String id, username, domain, photo; //Returned by GetUserFollowers
 
-    public String email, blog_title, blog_desc, following_count, followed_count;
+    public String blog_title, blog_desc, following_count, followed_count;
     public int book_count;
 
     protected User() {
         // Only used for subclass constructors
+    }
+
+    public User(String id, String username) {
+        this.id = id;
+        this.username = username;
     }
 
     public User(JSONObject json) throws JSONException {
@@ -20,9 +25,8 @@ public class User extends Base {
         photo = json.getString("usr_photo"); //url
 
         if(json.has("usr_book_count")) {
-            email = json.getString("usr_email");
-            blog_title = unescapeXML(json.getString("usr_blog_title"));
-            blog_desc = unescapeXML(json.getString("usr_blog_desc"));
+            blog_title = unHTML(json.getString("usr_blog_title"));
+            blog_desc = unHTML(json.getString("usr_blog_desc"));
             following_count = json.getString("usr_following_count");
             followed_count = json.getString("usr_followed_count");
             book_count = json.getInt("usr_book_count");

@@ -26,9 +26,9 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
+import com.qweex.openbooklikes.model.User;
 
 import java.util.ArrayList;
 
@@ -111,16 +111,10 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Select default fragment
-        int start = R.id.nav_all_shelf;  //TODO: Settings
-        onNavigationItemSelected(shelfNav.findItem(start));
-        navView.setCheckedItem(start);
+        MenuItem start = navView.getMenu().findItem(R.id.nav_blog); //TODO: settings
+        onNavigationItemSelected(start);
+        navView.setCheckedItem(start.getItemId());
 
-
-        View v = findViewById(R.id.nav_view2);
-        //DrawerLayout.LayoutParams lp = new DrawerLayout.LayoutParams(v.getLayoutParams());
-        //lp.setMargins(lp.leftMargin, lp.topMargin + getStatusBarHeight(), lp.rightMargin, lp.bottomMargin);
-        //v.setLayoutParams(lp);
-        //v.setPadding(v.getPaddingLeft(), v.getPaddingTop() + getStatusBarHeight(), v.getPaddingRight(), v.getPaddingBottom());
 
         toolbar = (Toolbar) findViewById(R.id.side_toolbar);
         toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel);
@@ -132,10 +126,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //toolbar.setPadding(toolbar.getPaddingLeft(), toolbar.getPaddingTop()+123, toolbar.getPaddingRight(), toolbar.getPaddingBottom());
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(toolbar.getLayoutParams());
         lp.topMargin += getStatusBarHeight();
-        //getActivity().findViewById(R.id.herp).setLayoutParams(lp);
         toolbar.setLayoutParams(lp);
     }
 
@@ -187,6 +179,8 @@ public class MainActivity extends AppCompatActivity
                 loadShelf(shelves.get(shelfMenuItems.indexOf(item)));
                 break;
             case R.id.nav_blog:
+                loadUser(user);
+                break;
             //TODO: Special & Status shelfMap
         }
 
@@ -207,7 +201,19 @@ public class MainActivity extends AppCompatActivity
         shelfFragment.setArguments(b);
         shelfFragment.setShelf(this, shelf);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
-        Log.d("OBL", "loadShelf END");
+    }
+
+    private void loadUser(User user) {
+        Log.d("OBL", "loadUser Me!");
+        Bundle b = new Bundle();
+        b.putString("username", user.username);
+        b.putString("id", user.id);
+
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+
+        UserFragment userFragment = new UserFragment();
+        userFragment.setArguments(b);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, userFragment).commit();
     }
 
     public void logout() {

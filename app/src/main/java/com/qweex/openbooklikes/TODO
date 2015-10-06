@@ -4,14 +4,12 @@ IMMEDIATE
 
 
 LATER
-    - create User screen
+    - create UserFragment
       - Add "Profile" to drawer
+      - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
     - Move Logout to either footer of drawer or inside Settings screen
-    - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
     - Add "Reading Challenge" to drawer
         - only display if user has an active one
-    - cache shelves?
-    - shelf counts on right
 
 MUCH LATER
     - Loading screens
@@ -26,11 +24,15 @@ MUCH LATER
     - Add shelf
     - truncate drawer entries that are too long?
     - Make drawer permanently expanded
+    - shelf counts on right
+    - cache shelves?
 
 NOTHER LIFETIME
     - Blog
     - Register
     - Search & add
+    - add "You are following ___" on other user's profile pages
+    - When you scroll down on a Blog, the title stays
 
 IMAGES NEEDED
     - no profile pic = account circle
@@ -43,6 +45,8 @@ IMAGES NEEDED
     - Refresh = autorenew / cached
     - close right drawer
     - cover is loading
+    - warning icon (logout confirmation)
+    - error icon
     - BIG:
       - no cover
       - cover has failed

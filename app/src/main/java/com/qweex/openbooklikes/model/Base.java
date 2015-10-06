@@ -6,9 +6,13 @@ abstract public class Base {
     abstract public void persist();
 
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
-    public static String unescapeXML(String str) {
+    public static String unHTML(String str) {
         if (str == null || str.length() == 0)
             return null;
+
+
+        if(true==true)
+            return android.text.Html.fromHtml(str).toString();
 
         StringBuffer buf = new StringBuffer();
         int len = str.length();

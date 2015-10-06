@@ -13,14 +13,14 @@ public class Book extends Base {
 
     public Book(JSONObject json) throws JSONException {
         id = json.getString("id_book");
-        title = unescapeXML(json.getString("book_title"));
-        author = unescapeXML(json.getString("book_author"));
+        title = unHTML(json.getString("book_title"));
+        author = unHTML(json.getString("book_author"));
         cover = json.getString("book_cover");
         isbn_10 = json.getString("book_isbn_10");
         isbn_13 = json.getString("book_isbn_13");
         format = json.getString("book_format"); //!!! weird number enum
-        publisher = unescapeXML(json.getString("book_publisher"));
-        language = unescapeXML(json.getString("book_language"));
+        publisher = unHTML(json.getString("book_publisher"));
+        language = unHTML(json.getString("book_language"));
         pages = json.getString("book_pages");
         publish_date = json.getString("book_publish_date");
     }
