@@ -19,7 +19,7 @@ public class Post extends Base {
         title = unHTML(data.getString("post_title"));
         url = data.getString("post_url");
         desc = unHTML(data.getString("post_desc"));
-        special = data.getString("post_spcial");
+        special = unHTML(data.getString("post_spcial"));
         source = data.getString("post_source");
         like_count = data.getString("post_like_count");
         reblog_count = data.getString("post_reblog_count");
@@ -28,10 +28,10 @@ public class Post extends Base {
         rating = data.getString("post_rating");
         date = data.getString("post_date");
 
-        if(data.has("post_photo_url"))
-            photo_url = data.getString("post_photo_url");
-        if(data.has("post_photo_caption"))
-            photo_caption = data.getString("post_photo_caption");
+        if(data.has("photo_url"))
+            photo_url = data.getString("photo_url");
+        if(data.has("photo_caption"))
+            photo_caption = data.getString("photo_caption");
     }
 
     @Override

@@ -59,14 +59,5 @@
         android:id="@+id/followingCount"
         android:layout_gravity="center_horizontal" />
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:id="@+id/progressBar"
-        android:layout_gravity="center_horizontal"
-        android:foreground="#aaa"
-        android:layout_margin="15dp" />
-
 
 </LinearLayout>

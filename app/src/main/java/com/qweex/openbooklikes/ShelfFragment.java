@@ -72,38 +72,39 @@ public class ShelfFragment extends Fragment {
 
         gridView = (GridView) view.findViewById(R.id.gridView);
         gridView.setColumnWidth(IMG_SIZE);
-        gridView.setOnScrollListener(new EndlessScrollListener() {
-            @Override
-            public boolean onLoadMore(int page, int totalItemsCount) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to your AdapterView
-                if (adapter.getCount() == shelf.book_count)
-                    return false;
-                fetchMore(page - 1);
-                return true; // ONLY if more data is actually being loaded; false otherwise.
-            }
-        });
+        gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(selectBook);
 
         listView = (ListView) view.findViewById(R.id.listView);
+        gridView.setOnScrollListener(scrollMuch);
         listView.setOnItemClickListener(selectBook);
 
         changeWidget();
         return view;
     }
 
+    EndlessScrollListener scrollMuch = new EndlessScrollListener() {
+        @Override
+        public boolean onLoadMore(int page, int totalItemsCount) {
+            // Triggered only when new data needs to be appended to the list
+            // Add whatever code is needed to append new items to your AdapterView
+            if (adapter.getCount() == shelf.book_count)
+                return false;
+            fetchMore(page - 1);
+            return true; // ONLY if more data is actually being loaded; false otherwise.
+        }
+    };
+
     public void changeWidget() {
         if(adapter instanceof DetailsAdapter) {
             gridView.setVisibility(View.GONE);
-            gridView.setAdapter(null);
             listView.setVisibility(View.VISIBLE);
-            listView.setAdapter(adapter);
         } else {
             listView.setVisibility(View.GONE);
-            listView.setAdapter(null);
             gridView.setVisibility(View.VISIBLE);
-            gridView.setAdapter(adapter);
         }
+        listView.setAdapter(adapter);
+        gridView.setAdapter(adapter);
     }
 
     @Override

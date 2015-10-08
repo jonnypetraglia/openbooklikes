@@ -3,40 +3,57 @@ package com.qweex.openbooklikes;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
+import com.qweex.openbooklikes.notmine.EndlessScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class UserFragment extends ListFragment {
-    static int MIN_PER_PAGE = 10, IMG_SIZE_PX = 600;
+public class UserFragment extends Fragment {
+    static int MIN_PER_PAGE = 10, IMG_SIZE_PX = 600, MAX_POST_HEIGHT = 200;
     User user;
-    AdapterBase adapter;
+    BlogAdapter adapter;
+    ListView listView;
 // domain = open in browser
+
+    public ListView getListView() {
+        return listView;
+    }
+
+    public void setListAdapter(ListAdapter a) {
+        getListView().setAdapter(a);
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
+        listView = new ListView(getActivity());
+        listView.setOnScrollListener(scrollMuch);
+        listView.setDivider(null);
+        return listView;
     }
 
     @Override
@@ -79,7 +96,20 @@ public class UserFragment extends ListFragment {
         });
     }
 
+    EndlessScrollListener scrollMuch = new EndlessScrollListener() {
+        @Override
+        public boolean onLoadMore(int page, int totalItemsCount) {
+            // Triggered only when new data needs to be appended to the list
+            // Add whatever code is needed to append new items to your AdapterView
+            if (adapter.noMore)
+                return false;
+            fetchMore(page - 1);
+            return true; // ONLY if more data is actually being loaded; false otherwise.
+        }
+    };
+
     public void fetchMore(int page) {
+        Log.d("OBL:fetchMore", "Fetching more posts, page " + page);
         RequestParams params = new RequestParams();
         params.put("PerPage", Math.min(adapter.perScreen(), MIN_PER_PAGE));
         params.put("Page", page);
@@ -90,7 +120,6 @@ public class UserFragment extends ListFragment {
 
     void fillUi() {
         View v = getView();
-        //TODO: image circular?
         Log.d("OBL:fillUi", user.photo);
         String title = user.blog_title != null ? user.blog_title : user.username;
         ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
@@ -102,7 +131,7 @@ public class UserFragment extends ListFragment {
         ((Button)v.findViewById(R.id.bookCount)).setText(user.book_count + " books");
         ((Button)v.findViewById(R.id.followersCount)).setText(user.followed_count + " followers");
         ((Button)v.findViewById(R.id.followingCount)).setText(user.following_count + " following");
-        ((MainActivity)getActivity()).getSupportActionBar().setTitle(title);
+        ((MainActivity)getActivity()).getSupportActionBar().setTitle(user==MainActivity.user ? "Blog" : title);
     }
 
     JsonHttpResponseHandler userHandler = new JsonHttpResponseHandler() {
@@ -131,16 +160,14 @@ public class UserFragment extends ListFragment {
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
+                if(response.getInt("count")==0) {
+                    adapter.noMore = true;
+                    return;
+                }
                 JSONArray posts = response.getJSONArray("posts");
+
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i));
-                    // LAST OFF
-                    // fragment_post.xml:
-                    //   date, title, photo, first part of desc, reblog_count?
-                    // how the hell am I going to show other user's shelves?
-                    // maybe a popup menu? or an accordian?
-                    // don't forget to open blog post in right drawer
-                    // Change title to "Blog" for my blog
                     Log.d("OBL:post", "Post: " + p.title);
                     adapter.add(p);
                 }
@@ -152,6 +179,7 @@ public class UserFragment extends ListFragment {
     };
 
     class BlogAdapter extends AdapterBase<Post> {
+        public boolean noMore = false;
 
         public BlogAdapter(Context context, ArrayList<Post> posts) {
             super(context, 0, posts);
@@ -168,9 +196,43 @@ public class UserFragment extends ListFragment {
             }
             Post post = getItem(position);
 
-            ((TextView)row.findViewById(R.id.title)).setText(post.title);
+            ImageView photo = (ImageView) row.findViewById(R.id.image);
+            if(post.photo_url!=null)
+                MainActivity.imageLoader.displayImage(post.photo_url, photo);
+            else
+                photo.setVisibility(View.GONE);
+
+
+
+            // reblog_count? like_count?
+
+            Log.d("OBL:post", post.title + " ");
+            setOrShow(post.type, ((TextView) row.findViewById(R.id.type)));
+            setOrShow(post.date, ((TextView) row.findViewById(R.id.date)));
+            setOrShow(post.title, ((TextView) row.findViewById(R.id.title)));
+
+            TextView special = ((TextView)row.findViewById(R.id.special));
+            setOrShow(post.special, special);
+            special.setVerticalFadingEdgeEnabled(true);
+            special.setMaxHeight(MAX_POST_HEIGHT);
+            row.findViewById(R.id.special_fadeout).setVisibility(special.getVisibility());
+
+            TextView desc = ((TextView)row.findViewById(R.id.description));
+            setOrShow(post.desc, desc);
+            desc.setVerticalFadingEdgeEnabled(true);
+            desc.setMaxHeight(MAX_POST_HEIGHT);
+            row.findViewById(R.id.description_fadeout).setVisibility(desc.getVisibility());
+
+            Log.d("OBL:bg", "Listview: " + getListView().getBackground());
+            Log.d("OBL:bg", "Parent 1: " + ((View)getListView().getParent()).getBackground());
+            Log.d("OBL:bg", "Parent 1: " + ((View) getListView().getParent().getParent()).getBackground());
 
             return row;
+        }
+
+        private void setOrShow(String text, TextView v) {
+            v.setText(text);
+            v.setVisibility(text==null ? View.GONE : View.VISIBLE);
         }
 
         @Override
