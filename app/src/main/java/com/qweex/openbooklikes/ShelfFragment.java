@@ -338,7 +338,7 @@ public class ShelfFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Book b = adapter.getItem(position);
-            ((MainActivity)getActivity()).openBook();
+            ((MainActivity)getActivity()).openDrawer();
             BookFragment bookFragment = new BookFragment();
             int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
             bookFragment.setBook(b, imgHeight);

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -51,6 +52,7 @@ public class UserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         listView = new ListView(getActivity());
+        listView.setOnItemClickListener(selectPost);
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
         return listView;
@@ -121,17 +123,16 @@ public class UserFragment extends Fragment {
     void fillUi() {
         View v = getView();
         Log.d("OBL:fillUi", user.photo);
-        String title = user.blog_title != null ? user.blog_title : user.username;
         ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
         pic.getLayoutParams().height = IMG_SIZE_PX;
         pic.getLayoutParams().width = IMG_SIZE_PX;
         MainActivity.imageLoader.displayImage(user.photo.replace("100/100", IMG_SIZE_PX + "/" + IMG_SIZE_PX), pic);
-        ((TextView)v.findViewById(R.id.title)).setText(title);
+        ((TextView)v.findViewById(R.id.title)).setText(user.niceBlogTitle());
         ((TextView)v.findViewById(R.id.description)).setText(user.blog_desc);
         ((Button)v.findViewById(R.id.bookCount)).setText(user.book_count + " books");
         ((Button)v.findViewById(R.id.followersCount)).setText(user.followed_count + " followers");
         ((Button)v.findViewById(R.id.followingCount)).setText(user.following_count + " following");
-        ((MainActivity)getActivity()).getSupportActionBar().setTitle(user==MainActivity.user ? "Blog" : title);
+        ((MainActivity)getActivity()).getSupportActionBar().setTitle(user==MainActivity.user ? "Blog" : user.niceBlogTitle());
     }
 
     JsonHttpResponseHandler userHandler = new JsonHttpResponseHandler() {
@@ -240,4 +241,16 @@ public class UserFragment extends Fragment {
             return 0;
         }
     }
+
+    AdapterView.OnItemClickListener selectPost = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            Log.d("Clicked!", adapter.getItem(position).date);
+            Post p = adapter.getItem(position-1); //???? Why is this? because of header?
+            ((MainActivity)getActivity()).openDrawer();
+            PostFragment postFragment = new PostFragment();
+            postFragment.setPost(p, user.niceBlogTitle());
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.side_fragment, postFragment).commit();
+        }
+    };
 }

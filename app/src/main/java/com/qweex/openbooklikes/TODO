@@ -5,15 +5,11 @@
 
 // don't forget to open blog post in right drawer
 
-
-IMMEDIATE
-     - Book screen (!! as right drawer!)
+// ListView in UserFragment should have a different drawable background for when pressed; should change bg of card, not row behind it
 
 
 LATER
-    - create UserFragment
-      - Add "Profile" to drawer
-      - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
+    - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
     - Move Logout to either footer of drawer or inside Settings screen
     - Add "Reading Challenge" to drawer
         - only display if user has an active one

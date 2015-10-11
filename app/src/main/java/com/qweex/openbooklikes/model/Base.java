@@ -10,6 +10,10 @@ abstract public class Base {
         if (str == null || str.length() == 0)
             return null;
 
-        return android.text.Html.fromHtml(str).toString().replaceAll("\\n\\n", "\n").trim();
+        return android.text.Html.fromHtml(str)
+                .toString()
+                .replaceAll("\\r\\n", "\n")
+                //.replaceAll("\\n\\n", "\n")
+                .trim();
     }
 }

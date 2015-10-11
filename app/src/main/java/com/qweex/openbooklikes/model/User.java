@@ -34,6 +34,10 @@ public class User extends Base {
     }
 
 
+    public String niceBlogTitle() {
+        return blog_title != null ? blog_title : username;
+    }
+
     @Override
     public void persist() {
         //TODO: SQLite insert

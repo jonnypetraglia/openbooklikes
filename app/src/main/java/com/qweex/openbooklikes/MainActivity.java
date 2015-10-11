@@ -27,6 +27,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
+import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity
             .show();
     }
 
-    public void openBook() {
+    public void openDrawer() {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
     }

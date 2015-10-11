@@ -123,19 +123,19 @@ public class BookFragment extends Fragment {
         ImageView cover = (ImageView) view.findViewById(R.id.cover);
         MainActivity.imageLoader.displayImage(book.cover, cover);
 
-        setText(view, R.id.title, book.title);
-        setText(view, R.id.author, book.author);
+        setOrHide(view, R.id.title, book.title);
+        setOrHide(view, R.id.author, book.author);
         // And this is where I'd put a Description
         //
         // IF I HAD ONE
 
-        setText(view, R.id.format, book.format); //TODO: Figure out what the numbers map to
-        setText(view, R.id.isbn_13, book.isbn_13);
-        setText(view, R.id.isbn_10, book.isbn_10);
-        setText(view, R.id.publishDate, book.publish_date);
-        setText(view, R.id.publisher, book.publisher);
-        setText(view, R.id.pageCount, book.pages);
-        setText(view, R.id.language, book.language);
+        setOrHide(view, R.id.format, book.format); //TODO: Figure out what the numbers map to
+        setOrHide(view, R.id.isbn_13, book.isbn_13);
+        setOrHide(view, R.id.isbn_10, book.isbn_10);
+        setOrHide(view, R.id.publishDate, book.publish_date);
+        setOrHide(view, R.id.publisher, book.publisher);
+        setOrHide(view, R.id.pageCount, book.pages);
+        setOrHide(view, R.id.language, book.language);
 
 
         adjustOrientation(view, getActivity().getResources().getConfiguration());
@@ -143,7 +143,7 @@ public class BookFragment extends Fragment {
         return view;
     }
 
-    private void setText(View container, int tvId, String text) {
+    private void setOrHide(View container, int tvId, String text) {
         if(text!=null) {
             ((TextView)container.findViewById(tvId)).setText(text);
         } else {
