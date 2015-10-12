@@ -205,7 +205,7 @@ public class UserFragment extends Fragment {
         public View getView(int position, View row, ViewGroup parent) {
             if (row == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.blog_post, parent, false);
+                row = inflater.inflate(R.layout.list_blog_post, parent, false);
             }
             Post post = getItem(position);
 

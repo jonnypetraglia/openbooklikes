@@ -18,11 +18,11 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start" android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
+        app:headerLayout="@layout/app_bar_main_header"
         app:menu="@menu/activity_main_drawer" />
 
     <!-- Right drawer -->
-    <include layout="@layout/sidebar_content"
+    <include layout="@layout/app_bar_side"
         android:id="@+id/sidebar_content"
         android:layout_width="match_parent"
         android:layout_gravity="end"

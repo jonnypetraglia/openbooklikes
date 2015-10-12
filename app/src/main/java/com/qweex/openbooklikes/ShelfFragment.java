@@ -217,7 +217,7 @@ public class ShelfFragment extends Fragment {
         public View getView(int position, View row, ViewGroup parent) {
             if(row == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.shelf_cover, parent, false);
+                row = inflater.inflate(R.layout.list_shelf_cover, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).title);
@@ -249,7 +249,7 @@ public class ShelfFragment extends Fragment {
         public View getView(int position, View row, ViewGroup parent) {
             if (row == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.shelf_details, parent, false);
+                row = inflater.inflate(R.layout.list_shelf_details, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).title);
