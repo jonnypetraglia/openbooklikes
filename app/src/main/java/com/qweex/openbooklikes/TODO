@@ -3,9 +3,16 @@
 // how the hell am I going to show other user's shelves?
 // maybe a popup menu? or an accordian?
 
-// don't forget to open blog post in right drawer
-
 // ListView in UserFragment should have a different drawable background for when pressed; should change bg of card, not row behind it
+
+NOW
+    - Making progress on right drawer; just need to get full width
+    - posts in UserFragment are sometimes in incorrect order
+      - possibly due to race condition:
+        - perScreen() returned 0 so it immediately fetched more
+        - 2nd fetch happened to finish first
+      - UPDATED: changed perScreen() to 10 and problem persists
+    -
 
 
 LATER

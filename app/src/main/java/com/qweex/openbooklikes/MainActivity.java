@@ -1,13 +1,13 @@
 package com.qweex.openbooklikes;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,7 +19,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,7 +26,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
-import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 
@@ -54,17 +52,9 @@ public class MainActivity extends AppCompatActivity
         Log.d("OBL:MASTER", "token: " + user.token);
 
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -77,6 +67,16 @@ public class MainActivity extends AppCompatActivity
 
         ///////////////////////////////////////////////
 
+        drawer.setDrawerListener(new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset)
+            {
+                if(drawerView!=null && drawerView.getId()==R.id.sidebar_content) //or: ((DrawerLayout.LayoutParams)drawerView.getLayoutParams()).gravity==GravityCompat.END)
+                    super.onDrawerSlide(drawerView, 0);
+                else
+                    super.onDrawerSlide(drawerView, slideOffset);
+            }
+        });
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
 
         // Init imageLoader
@@ -126,10 +126,6 @@ public class MainActivity extends AppCompatActivity
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
             }
         });
-
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(toolbar.getLayoutParams());
-        lp.topMargin += getStatusBarHeight();
-        toolbar.setLayoutParams(lp);
     }
 
     @Override
@@ -227,9 +223,9 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    getSharedPreferences(LoginActivity.USER_DATA_PREFS, MODE_PRIVATE)
+                    getSharedPreferences(LaunchActivity.USER_DATA_PREFS, MODE_PRIVATE)
                             .edit().clear().apply();
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    startActivity(new Intent(MainActivity.this, LaunchActivity.class));
                     MainActivity.this.finish();
                 }
             })

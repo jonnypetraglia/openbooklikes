@@ -1,7 +1,7 @@
 package com.qweex.openbooklikes.model;
 
 
-abstract public class Base {
+abstract public class BaseModel {
 
     abstract public void persist();
 

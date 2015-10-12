@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.qweex.openbooklikes.notmine.FullDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- android.support.v4.widget.DrawerLayout -->
+<com.qweex.openbooklikes.FullDrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer_layout"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:fitsSystemWindows="false" tools:openDrawer="start">
+    android:fitsSystemWindows="true" tools:openDrawer="start">
 
-    <include layout="@layout/app_bar_main" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <!-- The main layout -->
+    <include layout="@layout/app_bar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-    <android.support.design.widget.NavigationView android:id="@+id/nav_view"
+    <!-- Left drawer -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start" android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view2"
+    <!-- Right drawer -->
+    <include layout="@layout/sidebar_content"
+        android:id="@+id/sidebar_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="end" android:fitsSystemWindows="false"
-        app:headerLayout="@layout/sidebar_content" />
+        android:layout_gravity="end"
+        android:layout_height="match_parent"/>
 
-</com.qweex.openbooklikes.notmine.FullDrawerLayout>
+</com.qweex.openbooklikes.FullDrawerLayout>

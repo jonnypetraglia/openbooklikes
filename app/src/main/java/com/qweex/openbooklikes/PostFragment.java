@@ -91,7 +91,7 @@ public class PostFragment extends Fragment {
 
     private void setOrHide(View container, int tvId, String text) {
         ((TextView)container.findViewById(tvId)).setText(text);
-        ((View)container.findViewById(tvId).getParent()).setVisibility(text==null ? View.GONE : View.VISIBLE);
+        container.findViewById(tvId).setVisibility(text == null ? View.GONE : View.VISIBLE);
     }
 
 }

@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" android:fitsSystemWindows="false"
-    tools:context="com.qweex.openbooklikes.MainActivity">
+    android:layout_height="wrap_content">
 
-
-    <FrameLayout android:id="@+id/stupid_thing"
+    <!-- Side fragment -->
+    <android.support.v4.widget.NestedScrollView
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout android:id="@+id/side_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+    <!-- Toolbar (e.g. close button) -->
+    <android.support.design.widget.AppBarLayout
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        >
+        android:layout_width="match_parent">
 
-    <android.support.v7.widget.Toolbar android:id="@+id/side_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay"
-        app:menu="@menu/menu_main"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        />
-    </FrameLayout>
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/side_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:menu="@menu/menu_main"
+                android:theme="@style/AppTheme.AppBarOverlay"
+                />
 
-    <FrameLayout android:id="@+id/side_fragment"
-        android:layout_below="@id/stupid_thing"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    </android.support.design.widget.AppBarLayout>
 
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

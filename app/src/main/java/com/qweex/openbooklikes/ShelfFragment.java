@@ -189,7 +189,7 @@ public class ShelfFragment extends Fragment {
             //params.put(s, getArguments().getBundle("params").get(s));
 
         //TODO other params
-        ApiClient.get("book/GetUserBooks", params, shelfHandler);
+        ApiClient.get("book/GetUserBooks", params, booksHandler);
     }
 
     @Override
@@ -270,7 +270,7 @@ public class ShelfFragment extends Fragment {
         }
     }
 
-    JsonHttpResponseHandler shelfHandler = new JsonHttpResponseHandler() {
+    JsonHttpResponseHandler booksHandler = new JsonHttpResponseHandler() {
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

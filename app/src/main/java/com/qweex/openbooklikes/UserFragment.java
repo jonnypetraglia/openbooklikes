@@ -55,6 +55,17 @@ public class UserFragment extends Fragment {
         listView.setOnItemClickListener(selectPost);
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
+
+        /*
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+         */
         return listView;
     }
 
@@ -89,7 +100,7 @@ public class UserFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        adapter.clear(); //TODO
+        adapter.clear(); //TODO: Is this in the right place? Or needed?
         getListView().post(new Runnable() {
             @Override
             public void run() {
@@ -105,6 +116,7 @@ public class UserFragment extends Fragment {
             // Add whatever code is needed to append new items to your AdapterView
             if (adapter.noMore)
                 return false;
+            Log.d("OBL:user:scrollMuch", "Fetching page " + (page-1));
             fetchMore(page - 1);
             return true; // ONLY if more data is actually being loaded; false otherwise.
         }
@@ -238,7 +250,7 @@ public class UserFragment extends Fragment {
 
         @Override
         public int perScreen() {
-            return 0;
+            return 10; //TODO?
         }
     }
 

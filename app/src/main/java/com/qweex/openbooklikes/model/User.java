@@ -3,7 +3,7 @@ package com.qweex.openbooklikes.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User extends Base {
+public class User extends BaseModel {
     public String id, username, domain, photo; //Returned by GetUserFollowers
 
     public String blog_title, blog_desc, following_count, followed_count;

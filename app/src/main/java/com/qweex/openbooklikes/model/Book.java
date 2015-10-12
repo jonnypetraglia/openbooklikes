@@ -4,7 +4,7 @@ package com.qweex.openbooklikes.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Book extends Base {
+public class Book extends BaseModel {
 
     // Prefix is: book_
     public String id, title, author, cover, isbn_10, isbn_13, format, publisher, language;

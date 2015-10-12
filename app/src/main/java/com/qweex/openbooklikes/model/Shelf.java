@@ -5,7 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Shelf extends Base {
+public class Shelf extends BaseModel {
     public String id, user_id;
     public String name;
     public int book_count;

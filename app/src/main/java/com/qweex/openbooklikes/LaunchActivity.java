@@ -23,7 +23,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
-import com.qweex.openbooklikes.model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +30,7 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
-public class LoginActivity extends AppCompatActivity {
+public class LaunchActivity extends AppCompatActivity {
     public static final String USER_DATA_PREFS = "UserData";
 
     // UI references.
@@ -123,16 +122,16 @@ public class LoginActivity extends AppCompatActivity {
             urlParams.put("email", mEmailView.getText().toString());
             urlParams.put("password", mPasswordView.getText().toString());
 
-            ApiClient.post("user/login", urlParams, LoginHandler);
+            ApiClient.post("user/login", urlParams, loginHandler);
         }
     }
 
     private void startApp() {
         Log.d("OBL", "startApp");
-        ApiClient.get("user/GetUserCategories", ShelfHandler);
+        ApiClient.get("user/GetUserCategories", shelvesHandler);
     }
 
-    private JsonHttpResponseHandler LoginHandler = new JsonHttpResponseHandler() {
+    private JsonHttpResponseHandler loginHandler = new JsonHttpResponseHandler() {
 
         @Override
         public void onStart() {
@@ -169,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private JsonHttpResponseHandler ShelfHandler = new JsonHttpResponseHandler(){
+    private JsonHttpResponseHandler shelvesHandler = new JsonHttpResponseHandler(){
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -195,9 +194,9 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("OBL:Cat", s.name);
                 }
 
-                Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                LoginActivity.this.startActivity(i);
-                LoginActivity.this.finish();
+                Intent i = new Intent(LaunchActivity.this, MainActivity.class);
+                LaunchActivity.this.startActivity(i);
+                LaunchActivity.this.finish();
             } catch (JSONException e) {
                 Log.e("OBL:Cat!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
