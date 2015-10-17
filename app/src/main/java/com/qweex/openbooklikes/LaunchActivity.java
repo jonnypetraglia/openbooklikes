@@ -42,16 +42,8 @@ public class LaunchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        SharedPreferences prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE);
-        Log.d("OBL:LOGIN", prefs.getString("usr_token", "NULL"));
-        if(prefs.getString("usr_token", null)!=null) {
-            MainActivity.user = new Me(prefs);
-            startApp();
-            return;
-        }
-
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 
@@ -77,6 +69,14 @@ public class LaunchActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+
+        SharedPreferences prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE);
+        Log.d("OBL:LOGIN", prefs.getString("usr_token", "NULL"));
+        if(prefs.getString("usr_token", null)!=null) {
+            MainActivity.me = new Me(prefs);
+            startApp();
+        }
     }
 
 
@@ -128,6 +128,7 @@ public class LaunchActivity extends AppCompatActivity {
 
     private void startApp() {
         Log.d("OBL", "startApp");
+        showProgress(true);
         ApiClient.get("user/GetUserCategories", shelvesHandler);
     }
 
@@ -139,7 +140,6 @@ public class LaunchActivity extends AppCompatActivity {
         }
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            showProgress(false);
             // If the response is JSONObject instead of expected JSONArray
             try {
                 if(response.getInt("status")!=0 || statusCode >= 400)
@@ -147,15 +147,17 @@ public class LaunchActivity extends AppCompatActivity {
 
                 mEmailView.setError(null);
                 mPasswordView.setError(null);
-                MainActivity.user = new Me(response);
-                if(MainActivity.user.token!=null)
+                MainActivity.me = new Me(response);
+                if(MainActivity.me.token!=null)
                     saveMe();
                 startApp();
             } catch (JSONException e) {
                 e.printStackTrace();
+                showProgress(false);
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
+                showProgress(false);
                 mPasswordView.setError("!!!: " + e.getMessage());
             }
         }
@@ -182,9 +184,9 @@ public class LaunchActivity extends AppCompatActivity {
                 //MenuItem item = shelfNav.add(R.id.nav_group, R.id.nav_all_shelf, 0, "All books").setCheckable(true);
                 JSONObject allBooks = new JSONObject();
                 allBooks.put("id_category", "-1");
-                allBooks.put("id_user", MainActivity.user.id);
+                allBooks.put("id_user", MainActivity.me.id);
                 allBooks.put("category_name", "All books");
-                allBooks.put("category_book_count", MainActivity.user.book_count);
+                allBooks.put("category_book_count", MainActivity.me.book_count);
                 Shelf s = new Shelf(allBooks);
                 MainActivity.shelves.add(s);
 
@@ -211,20 +213,20 @@ public class LaunchActivity extends AppCompatActivity {
 
     private void saveMe() {
         SharedPreferences.Editor prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE).edit();
-        prefs.putString("id_user", MainActivity.user.id);
-        prefs.putString("usr_username", MainActivity.user.username);
-        prefs.putString("usr_domain", MainActivity.user.domain);
-        prefs.putString("usr_photo", MainActivity.user.photo);
+        prefs.putString("id_user", MainActivity.me.id);
+        prefs.putString("usr_username", MainActivity.me.username);
+        prefs.putString("usr_domain", MainActivity.me.domain);
+        prefs.putString("usr_photo", MainActivity.me.photo);
 
-        prefs.putString("usr_email", MainActivity.user.email);
-        prefs.putString("usr_blog_title", MainActivity.user.blog_title);
-        prefs.putString("usr_blog_desc", MainActivity.user.blog_desc);
-        prefs.putString("usr_following_count", MainActivity.user.following_count);
-        prefs.putString("usr_followed_count", MainActivity.user.followed_count);
-        prefs.putInt("usr_book_count", MainActivity.user.book_count);
+        prefs.putString("usr_email", MainActivity.me.email);
+        prefs.putString("usr_blog_title", MainActivity.me.blog_title);
+        prefs.putString("usr_blog_desc", MainActivity.me.blog_desc);
+        prefs.putString("usr_following_count", MainActivity.me.following_count);
+        prefs.putString("usr_followed_count", MainActivity.me.followed_count);
+        prefs.putInt("usr_book_count", MainActivity.me.book_count);
 
-        prefs.putString("usr_token", MainActivity.user.token);
-        Log.d("OBL:saveAsMe", MainActivity.user.token);
+        prefs.putString("usr_token", MainActivity.me.token);
+        Log.d("OBL:saveAsMe", MainActivity.me.token);
         prefs.apply();
     }
 

@@ -19,7 +19,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start" android:fitsSystemWindows="true"
         app:headerLayout="@layout/app_bar_main_header"
-        app:menu="@menu/activity_main_drawer" />
+        app:menu="@menu/drawer_menu_main" />
 
     <!-- Right drawer -->
     <include layout="@layout/app_bar_side"

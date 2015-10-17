@@ -3,7 +3,6 @@ package com.qweex.openbooklikes;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,7 +18,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Shelf;
@@ -35,7 +33,7 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 
 
-public class ShelfFragment extends Fragment {
+public class ShelfFragment extends FragmentBase {
     Shelf shelf;
     GridView gridView;
     ListView listView;
@@ -52,6 +50,11 @@ public class ShelfFragment extends Fragment {
         specialTracker = new ShelfFragment.CheckTracker();
         specialTracker.add(R.id.filter_favourite, R.id.filter_wishlist, R.id.filter_reviewed, R.id.filter_private);
         //TODO: Settings
+    }
+
+    @Override
+    String getTitle() {
+        return shelf.name;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class ShelfFragment extends Fragment {
         listView.setOnItemClickListener(selectBook);
 
         changeWidget();
-        return view;
+        return super.createProgressView(inflater, container, view);
     }
 
     EndlessScrollListener scrollMuch = new EndlessScrollListener() {
@@ -166,10 +169,10 @@ public class ShelfFragment extends Fragment {
         ArrayList<Book> bookList = new ArrayList<>();
         Log.d("OBL:Adapter", shelf.name + "() " + bookList);
         adapter = new CoverAdapter(a, bookList);
-        a.getSupportActionBar().setTitle(shelf.name);
     }
 
     public void fetchMore(int page) {
+        super.fetchMore(page);
         RequestParams params = new RequestParams();
         params.put("PerPage", Math.min(adapter.perScreen(), MIN_PER_PAGE));
         params.put("Page", page);
@@ -270,10 +273,11 @@ public class ShelfFragment extends Fragment {
         }
     }
 
-    JsonHttpResponseHandler booksHandler = new JsonHttpResponseHandler() {
+    ResponseHandler booksHandler = new ResponseHandler() {
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            super.onSuccess(statusCode, headers, response);
             Log.d("OBL:book.", "Success " + response.length());
 
             try {
@@ -338,11 +342,12 @@ public class ShelfFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Book b = adapter.getItem(position);
-            ((MainActivity)getActivity()).openDrawer();
+
             BookFragment bookFragment = new BookFragment();
             int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
             bookFragment.setBook(b, imgHeight);
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.side_fragment, bookFragment).commit();
+
+            getMainActivity().loadSideFragment(bookFragment);
         }
     };
 

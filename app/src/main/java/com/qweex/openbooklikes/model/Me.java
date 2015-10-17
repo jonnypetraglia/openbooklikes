@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes.model;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,13 +12,12 @@ public class Me extends User {
 
     public Me(JSONObject json) throws JSONException, Exception {
         super(json);
-        if(!json.has("usr_token"))
-            throw new Exception("tried to initialize Me without a token");
         token = json.getString("usr_token");
         email = json.getString("usr_email");
     }
 
     public Me(SharedPreferences prefs) {
+        super((UserPartial.Void)null);
         id = prefs.getString("id_user", null);
         username = prefs.getString("usr_username", null);
         domain = prefs.getString("usr_domain", null);
@@ -30,5 +30,13 @@ public class Me extends User {
 
         email = prefs.getString("usr_email", null);
         token = prefs.getString("usr_token", null);
+    }
+
+    @Override
+    public Bundle toBundle() {
+        Bundle b = super.toBundle();
+        b.putString("token", token);
+        b.putString("email", email);
+        return b;
     }
 }

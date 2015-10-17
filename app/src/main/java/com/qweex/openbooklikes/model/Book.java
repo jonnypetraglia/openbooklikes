@@ -1,10 +1,12 @@
 package com.qweex.openbooklikes.model;
 
 
+import android.os.Bundle;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Book extends BaseModel {
+public class Book extends ModelBase {
 
     // Prefix is: book_
     public String id, title, author, cover, isbn_10, isbn_13, format, publisher, language;
@@ -27,8 +29,20 @@ public class Book extends BaseModel {
 
 
     @Override
-    public void persist() {
-
+    public Bundle toBundle() {
+        Bundle b = new Bundle();
+        b.putString("id", id);
+        b.putString("title", title);
+        b.putString("author", author);
+        b.putString("cover", cover);
+        b.putString("isbn_10", isbn_10);
+        b.putString("isbn_13", isbn_13);
+        b.putString("format", format);
+        b.putString("publisher", publisher);
+        b.putString("language", language);
+        b.putString("pages", pages);
+        b.putString("publish_date", publish_date);
+        return null;
     }
 }
 

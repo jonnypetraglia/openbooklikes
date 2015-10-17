@@ -1,45 +1,46 @@
 package com.qweex.openbooklikes.model;
 
+import android.os.Bundle;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User extends BaseModel {
-    public String id, username, domain, photo; //Returned by GetUserFollowers
-
+public class User extends UserPartial {
     public String blog_title, blog_desc, following_count, followed_count;
     public int book_count;
 
-    protected User() {
-        // Only used for subclass constructors
-    }
-
-    public User(String id, String username) {
-        this.id = id;
-        this.username = username;
+    protected User(UserPartial.Void v) {
+        super(v);
     }
 
     public User(JSONObject json) throws JSONException {
-        id = json.getString("id_user");
-        username = json.getString("usr_username");
-        domain = json.getString("usr_domain");
-        photo = json.getString("usr_photo"); //url
+        super(json);
+        blog_title = unHTML(json.getString("usr_blog_title"));
+        blog_desc = unHTML(json.getString("usr_blog_desc"));
+        following_count = json.getString("usr_following_count");
+        followed_count = json.getString("usr_followed_count");
+        book_count = json.getInt("usr_book_count");
+    }
 
-        if(json.has("usr_book_count")) {
-            blog_title = unHTML(json.getString("usr_blog_title"));
-            blog_desc = unHTML(json.getString("usr_blog_desc"));
-            following_count = json.getString("usr_following_count");
-            followed_count = json.getString("usr_followed_count");
-            book_count = json.getInt("usr_book_count");
-        }
+    public String photoSize(int size) {
+        return photo.replace("100/100", size + "/" + size);
     }
 
 
-    public String niceBlogTitle() {
-        return blog_title != null ? blog_title : username;
+    public String properName() {
+        if(blog_title==null)
+            return username;
+        return blog_title;
     }
 
     @Override
-    public void persist() {
-        //TODO: SQLite insert
+    public Bundle toBundle() {
+        Bundle b = new Bundle();
+        b.putString("blog_title", blog_title);
+        b.putString("blog_desc", blog_desc);
+        b.putString("following_count", following_count);
+        b.putString("followed_count", followed_count);
+        b.putInt("book_count", book_count);
+        return b;
     }
 }

@@ -2,7 +2,6 @@ package com.qweex.openbooklikes;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,12 +14,16 @@ import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.Post;
 
-public class PostFragment extends Fragment {
+public class PostFragment extends FragmentBase {
 
     static final int IMG_SIZE_PX = 500;
     String blogTitle;
     Post post;
 
+    @Override
+    String getTitle() {
+        return blogTitle;
+    }
 
     public void setPost(Post p, String b) {
         this.post = p;
@@ -38,8 +41,6 @@ public class PostFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         Log.d("OBL:post", "createView " + post.title);
-
-        ((Toolbar) getActivity().findViewById(R.id.side_toolbar)).setTitle(blogTitle);
 
 
         setOrHide(view, R.id.title, post.title);
@@ -86,12 +87,6 @@ public class PostFragment extends Fragment {
             ratings.setVisibility(View.GONE);
         }
 
-        return view;
+        return super.createProgressView(inflater, container, view);
     }
-
-    private void setOrHide(View container, int tvId, String text) {
-        ((TextView)container.findViewById(tvId)).setText(text);
-        container.findViewById(tvId).setVisibility(text == null ? View.GONE : View.VISIBLE);
-    }
-
 }

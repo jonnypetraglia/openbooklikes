@@ -1,11 +1,13 @@
 package com.qweex.openbooklikes.model;
 
 
+import android.os.Bundle;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Shelf extends BaseModel {
+public class Shelf extends ModelBase {
     public String id, user_id;
     public String name;
     public int book_count;
@@ -18,7 +20,12 @@ public class Shelf extends BaseModel {
     }
 
     @Override
-    public void persist() {
-        //TODO: SQLite insert
+    public Bundle toBundle() {
+        Bundle b = new Bundle();
+        b.putString("id", id);
+        b.putString("user_id", user_id);
+        b.putString("name", name);
+        b.putInt("book_count", book_count);
+        return b;
     }
 }

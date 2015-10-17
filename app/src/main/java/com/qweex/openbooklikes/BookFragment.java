@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.qweex.openbooklikes.model.Book;
 
 
-public class BookFragment extends Fragment {
+public class BookFragment extends FragmentBase {
 
     static final int IMG_SIZE_PX = 700;
     Book book;
@@ -27,6 +27,10 @@ public class BookFragment extends Fragment {
     public void setBook(Book b, int i) {
         this.book = b;
         this.imgHeight = i;
+    }
+
+    public String getTitle() {
+        return book.title;
     }
 
     @Override
@@ -118,8 +122,6 @@ public class BookFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
-        ((Toolbar) getActivity().findViewById(R.id.side_toolbar)).setTitle(book.title);
-
         ImageView cover = (ImageView) view.findViewById(R.id.cover);
         MainActivity.imageLoader.displayImage(book.cover, cover);
 
@@ -140,14 +142,6 @@ public class BookFragment extends Fragment {
 
         adjustOrientation(view, getActivity().getResources().getConfiguration());
 
-        return view;
-    }
-
-    private void setOrHide(View container, int tvId, String text) {
-        if(text!=null) {
-            ((TextView)container.findViewById(tvId)).setText(text);
-        } else {
-            ((View)container.findViewById(tvId).getParent()).setVisibility(View.GONE);
-        }
+        return super.createProgressView(inflater, container, view);
     }
 }

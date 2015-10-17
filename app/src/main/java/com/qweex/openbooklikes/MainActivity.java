@@ -1,13 +1,12 @@
 package com.qweex.openbooklikes;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,14 +26,14 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
-import com.qweex.openbooklikes.model.User;
+import com.qweex.openbooklikes.model.UserPartial;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static Me user;
+    public static Me me;
     public static ImageLoader imageLoader;
     public static ArrayList<Shelf> shelves = new ArrayList<>();
 
@@ -45,11 +44,11 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(user==null) {
+        if(me ==null) {
             finish();
             return;
         }
-        Log.d("OBL:MASTER", "token: " + user.token);
+        Log.d("OBL:MASTER", "token: " + me.token);
 
         setContentView(R.layout.activity_main);
 
@@ -69,15 +68,14 @@ public class MainActivity extends AppCompatActivity
 
         drawer.setDrawerListener(new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
             @Override
-            public void onDrawerSlide(View drawerView, float slideOffset)
-            {
-                if(drawerView!=null && drawerView.getId()==R.id.sidebar_content) //or: ((DrawerLayout.LayoutParams)drawerView.getLayoutParams()).gravity==GravityCompat.END)
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                if (drawerView != null && drawerView.getId() == R.id.sidebar_content) //or: ((DrawerLayout.LayoutParams)drawerView.getLayoutParams()).gravity==GravityCompat.END)
                     super.onDrawerSlide(drawerView, 0);
                 else
                     super.onDrawerSlide(drawerView, slideOffset);
             }
         });
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+        closeRightDrawer();
 
         // Init imageLoader
         imageLoader = ImageLoader.getInstance();
@@ -93,9 +91,9 @@ public class MainActivity extends AppCompatActivity
         imageLoader.init(config);
 
         // Load user info
-        ((TextView) findViewById(R.id.user_username)).setText(user.username);
-        ((TextView)findViewById(R.id.user_email)).setText(user.email);
-        imageLoader.displayImage(user.photo, (ImageView) findViewById(R.id.user_pic));
+        ((TextView) findViewById(R.id.user_username)).setText(me.username);
+        ((TextView)findViewById(R.id.user_email)).setText(me.email);
+        imageLoader.displayImage(me.photo, (ImageView) findViewById(R.id.user_pic));
 
         // Add shelfMap to menu
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
@@ -122,8 +120,7 @@ public class MainActivity extends AppCompatActivity
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+                closeRightDrawer();
             }
         });
     }
@@ -136,10 +133,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.END)) {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+            closeRightDrawer();
         } else if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+            closeLeftDrawer();
         } else {
             super.onBackPressed();
         }
@@ -176,41 +172,38 @@ public class MainActivity extends AppCompatActivity
                 loadShelf(shelves.get(shelfMenuItems.indexOf(item)));
                 break;
             case R.id.nav_blog:
-                loadUser(user);
+                loadUser(me);
                 break;
             //TODO: Special & Status shelfMap
         }
 
-        drawer.closeDrawer(GravityCompat.START);
+        closeLeftDrawer();
         return true;
     }
 
     private void loadShelf(Shelf shelf) {
         Log.d("OBL", "loadShelf " + shelf.name);
 
-        Bundle b = new Bundle();
+        Bundle b = shelf.toBundle();
         if(!shelf.id.equals("-1"))
             b.putString("Cat", shelf.id);;
 
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+        closeRightDrawer();
 
         ShelfFragment shelfFragment = new ShelfFragment();
         shelfFragment.setArguments(b);
         shelfFragment.setShelf(this, shelf);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, shelfFragment).commit();
+        loadMainFragment(shelfFragment);
     }
 
-    private void loadUser(User user) {
-        Log.d("OBL", "loadUser Me!");
-        Bundle b = new Bundle();
-        b.putString("username", user.username);
-        b.putString("id", user.id);
+    public void loadUser(UserPartial user) {
+        Log.d("OBL", "loadUser " + user.id);
 
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
 
         UserFragment userFragment = new UserFragment();
-        userFragment.setArguments(b);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, userFragment).commit();
+        userFragment.setArguments(user.toBundle());
+        loadMainFragment(userFragment);
     }
 
     public void logout() {
@@ -225,6 +218,8 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                     getSharedPreferences(LaunchActivity.USER_DATA_PREFS, MODE_PRIVATE)
                             .edit().clear().apply();
+                    imageLoader.clearDiskCache();
+                    imageLoader.clearMemoryCache();
                     startActivity(new Intent(MainActivity.this, LaunchActivity.class));
                     MainActivity.this.finish();
                 }
@@ -233,9 +228,37 @@ public class MainActivity extends AppCompatActivity
             .show();
     }
 
-    public void openDrawer() {
+    private void openRightDrawer() {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
+    }
+
+    private void closeRightDrawer() {
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+    }
+
+    private void closeLeftDrawer() {
+        drawer.closeDrawer(GravityCompat.START);
+    }
+
+    public void loadMainFragment(FragmentBase fragment) {
+        closeRightDrawer();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment, fragment)
+                .commit();
+        ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle());
+    }
+
+    public void loadSideFragment(FragmentBase fragment) {
+        openRightDrawer();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.side_fragment, fragment)
+                .commit();
+        ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(fragment.getTitle());
     }
 
 

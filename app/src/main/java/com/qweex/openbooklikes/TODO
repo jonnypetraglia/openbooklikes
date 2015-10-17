@@ -1,48 +1,56 @@
 // LAST OFF
 
-// how the hell am I going to show other user's shelves?
-// maybe a popup menu? or an accordian?
-
 // ListView in UserFragment should have a different drawable background for when pressed; should change bg of card, not row behind it
 
+
 NOW
+    - Make Loading Screen when logging in better (have some text or something)
+    - Left Drawer's state is incorrect
+      1. Click on a user in FriendsFragment
+      2. Unable to swipe drawer open; "Blog" remains checked
+    - When "### Books" button is clicked:
+      - open left drawer if me
+      - otherwise open right drawer and load a ...
+    - ShelvesFragment for other user's shelves
+      - opens in sidebar
+
+
+LATER
+    - Move Logout to either footer of drawer or inside Settings screen
+    - Add "Reading Challenge" to drawer
+        - only display if user has an active one
+    - Search books / AddBookToShelf
+    - shelf counts on right
+
+BUGS
     - Making progress on right drawer; just need to get full width
     - posts in UserFragment are sometimes in incorrect order
       - possibly due to race condition:
         - perScreen() returned 0 so it immediately fetched more
         - 2nd fetch happened to finish first
       - UPDATED: changed perScreen() to 10 and problem persists
-    -
-
-
-LATER
-    - add "Friends" to drawer (and use Tabs in fragment), or "Following/Followers" to Profile?
-    - Move Logout to either footer of drawer or inside Settings screen
-    - Add "Reading Challenge" to drawer
-        - only display if user has an active one
+    - any <img> tags in, say, blog_desc will be replaced with [OBJ]
+      - see 25022 (ethiercn)
+      - also, can have multiple "<p>&nbsp;</p>" that leave a ton of blank space
 
 MUCH LATER
+    - re-color the (currently green) drawer header
     - Loading screens
-    - Make drawer same width as Gmail...somehow
-      - Width = Screen width - 56dp; max: 320dp
     - setting: custom default shelf/fragment
     - add background image to shelf view
     - better Login screen
     - About screen
-    - Ability to search for books on Amazon; IndieBound; share on social media
-    - Search books / AddBookToShelf
-    - Add shelf
     - truncate drawer entries that are too long?
-    - Make drawer permanently expanded
-    - shelf counts on right
+    - Make drawer permanently expanded on tablets?
     - cache shelves?
 
 NOTHER LIFETIME
-    - Blog
+    - Add shelf
+    - Ability to search for book on Amazon; IndieBound; share on social media
+    - Add post
     - Register
-    - Search & add
-    - add "You are following ___" on other user's profile pages
-    - When you scroll down on a Blog, the title stays
+    - add "You are following this user" on other user's profile pages
+    - When you scroll down on a Blog, the title sticks
 
 IMAGES NEEDED
     - no profile pic = account circle

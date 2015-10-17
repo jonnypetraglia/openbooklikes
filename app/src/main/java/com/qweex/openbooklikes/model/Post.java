@@ -1,10 +1,12 @@
 package com.qweex.openbooklikes.model;
 
 
+import android.os.Bundle;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Post extends BaseModel {
+public class Post extends ModelBase {
     public String id, user_id;
 
     // Prefix is: post_
@@ -35,9 +37,28 @@ public class Post extends BaseModel {
     }
 
     @Override
-    public void persist() {
-
+    public Bundle toBundle() {
+        Bundle b = new Bundle();
+        b.putString("id", id);
+        b.putString("user_id", user_id);
+        b.putString("type", type);
+        b.putString("title", title);
+        b.putString("url", url);
+        b.putString("desc", desc);
+        b.putString("special", special);
+        b.putString("source", source);
+        b.putString("photo_url", photo_url);
+        b.putString("photo_caption", photo_caption);
+        b.putString("like_count", like_count);
+        b.putString("reblog_count", reblog_count);
+        b.putString("is_review", is_review);
+        b.putString("tag", tag);
+        b.putString("rating", rating);
+        b.putString("date", date);
+        return b;
     }
+
+
     /*
     public boolean is_review; // input is String, "0" or "1"
     public String[] tags; // input is 'tag', space separated
