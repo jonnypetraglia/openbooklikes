@@ -7,21 +7,30 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UserPartial extends ModelBase {
-    public String id, username, domain, photo; //Returned by GetUserFollowers
 
-    protected UserPartial(Void v) {}
+    @Override
+    public String modelName() { return "user"; }
+
+    public String username, domain, photo; //Returned by GetUserFollowers
 
     public UserPartial(JSONObject json) throws JSONException {
-        id = json.getString("id_user");
+        super(json);
         username = json.getString("usr_username");
         domain = json.getString("usr_domain");
         photo = json.getString("usr_photo"); //url
     }
 
+    public UserPartial(Bundle b) {
+        super(b);
+        b = b.getBundle(modelName());
+        username = b.getString("username");
+        domain = b.getString("domain");
+        photo = b.getString("photo");
+    }
+
     @Override
     public Bundle toBundle() {
-        Bundle b = new Bundle();
-        b.putString("id", id);
+        Bundle b = super.asBundle();
         b.putString("username", username);
         b.putString("domain", domain);
         b.putString("photo", photo);

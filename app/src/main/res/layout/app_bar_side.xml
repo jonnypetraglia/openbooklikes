@@ -33,7 +33,6 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:menu="@menu/menu_main"
                 android:theme="@style/AppTheme.AppBarOverlay"
                 />
 

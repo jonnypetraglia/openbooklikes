@@ -1,8 +1,8 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
-import com.qweex.openbooklikes.notmine.EndlessScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,18 +25,23 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class UserFragment extends FragmentBase {
+public class UserFragment extends FetchFragmentBase<User, Post> implements AdapterView.OnItemClickListener {
     static int MIN_PER_PAGE = 10, IMG_SIZE_PX = 600, MAX_POST_HEIGHT = 200;
-    User user;
-    BlogAdapter adapter;
     ListView listView;
     // TODO: domain -> open in browser
 
+
     @Override
     String getTitle() {
-        if(user==null)
-            return null;
-        return user==MainActivity.me ? "Blog" : user.properName();
+        if(primary ==null) //TODO: I don't like this;
+            return null; // It's null when the fragment is first created because User is fetched asyncronously
+        return primary ==MainActivity.me ? "Blog" : primary.properName();
+    }
+
+    @Override
+    public void setArguments(Bundle a) {
+        primary = new User(a);
+        super.setArguments(a);
     }
 
     @Override
@@ -45,7 +49,7 @@ public class UserFragment extends FragmentBase {
 
         View v = inflater.inflate(R.layout.fragment_user, null);
         listView = (ListView) v.findViewById(R.id.list_view);
-        listView.setOnItemClickListener(selectPost);
+        listView.setOnItemClickListener(this);
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
 
@@ -71,16 +75,17 @@ public class UserFragment extends FragmentBase {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Bundle args = getArguments().getBundle(primary.modelName());
         super.onCreate(savedInstanceState);
-        Log.d("OBL:userFragment", "!" + getArguments().getString("id"));
-        if(MainActivity.me.id.equals(getArguments().getString("id"))) {
+        Log.d("OBL:userFragment", "!" + args.getString("id"));
+        if(MainActivity.me.id.equals(args.getString("id"))) {
             // no need to fetch, MainActivity.me has all the info already
-            user = MainActivity.me;
+            primary = MainActivity.me;
             // UI will be filled in onViewCreated
         } else {
             RequestParams params = new RequestParams();
-            params.put("username", getArguments().getString("username"));
-            ApiClient.get("user/GetUserInfo", params, userHandler);
+            params.put("username", args.getString("username"));
+            ApiClient.get(params, userHandler);
             // UI will be filled in userHandler
         }
     }
@@ -88,8 +93,8 @@ public class UserFragment extends FragmentBase {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(user!=null) {
-            Log.d("OBL:user", "Filling UI from onViewCreated");
+        if(primary !=null) {
+            Log.d("OBL:primary", "Filling UI from onViewCreated");
             fillUi();
         }
     }
@@ -97,68 +102,73 @@ public class UserFragment extends FragmentBase {
     @Override
     public void onStart() {
         super.onStart();
-
         adapter.clear(); //TODO: Is this in the right place? Or needed?
         fetchMore(0);
     }
 
-    EndlessScrollListener scrollMuch = new EndlessScrollListener() {
-        @Override
-        public boolean onLoadMore(int page, int totalItemsCount) {
-            // Triggered only when new data needs to be appended to the list
-            // Add whatever code is needed to append new items to your AdapterView
-            if (adapter.noMore)
-                return false;
-            Log.d("OBL:user:scrollMuch", "Fetching page " + (page-1));
-            fetchMore(page - 1);
-            return true; // ONLY if more data is actually being loaded; false otherwise.
-        }
-    };
-
-    public void fetchMore(int page) {
-        super.fetchMore(page);
+    @Override
+    public boolean fetchMore(int page) {
+        if(!super.fetchMore(page))
+            return false;
         Log.d("OBL:fetchMore", "Fetching more posts, page " + page);
-        RequestParams params = new RequestParams();
-        params.put("PerPage", Math.min(adapter.perScreen(), MIN_PER_PAGE));
-        params.put("Page", page);
-        params.put("uid", getArguments().getString("id"));
+        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        params.put("uid", primary.id);
 
-        ApiClient.get("post/GetUserPosts", params, blogHandler);
+        ApiClient.get(params, blogHandler);
+        return true;
     }
 
     void fillUi() {
         View v = getView();
-        Log.d("OBL:fillUi", user.photoSize(IMG_SIZE_PX));
+        Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE_PX));
         ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
-        MainActivity.imageLoader.displayImage(user.photoSize(IMG_SIZE_PX), pic);
-        ((TextView)v.findViewById(R.id.title)).setText(user.properName());
-        ((TextView)v.findViewById(R.id.description)).setText(user.blog_desc);
-        ((Button)v.findViewById(R.id.bookCount)).setText(user.book_count + " books");
+        MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE_PX), pic);
+        ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
+        ((TextView)v.findViewById(R.id.description)).setText(primary.blog_desc);
+
+        Button books = ((Button)v.findViewById(R.id.bookCount));
+        books.setText(primary.book_count + " books");
+        books.setOnClickListener(loadShelves);
 
         Button followers = ((Button)v.findViewById(R.id.followersCount));
-        followers.setText(user.followed_count + " followers");
+        followers.setText(primary.followed_count + " followers");
         followers.setOnClickListener(loadFriends);
         Button followings = ((Button)v.findViewById(R.id.followingCount));
-        followings.setText(user.following_count + " following");
+        followings.setText(primary.following_count + " following");
         followings.setOnClickListener(loadFriends);
+
+        //TODO: UGGGGH I HATE THIS
+        getMainActivity().setMainTitle();
     }
 
-    View.OnClickListener loadFriends = new View.OnClickListener() {
+    View.OnClickListener loadShelves = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(MainActivity.me.id.equals(primary.id))
+                getMainActivity().openLeftDrawer();
+            else {
+                ShelvesFragment shelvesFragment = new ShelvesFragment();
+                shelvesFragment.setArguments(primary.intoBundle(new Bundle()));
+                getMainActivity().loadSideFragment(shelvesFragment);
+            }
+        }
+    };
 
+    View.OnClickListener loadFriends = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             FriendsFragment friendsFragment = new FriendsFragment();
             Bundle args = new Bundle();
-            args.putString("uid", user.id);
-            args.putString("name", user.properName());
+            args.putString("uid", primary.id);
+            args.putString("primary", primary.properName());
             switch(view.getId()) {
                 case R.id.followersCount:
-                    args.putInt("count", Integer.parseInt(user.followed_count));
-                    args.putString("type", "Followers");
+                    args.putInt("count", Integer.parseInt(primary.followed_count));
+                    args.putString("relation", "Followers");
                     break;
                 case R.id.followingCount:
-                    args.putInt("count", Integer.parseInt(user.following_count));
-                    args.putString("type", "Followings");
+                    args.putInt("count", Integer.parseInt(primary.following_count));
+                    args.putString("relation", "Followings");
                     break;
                 default:
                     Log.e("OBL", "Unidentified type of friends to fetch");
@@ -170,15 +180,25 @@ public class UserFragment extends FragmentBase {
         }
     };
 
-    ResponseHandler userHandler = new ResponseHandler() {
+    LoadingResponseHandler userHandler = new LoadingResponseHandler() {
+
+        @Override
+        protected String urlPath() {
+            return "primary/GetUserInfo";
+        }
+
+        @Override
+        protected String countFieldName() {
+            return null; //No count
+        }
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-            Log.d("OBL:user.", "Success " + response.length());
+            Log.d("OBL:primary.", "Success " + response.length());
             try {
-                user = new User(response);
-                Log.d("OBL:user", "Filling UI from userHandler");
+                primary = new User(response);
+                Log.d("OBL:primary", "Filling UI from userHandler");
                 fillUi();
             } catch (JSONException e) {
                 Log.e("OBL:User!", "Failed cause " + e.getMessage());
@@ -188,26 +208,35 @@ public class UserFragment extends FragmentBase {
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:user", "Failed cause " + error.getMessage());
+            Log.e("OBL:primary", "Failed cause " + error.getMessage());
         }
     };
 
-    ResponseHandler blogHandler = new ResponseHandler() {
+    LoadingResponseHandler blogHandler = new LoadingResponseHandler() {
+
+        @Override
+        protected String urlPath() {
+            return "post/GetUserPosts";
+        }
+
+        @Override
+        protected String countFieldName() {
+            return "count";
+        }
+
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
+            if(wasLastFetchNull())
+                return;
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
-                if(response.getInt("count")==0) {
-                    adapter.noMore = true;
-                    return;
-                }
                 JSONArray posts = response.getJSONArray("posts");
 
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i));
-                    Log.d("OBL:post", "Post: " + p.title);
+                    Log.d("OBL:primary", "Post: " + p.title);
                     adapter.add(p);
                 }
             } catch (JSONException e) {
@@ -218,7 +247,7 @@ public class UserFragment extends FragmentBase {
     };
 
     class BlogAdapter extends AdapterBase<Post> {
-        public boolean noMore = false;
+
 
         public BlogAdapter(Context context, ArrayList<Post> posts) {
             super(context, 0, posts);
@@ -243,7 +272,7 @@ public class UserFragment extends FragmentBase {
 
 
 
-            Log.d("OBL:post", post.title + " ");
+            Log.d("OBL:primary", post.title + " ");
             setOrHide(row, R.id.type, post.type);
             setOrHide(row, R.id.date, post.date);
             setOrHide(row, R.id.title, post.title);
@@ -267,19 +296,27 @@ public class UserFragment extends FragmentBase {
 
         @Override
         public int perScreen() {
-            return 10; //TODO?
+            return MIN_PER_PAGE; //TODO?
+        }
+
+        @Override
+        public boolean noMore() {
+            return blogHandler.wasLastFetchNull();
         }
     }
 
-    AdapterView.OnItemClickListener selectPost = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-            Log.d("Clicked!", adapter.getItem(position).date);
-            Post p = adapter.getItem(position-1); //???? Why is this? because of header?
-            PostFragment postFragment = new PostFragment();
-            postFragment.setPost(p, user.properName());
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Log.d("Clicked!", adapter.getItem(position).date);
+        Post post = adapter.getItem(position - listView.getHeaderViewsCount()); //???? Why is this? because of header?
 
-            getMainActivity().loadSideFragment(postFragment);
-        }
-    };
+        Bundle b = post.intoBundle(new Bundle());
+
+        for(String s : getArguments().keySet())
+            Log.d("OBL", "!!" + s);
+
+        PostFragment postFragment = new PostFragment();
+        postFragment.setArguments(b);
+        getMainActivity().loadSideFragment(postFragment);
+    }
 }

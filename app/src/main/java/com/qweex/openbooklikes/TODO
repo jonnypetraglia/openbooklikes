@@ -4,23 +4,18 @@
 
 
 NOW
-    - Make Loading Screen when logging in better (have some text or something)
     - Left Drawer's state is incorrect
       1. Click on a user in FriendsFragment
       2. Unable to swipe drawer open; "Blog" remains checked
-    - When "### Books" button is clicked:
-      - open left drawer if me
-      - otherwise open right drawer and load a ...
-    - ShelvesFragment for other user's shelves
-      - opens in sidebar
+    - While fetching, show a progress bar as a footer view for the listview/gridview
 
 
 LATER
-    - Move Logout to either footer of drawer or inside Settings screen
+    - Make Loading Screen when logging in better (have some text or something)
     - Add "Reading Challenge" to drawer
         - only display if user has an active one
     - Search books / AddBookToShelf
-    - shelf counts on right
+    - shelf counts on right of drawer menu
 
 BUGS
     - Making progress on right drawer; just need to get full width

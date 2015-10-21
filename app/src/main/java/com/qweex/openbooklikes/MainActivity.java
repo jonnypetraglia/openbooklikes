@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,12 +38,13 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
+    private MenuItem selectedNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(me ==null) {
+        if(me==null) {
             finish();
             return;
         }
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
         imageLoader.init(config);
 
-        // Load user info
+        // Load primary info
         ((TextView) findViewById(R.id.user_username)).setText(me.username);
         ((TextView)findViewById(R.id.user_email)).setText(me.email);
         imageLoader.displayImage(me.photo, (ImageView) findViewById(R.id.user_pic));
@@ -101,9 +101,9 @@ public class MainActivity extends AppCompatActivity
         shelfNav.clear();
         for(Shelf s : shelves) {
             MenuItem mitem = shelfNav.add(R.id.nav_group,
-                    s.id.equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
-                    0,
-                    s.name + " (" + s.book_count + ")")
+                        s.id.equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
+                        0,
+                        s.name + " (" + s.book_count + ")")
                 .setCheckable(true)
                 .setIcon(android.R.drawable.ic_menu_compass); //TODO: Icon
             shelfMenuItems.add(mitem);
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        Log.d("onBackPressed", drawer.isDrawerOpen(GravityCompat.START) + " | " + drawer.isDrawerOpen(GravityCompat.END));
         if (drawer.isDrawerOpen(GravityCompat.END)) {
             closeRightDrawer();
         } else if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -141,73 +142,67 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if(id==R.id.action_logout) {
-            logout();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        if(item==selectedNav) {
+            closeLeftDrawer();
+            return true;
+        }
+
         switch(id) {
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
-                Log.d("OBL:nav_shelf", shelves.get(shelfMenuItems.indexOf(item)).name);
-                loadShelf(shelves.get(shelfMenuItems.indexOf(item)));
+                Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
+                Bundle b = me.toBundle();
+                Log.d("OBL:nav_shelf", shelf.name);
+                loadShelf(shelf, b);
                 break;
             case R.id.nav_blog:
                 loadUser(me);
                 break;
-            //TODO: Special & Status shelfMap
+            case R.id.nav_search:
+                loadMainFragment(new SearchFragment());
+                break;
+            case R.id.nav_logout:
+                logout();
+                return false;
         }
+
+        if(item.getGroupId()==R.id.nav_group)
+            selectedNav = item;
 
         closeLeftDrawer();
         return true;
     }
 
-    private void loadShelf(Shelf shelf) {
-        Log.d("OBL", "loadShelf " + shelf.name);
+    public void loadShelf(Shelf shelf, Bundle user) {
+        Log.d("OBL", "loadShelf " + shelf.name + " | " + user.getString("username"));
 
-        Bundle b = shelf.toBundle();
-        if(!shelf.id.equals("-1"))
-            b.putString("Cat", shelf.id);;
-
-        closeRightDrawer();
+        Bundle b = new Bundle();
+        b.putBundle(shelf.modelName(), shelf.toBundle());
+        b.putBundle(MainActivity.me.modelName(), user);
 
         ShelfFragment shelfFragment = new ShelfFragment();
         shelfFragment.setArguments(b);
-        shelfFragment.setShelf(this, shelf);
         loadMainFragment(shelfFragment);
     }
 
     public void loadUser(UserPartial user) {
         Log.d("OBL", "loadUser " + user.id);
 
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+        Bundle b = user.intoBundle(new Bundle());
 
         UserFragment userFragment = new UserFragment();
-        userFragment.setArguments(user.toBundle());
+        userFragment.setArguments(b);
         loadMainFragment(userFragment);
     }
 
     public void logout() {
-        //Ask the user if they want to quit
+        //Ask the primary if they want to quit
         new AlertDialog.Builder(this)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setTitle("Logout")
@@ -216,7 +211,7 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    getSharedPreferences(LaunchActivity.USER_DATA_PREFS, MODE_PRIVATE)
+                    getSharedPreferences(Me.USER_DATA_PREFS, MODE_PRIVATE)
                             .edit().clear().apply();
                     imageLoader.clearDiskCache();
                     imageLoader.clearMemoryCache();
@@ -228,17 +223,24 @@ public class MainActivity extends AppCompatActivity
             .show();
     }
 
-    private void openRightDrawer() {
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
+    public void openRightDrawer() {
+        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
+        drawer.openDrawer(GravityCompat.END);
+        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
     }
 
-    private void closeRightDrawer() {
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+    public void openLeftDrawer() {
+        closeRightDrawer();
+        drawer.openDrawer(GravityCompat.START);
     }
 
-    private void closeLeftDrawer() {
+    public void closeRightDrawer() {
+        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+        drawer.closeDrawer(GravityCompat.END);
+    }
+
+    public void closeLeftDrawer() {
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -259,6 +261,16 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.side_fragment, fragment)
                 .commit();
         ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(fragment.getTitle());
+    }
+
+    public void setMainTitle() {
+        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle();
+        ((Toolbar) findViewById(R.id.toolbar)).setTitle(title);
+    }
+
+    public void setSideTitle() {
+        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.side_fragment)).getTitle();
+        ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(title);
     }
 
 

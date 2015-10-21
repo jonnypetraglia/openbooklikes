@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="@layout/activity_main"
     tools:context="com.qweex.openbooklikes.ShelfFragment"
+    android:id="@+id/shelf_views"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

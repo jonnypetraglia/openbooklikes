@@ -3,8 +3,6 @@ package com.qweex.openbooklikes;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,24 +11,27 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TableLayout;
-import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.Book;
 
 
-public class BookFragment extends FragmentBase {
+public class BookFragment extends FragmentBase<Book> {
 
     static final int IMG_SIZE_PX = 700;
-    Book book;
     int imgHeight;
 
-    public void setBook(Book b, int i) {
-        this.book = b;
-        this.imgHeight = i;
+    @Override
+    public String getTitle() {
+        return primary.title;
     }
 
-    public String getTitle() {
-        return book.title;
+    @Override
+    public void setArguments(Bundle a) {
+        Log.d("OBL", "setArguments " + a.getBundle("book").getString("cover"));
+        primary = new Book(a);
+        Log.d("OBL", "setArguments " + primary.id + " | " + primary.cover);
+        imgHeight = a.getInt("imgHeight");
+        super.setArguments(a);
     }
 
     @Override
@@ -109,7 +110,7 @@ public class BookFragment extends FragmentBase {
 
         ((ImageView) cover).setImageBitmap(null);
         MainActivity.imageLoader.displayImage(
-                book.cover.replace("300/300", IMG_SIZE_PX+"/"+IMG_SIZE_PX),
+                primary.cover.replace("300/300", IMG_SIZE_PX+"/"+IMG_SIZE_PX),
                 (ImageView) cover);
         cover.requestLayout();
         title.requestLayout();
@@ -123,21 +124,21 @@ public class BookFragment extends FragmentBase {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
         ImageView cover = (ImageView) view.findViewById(R.id.cover);
-        MainActivity.imageLoader.displayImage(book.cover, cover);
+        MainActivity.imageLoader.displayImage(primary.cover, cover);
 
-        setOrHide(view, R.id.title, book.title);
-        setOrHide(view, R.id.author, book.author);
+        setOrHide(view, R.id.title, primary.title);
+        setOrHide(view, R.id.author, primary.author);
         // And this is where I'd put a Description
         //
         // IF I HAD ONE
 
-        setOrHide(view, R.id.format, book.format); //TODO: Figure out what the numbers map to
-        setOrHide(view, R.id.isbn_13, book.isbn_13);
-        setOrHide(view, R.id.isbn_10, book.isbn_10);
-        setOrHide(view, R.id.publishDate, book.publish_date);
-        setOrHide(view, R.id.publisher, book.publisher);
-        setOrHide(view, R.id.pageCount, book.pages);
-        setOrHide(view, R.id.language, book.language);
+        setOrHide(view, R.id.format, primary.format); //TODO: Figure out what the numbers map to
+        setOrHide(view, R.id.isbn_13, primary.isbn_13);
+        setOrHide(view, R.id.isbn_10, primary.isbn_10);
+        setOrHide(view, R.id.publishDate, primary.publish_date);
+        setOrHide(view, R.id.publisher, primary.publisher);
+        setOrHide(view, R.id.pageCount, primary.pages);
+        setOrHide(view, R.id.language, primary.language);
 
 
         adjustOrientation(view, getActivity().getResources().getConfiguration());

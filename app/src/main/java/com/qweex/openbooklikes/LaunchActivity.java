@@ -19,20 +19,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Me;
-import com.qweex.openbooklikes.model.Shelf;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
 public class LaunchActivity extends AppCompatActivity {
-    public static final String USER_DATA_PREFS = "UserData";
-
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -71,11 +66,13 @@ public class LaunchActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
 
 
-        SharedPreferences prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE);
-        Log.d("OBL:LOGIN", prefs.getString("usr_token", "NULL"));
-        if(prefs.getString("usr_token", null)!=null) {
-            MainActivity.me = new Me(prefs);
-            startApp();
+        try {
+            MainActivity.me = Me.fromPrefs(this);
+            if(MainActivity.me!=null)
+                startApp();
+        } catch (JSONException e) {
+            //TODO: Show Error
+            e.printStackTrace();
         }
     }
 
@@ -92,7 +89,7 @@ public class LaunchActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // Check for a valid password, if the primary entered one.
         if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
@@ -116,28 +113,49 @@ public class LaunchActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+            // perform the primary login attempt.
             showProgress(true);
             RequestParams urlParams = new RequestParams();
             urlParams.put("email", mEmailView.getText().toString());
             urlParams.put("password", mPasswordView.getText().toString());
 
-            ApiClient.post("user/login", urlParams, loginHandler);
+            ApiClient.post(urlParams, loginHandler);
         }
     }
 
     private void startApp() {
         Log.d("OBL", "startApp");
         showProgress(true);
-        ApiClient.get("user/GetUserCategories", shelvesHandler);
+        ApiClient.get(new ShelvesHandler(MainActivity.shelves, MainActivity.me){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                Log.d("OBL", "Shelves " + shelves.size());
+                Intent i = new Intent(LaunchActivity.this, MainActivity.class);
+                LaunchActivity.this.startActivity(i);
+                LaunchActivity.this.finish();
+            }
+        });
     }
 
-    private JsonHttpResponseHandler loginHandler = new JsonHttpResponseHandler() {
+    private ApiClient.ApiResponseHandler loginHandler = new ApiClient.ApiResponseHandler() {
+
+
+        @Override
+        protected String urlPath() {
+            return "primary/login";
+        }
+
+        @Override
+        protected String countFieldName() {
+            return null; // No count
+        }
 
         @Override
         public void onStart() {
             showProgress(true);
         }
+
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             // If the response is JSONObject instead of expected JSONArray
@@ -147,18 +165,12 @@ public class LaunchActivity extends AppCompatActivity {
 
                 mEmailView.setError(null);
                 mPasswordView.setError(null);
-                MainActivity.me = new Me(response);
-                if(MainActivity.me.token!=null)
-                    saveMe();
+                MainActivity.me = new Me(response, LaunchActivity.this);
                 startApp();
             } catch (JSONException e) {
                 e.printStackTrace();
                 showProgress(false);
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
-            } catch (Exception e) {
-                e.printStackTrace();
-                showProgress(false);
-                mPasswordView.setError("!!!: " + e.getMessage());
             }
         }
 
@@ -169,66 +181,6 @@ public class LaunchActivity extends AppCompatActivity {
             mPasswordView.setError("Error " + statusCode + " " + error.getMessage());
         }
     };
-
-    private JsonHttpResponseHandler shelvesHandler = new JsonHttpResponseHandler(){
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            Log.d("OBL:cat.", "Success " + response.length());
-
-            try {
-                if (response.getInt("status") != 0 || statusCode >= 400)
-                    throw new JSONException(response.getString("message"));
-                JSONArray categories = response.getJSONArray("categories");
-
-                //MenuItem item = shelfNav.add(R.id.nav_group, R.id.nav_all_shelf, 0, "All books").setCheckable(true);
-                JSONObject allBooks = new JSONObject();
-                allBooks.put("id_category", "-1");
-                allBooks.put("id_user", MainActivity.me.id);
-                allBooks.put("category_name", "All books");
-                allBooks.put("category_book_count", MainActivity.me.book_count);
-                Shelf s = new Shelf(allBooks);
-                MainActivity.shelves.add(s);
-
-                for (int i = 0; i < categories.length(); i++) {
-                    s = new Shelf(categories.getJSONObject(i));
-                    MainActivity.shelves.add(s);
-                    Log.d("OBL:Cat", s.name);
-                }
-
-                Intent i = new Intent(LaunchActivity.this, MainActivity.class);
-                LaunchActivity.this.startActivity(i);
-                LaunchActivity.this.finish();
-            } catch (JSONException e) {
-                Log.e("OBL:Cat!", "Failed cause " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
-
-    private void saveMe() {
-        SharedPreferences.Editor prefs = getSharedPreferences(USER_DATA_PREFS, MODE_PRIVATE).edit();
-        prefs.putString("id_user", MainActivity.me.id);
-        prefs.putString("usr_username", MainActivity.me.username);
-        prefs.putString("usr_domain", MainActivity.me.domain);
-        prefs.putString("usr_photo", MainActivity.me.photo);
-
-        prefs.putString("usr_email", MainActivity.me.email);
-        prefs.putString("usr_blog_title", MainActivity.me.blog_title);
-        prefs.putString("usr_blog_desc", MainActivity.me.blog_desc);
-        prefs.putString("usr_following_count", MainActivity.me.following_count);
-        prefs.putString("usr_followed_count", MainActivity.me.followed_count);
-        prefs.putInt("usr_book_count", MainActivity.me.book_count);
-
-        prefs.putString("usr_token", MainActivity.me.token);
-        Log.d("OBL:saveAsMe", MainActivity.me.token);
-        prefs.apply();
-    }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic

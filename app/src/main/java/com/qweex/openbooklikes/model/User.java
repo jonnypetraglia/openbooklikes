@@ -9,10 +9,6 @@ public class User extends UserPartial {
     public String blog_title, blog_desc, following_count, followed_count;
     public int book_count;
 
-    protected User(UserPartial.Void v) {
-        super(v);
-    }
-
     public User(JSONObject json) throws JSONException {
         super(json);
         blog_title = unHTML(json.getString("usr_blog_title"));
@@ -20,6 +16,15 @@ public class User extends UserPartial {
         following_count = json.getString("usr_following_count");
         followed_count = json.getString("usr_followed_count");
         book_count = json.getInt("usr_book_count");
+    }
+
+    public User(Bundle b) {
+        super(b);
+        blog_title = b.getString("blog_title");
+        blog_desc = b.getString("blog_desc");
+        following_count = b.getString("following_count");
+        followed_count = b.getString("followed_count");
+        book_count = b.getInt("book_count");
     }
 
     public String photoSize(int size) {
@@ -35,7 +40,8 @@ public class User extends UserPartial {
 
     @Override
     public Bundle toBundle() {
-        Bundle b = new Bundle();
+        Bundle b = super.toBundle();
+        b.putString("properName()", properName());
         b.putString("blog_title", blog_title);
         b.putString("blog_desc", blog_desc);
         b.putString("following_count", following_count);

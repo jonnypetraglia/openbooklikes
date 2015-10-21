@@ -7,7 +7,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Post extends ModelBase {
-    public String id, user_id;
+
+    @Override
+    public String modelName() {
+        return "post";
+    }
+
+    public String user_id;
 
     // Prefix is: post_
     public String type, title, url, desc, special /*spcial*/, source, photo_url, photo_caption;
@@ -15,7 +21,7 @@ public class Post extends ModelBase {
     public String like_count, reblog_count, is_review, tag, rating, date;
 
     public Post(JSONObject data) throws JSONException {
-        id = data.getString("id_post");
+        super(data);
         user_id = data.getString("id_user");
         type = data.getString("post_type");
         title = unHTML(data.getString("post_title"));
@@ -36,10 +42,29 @@ public class Post extends ModelBase {
             photo_caption = data.getString("photo_caption");
     }
 
+    public Post(Bundle b) {
+        super(b);
+        b = b.getBundle(modelName());
+        user_id = b.getString("user_id");
+        type = b.getString("type");
+        title = b.getString("title");
+        url = b.getString("url");
+        desc = b.getString("desc");
+        special = b.getString("special");
+        source = b.getString("source");
+        like_count = b.getString("like_count");
+        reblog_count = b.getString("reblog_count");
+        is_review = b.getString("is_review");
+        tag = b.getString("tag");
+        rating = b.getString("rating");
+        date = b.getString("date");
+        photo_url = b.getString("photo_url");
+        photo_caption = b.getString("photo_caption");
+    }
+
     @Override
     public Bundle toBundle() {
-        Bundle b = new Bundle();
-        b.putString("id", id);
+        Bundle b = super.asBundle();
         b.putString("user_id", user_id);
         b.putString("type", type);
         b.putString("title", title);

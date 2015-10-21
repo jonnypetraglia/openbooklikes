@@ -1,7 +1,6 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,8 +19,9 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Book;
+import com.qweex.openbooklikes.model.BookListPartial;
 import com.qweex.openbooklikes.model.Shelf;
-import com.qweex.openbooklikes.notmine.EndlessScrollListener;
+import com.qweex.openbooklikes.model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,11 +33,10 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 
 
-public class ShelfFragment extends FragmentBase {
-    Shelf shelf;
+public class ShelfFragment<BookList extends BookListPartial> extends FetchFragmentBase<BookList, Book> implements AdapterView.OnItemClickListener {
+    User owner;
     GridView gridView;
     ListView listView;
-    AdapterBase<Book> adapter;
     static int IMG_SIZE = MainActivity.dpToPx(140), MIN_PER_PAGE = 25;
 
     static CheckTracker statusTracker, specialTracker;
@@ -54,18 +53,27 @@ public class ShelfFragment extends FragmentBase {
 
     @Override
     String getTitle() {
-        return shelf.name;
+        String title = primary.title();
+
+        Log.d("OBL:title", "!" + owner.id);
+        if(!MainActivity.me.id.equals(owner.id))
+            title += " - " + owner.properName();
+        return title;
+    }
+
+    @Override
+    public void setArguments(Bundle a) {
+        primary = (BookList) new Shelf(a);
+        Log.d("OBL:setArgs", "shelf.id=" + primary.id);
+        owner = new User(a);
+        super.setArguments(a);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+        adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
     }
 
     @Override
@@ -76,35 +84,23 @@ public class ShelfFragment extends FragmentBase {
         gridView = (GridView) view.findViewById(R.id.gridView);
         gridView.setColumnWidth(IMG_SIZE);
         gridView.setOnScrollListener(scrollMuch);
-        gridView.setOnItemClickListener(selectBook);
+        gridView.setOnItemClickListener(this);
 
         listView = (ListView) view.findViewById(R.id.listView);
         gridView.setOnScrollListener(scrollMuch);
-        listView.setOnItemClickListener(selectBook);
+        listView.setOnItemClickListener(this);
 
         changeWidget();
         return super.createProgressView(inflater, container, view);
     }
 
-    EndlessScrollListener scrollMuch = new EndlessScrollListener() {
-        @Override
-        public boolean onLoadMore(int page, int totalItemsCount) {
-            // Triggered only when new data needs to be appended to the list
-            // Add whatever code is needed to append new items to your AdapterView
-            if (adapter.getCount() == shelf.book_count)
-                return false;
-            fetchMore(page - 1);
-            return true; // ONLY if more data is actually being loaded; false otherwise.
-        }
-    };
-
     public void changeWidget() {
-        if(adapter instanceof DetailsAdapter) {
-            gridView.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-        } else {
+        if(listView.getVisibility()==View.VISIBLE) {
             listView.setVisibility(View.GONE);
             gridView.setVisibility(View.VISIBLE);
+        } else {
+            gridView.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
         }
         listView.setAdapter(adapter);
         gridView.setAdapter(adapter);
@@ -136,11 +132,11 @@ public class ShelfFragment extends FragmentBase {
         Log.d("OBL", "OptionSelected");
 
         if(id==R.id.change_view) {
-            if(adapter instanceof DetailsAdapter) {
-                adapter = new CoverAdapter(getActivity(), adapter.getData());
+            if(gridView.getVisibility()==View.VISIBLE) {
+                adapter = new CoverAdapter(getActivity(), adapter.getData()); //TODO: This is ugly
                 item.setTitle("List view");
             } else {
-                adapter = new DetailsAdapter(getActivity(), adapter.getData());
+                adapter = new DetailsAdapter(getActivity(), adapter.getData()); //TODO: This is also ugly
                 item.setTitle("Grid view");
             }
             changeWidget();
@@ -164,22 +160,16 @@ public class ShelfFragment extends FragmentBase {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setShelf(MainActivity a, Shelf s) {
-        shelf = s;
-        ArrayList<Book> bookList = new ArrayList<>();
-        Log.d("OBL:Adapter", shelf.name + "() " + bookList);
-        adapter = new CoverAdapter(a, bookList);
-    }
-
-    public void fetchMore(int page) {
-        super.fetchMore(page);
-        RequestParams params = new RequestParams();
-        params.put("PerPage", Math.min(adapter.perScreen(), MIN_PER_PAGE));
-        params.put("Page", page);
-        if(getArguments().containsKey("Cat"))
-            params.put("Cat", getArguments().get("Cat"));
+    @Override
+    public boolean fetchMore(int page) {
+        if(!super.fetchMore(page))
+            return false;
+        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        params.put("uid", owner.id);
+        if(!primary.id.equals("-1"))
+            params.put("Cat", primary.id);
         if(specialTracker.isChecked(R.id.filter_wishlist))
-            params.put("BookIsWish", "1");
+            params.put("BookIsWish", specialTracker.isChecked(R.id.filter_wishlist) ? 1 : 0);
         if(specialTracker.isChecked(R.id.filter_favourite))
             params.put("Favourite", "1");
         if(statusTracker.isChecked(R.id.filter_read))
@@ -192,13 +182,36 @@ public class ShelfFragment extends FragmentBase {
             //params.put(s, getArguments().getBundle("params").get(s));
 
         //TODO other params
-        ApiClient.get("book/GetUserBooks", params, booksHandler);
+        ApiClient.get(params, booksHandler);
+        return true;
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        Book book = adapter.getItem(position);
+
+        Log.d("OBL", "book is " + book.cover);
+
+        Bundle b = book.intoBundle(new Bundle());
+        int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
+        b.putInt("imgHeight", imgHeight);
+
+        for(String s : b.keySet())
+            Log.d("OBL", "create bookfragment " + s + " = " + b.get(s));
+        for(String s : b.getBundle("book").keySet())
+            Log.d("OBL", "create bookfragment book." + s + " = " + b.getBundle("book").get(s));
+
+        BookFragment bookFragment = new BookFragment();
+        bookFragment.setArguments(b);
+        getMainActivity().loadSideFragment(bookFragment);
+    }
+
 
     @Override
     public void onStart() {
         super.onStart();
-        if (shelf == null)
+        if (primary == null) //TODO: Why can this be
             return;
 
         adapter.clear();
@@ -238,9 +251,54 @@ public class ShelfFragment extends FragmentBase {
             int numberOfRows = (int) Math.ceil(gridView.getHeight() / IMG_SIZE); //140
             int numberPerRow = (int) Math.floor(gridView.getWidth() / IMG_SIZE);  //140
             Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
-            return numberOfRows * numberPerRow;
+            return Math.max(numberOfRows * numberPerRow, MIN_PER_PAGE);
+        }
+
+        @Override
+        public boolean noMore() {
+            return getCount() == primary.book_count || booksHandler.wasLastFetchNull();
         }
     }
+
+    BookHandler booksHandler = new BookHandler();
+    protected class BookHandler extends LoadingResponseHandler {
+
+        @Override
+        protected String urlPath() {
+            return "book/GetUserBooks";
+        }
+
+        @Override
+        protected String countFieldName() {
+            return "book_count";
+        }
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            super.onSuccess(statusCode, headers, response);
+            Log.d("OBL:book.", "Success " + response.length());
+
+            try {
+                if (response.getInt("status") != 0 || statusCode >= 400)
+                    throw new JSONException(response.getString("message"));
+                JSONArray books = response.getJSONArray("books");
+                for(int i=0; i<books.length(); i++) {
+                    Book b = new Book(books.getJSONObject(i));
+                    Log.d("OBL:book", "Book: " + b.title);
+                    adapter.add(b);
+                }
+            } catch (JSONException e) {
+                Log.e("OBL:Book!", "Failed cause " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
+        }
+    };
+
 
     class DetailsAdapter extends AdapterBase<Book> {
 
@@ -271,38 +329,15 @@ public class ShelfFragment extends FragmentBase {
         public int perScreen() {
             return 10; //TODO
         }
+
+        @Override
+        public boolean noMore() {
+            return adapter.getCount() == primary.book_count;
+        }
     }
 
-    ResponseHandler booksHandler = new ResponseHandler() {
 
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            super.onSuccess(statusCode, headers, response);
-            Log.d("OBL:book.", "Success " + response.length());
-
-            try {
-                if (response.getInt("status") != 0 || statusCode >= 400)
-                    throw new JSONException(response.getString("message"));
-                JSONArray books = response.getJSONArray("books");
-                for(int i=0; i<books.length(); i++) {
-                    Book b = new Book(books.getJSONObject(i));
-                    Log.d("OBL:book", "Book: " + b.title);
-                    adapter.add(b);
-                }
-            } catch (JSONException e) {
-                Log.e("OBL:Book!", "Failed cause " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:Cat", "Failed cause " + error.getMessage());
-        }
-    };
-
-
-    public static class CheckTracker {
+    public static class CheckTracker { //TODO: find an alternative to this class
         HashMap<Integer, Boolean> group = new HashMap<>();
 
         public boolean has(int id) {
@@ -337,19 +372,4 @@ public class ShelfFragment extends FragmentBase {
             return what;
         }
     }
-
-    AdapterView.OnItemClickListener selectBook = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Book b = adapter.getItem(position);
-
-            BookFragment bookFragment = new BookFragment();
-            int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
-            bookFragment.setBook(b, imgHeight);
-
-            getMainActivity().loadSideFragment(bookFragment);
-        }
-    };
-
-
 }
