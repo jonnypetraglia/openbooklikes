@@ -6,6 +6,9 @@
             android:title="Blog" />
         <item android:id="@+id/nav_search" android:icon="@android:drawable/ic_menu_edit"
             android:title="Search" />
+        <item android:id="@+id/nav_not_me"
+            android:visible="false"
+            android:title="" />
         <item android:id="@+id/nav_shelves"
             android:title="Shelves">
             <menu></menu>

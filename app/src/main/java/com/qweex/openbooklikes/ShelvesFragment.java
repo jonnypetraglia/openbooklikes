@@ -40,7 +40,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     String getTitle() {
-        return "Shelves - " + getArguments().getBundle("primary").getString("properName()");
+        return "Shelves";
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        getMainActivity().loadShelf(adapter.getItem(i), getArguments().getBundle(MainActivity.me.modelName()));
+        getMainActivity().loadShelf(adapter.getItem(i), primary);
     }
 
     private class ShelvesAdapter extends AdapterBase<Shelf>{

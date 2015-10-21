@@ -20,6 +20,7 @@ public class User extends UserPartial {
 
     public User(Bundle b) {
         super(b);
+        b = b.getBundle(modelName());
         blog_title = b.getString("blog_title");
         blog_desc = b.getString("blog_desc");
         following_count = b.getString("following_count");

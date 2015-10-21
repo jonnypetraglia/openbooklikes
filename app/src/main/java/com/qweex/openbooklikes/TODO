@@ -4,9 +4,6 @@
 
 
 NOW
-    - Left Drawer's state is incorrect
-      1. Click on a user in FriendsFragment
-      2. Unable to swipe drawer open; "Blog" remains checked
     - While fetching, show a progress bar as a footer view for the listview/gridview
 
 

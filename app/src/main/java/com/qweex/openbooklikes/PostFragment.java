@@ -11,20 +11,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.Post;
+import com.qweex.openbooklikes.model.User;
 
 public class PostFragment extends FragmentBase<Post> {
 
     static final int IMG_SIZE_PX = 500;
-    String blogTitle;
+    User user;
 
     @Override
     String getTitle() {
-        return blogTitle;
+        return user.blog_title;
     }
 
     @Override
     public void setArguments(Bundle a) {
         primary = new Post(a);
+        user = new User(a);
         super.setArguments(a);
     }
 

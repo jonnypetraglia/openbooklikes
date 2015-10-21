@@ -26,12 +26,10 @@ import cz.msebera.android.httpclient.Header;
 public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implements AdapterView.OnItemClickListener {
     ListView listView;
     String relation;
-
+    int relationCount = 0;
 
     @Override
     String getTitle() {
-        if(!MainActivity.me.equals(primary))
-            return relation + " - " + primary.properName();
         return relation;
     }
 
@@ -41,17 +39,18 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
     @Override
     public void setArguments(Bundle b) {
-        try {
-            relation = b.getString("relation");
-            relation = relation.substring(0,1).toUpperCase() + relation.substring(1).toLowerCase();
-            if (!relation.equals("Followers") && !relation.equals("Followings"))
-                throw new Exception("Invalid relation: " + relation);
-
-            primary = new User(b);
-            super.setArguments(b);
-        } catch(Exception e) {
-            e.printStackTrace();
+        primary = new User(b);
+        String c;
+        if(b.getInt("relationId")==R.id.followingCount) {
+            relation = "Followings";
+            c = primary.following_count;
+        } else {
+            relation = "Followers";
+            c = primary.followed_count;
         }
+        if(c!=null)
+            relationCount = Integer.parseInt(c);
+        super.setArguments(b);
     }
 
     @Override
@@ -97,7 +96,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     LoadingResponseHandler friendsHandler = new LoadingResponseHandler() {
         @Override
         protected String urlPath() {
-            return "primary/GetUser" + relation;
+            return "user/GetUser" + relation;
         }
 
         @Override
@@ -148,7 +147,6 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             MainActivity.imageLoader.displayImage(user.photo, (ImageView) row.findViewById(R.id.profilePic));
 
             ((TextView)row.findViewById(R.id.title)).setText(user.username);
-            //((TextView)row.findViewById(R.id.description)).setText(primary.);
 
             return row;
         }
@@ -160,8 +158,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
         @Override
         public boolean noMore() {
-            return getCount()==getArguments().getInt("count")  || friendsHandler.wasLastFetchNull();
-
+            return getCount()==relationCount || friendsHandler.wasLastFetchNull();
         }
     }
 }

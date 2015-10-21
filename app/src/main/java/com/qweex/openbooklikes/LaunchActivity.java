@@ -143,7 +143,7 @@ public class LaunchActivity extends AppCompatActivity {
 
         @Override
         protected String urlPath() {
-            return "primary/login";
+            return "user/login";
         }
 
         @Override

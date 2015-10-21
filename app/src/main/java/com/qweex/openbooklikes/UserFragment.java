@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
+import com.qweex.openbooklikes.model.UserPartial;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +36,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     String getTitle() {
         if(primary ==null) //TODO: I don't like this;
             return null; // It's null when the fragment is first created because User is fetched asyncronously
-        return primary ==MainActivity.me ? "Blog" : primary.properName();
+        return primary == MainActivity.me ? "Blog" : primary.properName();
     }
 
     @Override
@@ -75,16 +76,18 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Bundle args = getArguments().getBundle(primary.modelName());
         super.onCreate(savedInstanceState);
-        Log.d("OBL:userFragment", "!" + args.getString("id"));
-        if(MainActivity.me.id.equals(args.getString("id"))) {
+
+        Log.d("OBL:userFragment", "!" + primary.id);
+        if(primary.equals(MainActivity.me)) {
             // no need to fetch, MainActivity.me has all the info already
+            Log.d("OBL:user is me", "woah");
             primary = MainActivity.me;
             // UI will be filled in onViewCreated
         } else {
             RequestParams params = new RequestParams();
-            params.put("username", args.getString("username"));
+            params.put("username", primary.username);
+            Log.d("Fetching User", primary.username + "!");
             ApiClient.get(params, userHandler);
             // UI will be filled in userHandler
         }
@@ -157,23 +160,9 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     View.OnClickListener loadFriends = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Bundle args = primary.intoBundle(new Bundle());
+
             FriendsFragment friendsFragment = new FriendsFragment();
-            Bundle args = new Bundle();
-            args.putString("uid", primary.id);
-            args.putString("primary", primary.properName());
-            switch(view.getId()) {
-                case R.id.followersCount:
-                    args.putInt("count", Integer.parseInt(primary.followed_count));
-                    args.putString("relation", "Followers");
-                    break;
-                case R.id.followingCount:
-                    args.putInt("count", Integer.parseInt(primary.following_count));
-                    args.putString("relation", "Followings");
-                    break;
-                default:
-                    Log.e("OBL", "Unidentified type of friends to fetch");
-                    return;
-            }
             friendsFragment.setArguments(args);
 
             getMainActivity().loadSideFragment(friendsFragment);
@@ -184,7 +173,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
         @Override
         protected String urlPath() {
-            return "primary/GetUserInfo";
+            return "user/GetUserInfo";
         }
 
         @Override
@@ -311,9 +300,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         Post post = adapter.getItem(position - listView.getHeaderViewsCount()); //???? Why is this? because of header?
 
         Bundle b = post.intoBundle(new Bundle());
-
-        for(String s : getArguments().keySet())
-            Log.d("OBL", "!!" + s);
+        primary.intoBundle(b);
 
         PostFragment postFragment = new PostFragment();
         postFragment.setArguments(b);

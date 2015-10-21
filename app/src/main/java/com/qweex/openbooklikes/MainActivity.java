@@ -25,6 +25,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
+import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 
 import java.util.ArrayList;
@@ -38,16 +39,11 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
-    private MenuItem selectedNav;
+    private MenuItem selectedNav, notMeNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if(me==null) {
-            finish();
-            return;
-        }
         Log.d("OBL:MASTER", "token: " + me.token);
 
         setContentView(R.layout.activity_main);
@@ -95,8 +91,14 @@ public class MainActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.user_email)).setText(me.email);
         imageLoader.displayImage(me.photo, (ImageView) findViewById(R.id.user_pic));
 
-        // Add shelfMap to menu
+
+
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
+
+        // Set the "show when not me" menu item
+        notMeNav = navView.getMenu().findItem(R.id.nav_not_me);
+
+        // Add shelfMap to menu
         Menu shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
         for(Shelf s : shelves) {
@@ -157,15 +159,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
                 Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
-                Bundle b = me.toBundle();
                 Log.d("OBL:nav_shelf", shelf.name);
-                loadShelf(shelf, b);
+                loadShelf(shelf, me);
                 break;
             case R.id.nav_blog:
                 loadUser(me);
                 break;
             case R.id.nav_search:
-                loadMainFragment(new SearchFragment());
+                loadMainFragment(new SearchFragment(), null);
                 break;
             case R.id.nav_logout:
                 logout();
@@ -177,28 +178,6 @@ public class MainActivity extends AppCompatActivity
 
         closeLeftDrawer();
         return true;
-    }
-
-    public void loadShelf(Shelf shelf, Bundle user) {
-        Log.d("OBL", "loadShelf " + shelf.name + " | " + user.getString("username"));
-
-        Bundle b = new Bundle();
-        b.putBundle(shelf.modelName(), shelf.toBundle());
-        b.putBundle(MainActivity.me.modelName(), user);
-
-        ShelfFragment shelfFragment = new ShelfFragment();
-        shelfFragment.setArguments(b);
-        loadMainFragment(shelfFragment);
-    }
-
-    public void loadUser(UserPartial user) {
-        Log.d("OBL", "loadUser " + user.id);
-
-        Bundle b = user.intoBundle(new Bundle());
-
-        UserFragment userFragment = new UserFragment();
-        userFragment.setArguments(b);
-        loadMainFragment(userFragment);
     }
 
     public void logout() {
@@ -244,8 +223,43 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
     }
 
-    public void loadMainFragment(FragmentBase fragment) {
+    public void loadShelf(Shelf shelf, User user) {
+        Log.d("OBL", "loadShelf " + shelf.name + " | " + user.username);
+
+        Bundle b = new Bundle();
+        shelf.intoBundle(b);
+        user.intoBundle(b);
+
+        ShelfFragment shelfFragment = new ShelfFragment();
+        shelfFragment.setArguments(b);
+        loadMainFragment(shelfFragment, user);
+    }
+
+    public void loadUser(UserPartial user) {
+        Log.d("OBL", "loadUser " + user.id);
+
+        Bundle b = user.intoBundle(new Bundle());
+
+        UserFragment userFragment = new UserFragment();
+        userFragment.setArguments(b);
+        loadMainFragment(userFragment, user);
+    }
+
+    private void loadMainFragment(FragmentBase fragment, UserPartial owner) {
         closeRightDrawer();
+
+        if(owner!=null && me.equals(owner)) {
+            notMeNav.setVisible(false);
+        } else {
+            notMeNav.setVisible(true);
+            selectedNav = notMeNav;
+            notMeNav.setChecked(true);
+            notMeNav.setTitle(fragment.getTitle());
+            if(fragment.getClass().equals(UserFragment.class))
+                notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon
+            else
+                notMeNav.setIcon(android.R.drawable.ic_menu_compass); //TODO: icon
+        }
 
         getSupportFragmentManager()
                 .beginTransaction()

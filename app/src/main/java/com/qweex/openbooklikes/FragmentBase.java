@@ -90,12 +90,11 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
             //TODO: ???
-            error.printStackTrace();
+
         }
     }
 
     final public boolean isFor(Primary other) {
         return primary.equals(other);
     }
-
 }

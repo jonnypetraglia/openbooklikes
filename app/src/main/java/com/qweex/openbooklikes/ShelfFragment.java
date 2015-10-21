@@ -54,10 +54,6 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
     @Override
     String getTitle() {
         String title = primary.title();
-
-        Log.d("OBL:title", "!" + owner.id);
-        if(!MainActivity.me.id.equals(owner.id))
-            title += " - " + owner.properName();
         return title;
     }
 
