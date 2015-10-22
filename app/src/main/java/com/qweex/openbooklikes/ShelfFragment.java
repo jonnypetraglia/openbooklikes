@@ -60,7 +60,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
     @Override
     public void setArguments(Bundle a) {
         primary = (BookList) new Shelf(a);
-        Log.d("OBL:setArgs", "shelf.id=" + primary.id);
+        Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         owner = new User(a);
         super.setArguments(a);
     }
@@ -161,9 +161,9 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         if(!super.fetchMore(page))
             return false;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
-        params.put("uid", owner.id);
-        if(!primary.id.equals("-1"))
-            params.put("Cat", primary.id);
+        params.put("uid", owner.id());
+        if(!primary.id().equals("-1"))
+            params.put("Cat", primary.id());
         if(specialTracker.isChecked(R.id.filter_wishlist))
             params.put("BookIsWish", specialTracker.isChecked(R.id.filter_wishlist) ? 1 : 0);
         if(specialTracker.isChecked(R.id.filter_favourite))
@@ -174,8 +174,8 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
             params.put("BookStatus", "planning");
         else if(statusTracker.isChecked(R.id.filter_currently))
             params.put("BookStatus", "currently");
-        //for(String s : getArguments().getBundle("params").keySet())
-            //params.put(s, getArguments().getBundle("params").get(s));
+        //for(String s : getArguments().wrapBundle("params").keySet())
+            //params.put(s, getArguments().wrapBundle("params").get(s));
 
         //TODO other params
         ApiClient.get(params, booksHandler);
@@ -187,16 +187,13 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
 
         Book book = adapter.getItem(position);
 
-        Log.d("OBL", "book is " + book.cover);
+        Log.d("OBL", "book is " + book.getS("cover"));
 
-        Bundle b = book.intoBundle(new Bundle());
+        Bundle b = new Bundle();
         int imgHeight = ((ImageView)view.findViewById(R.id.image)).getDrawable().getIntrinsicHeight();
         b.putInt("imgHeight", imgHeight);
 
-        for(String s : b.keySet())
-            Log.d("OBL", "create bookfragment " + s + " = " + b.get(s));
-        for(String s : b.getBundle("book").keySet())
-            Log.d("OBL", "create bookfragment book." + s + " = " + b.getBundle("book").get(s));
+        book.wrapInBundle(b);
 
         BookFragment bookFragment = new BookFragment();
         bookFragment.setArguments(b);
@@ -232,12 +229,12 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
                 row = inflater.inflate(R.layout.list_shelf_cover, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
-            title.setText(getItem(position).title);
+            title.setText(getItem(position).getS("title"));
             title.setVisibility(View.GONE);
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image));
             cover.setLayoutParams(new LinearLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
-            MainActivity.imageLoader.displayImage(getItem(position).cover, cover);
+            MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
 
             return row;
         }
@@ -252,7 +249,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
 
         @Override
         public boolean noMore() {
-            return getCount() == primary.book_count || booksHandler.wasLastFetchNull();
+            return getCount() == primary.getI("book_count") || booksHandler.wasLastFetchNull();
         }
     }
 
@@ -280,7 +277,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
                 JSONArray books = response.getJSONArray("books");
                 for(int i=0; i<books.length(); i++) {
                     Book b = new Book(books.getJSONObject(i));
-                    Log.d("OBL:book", "Book: " + b.title);
+                    Log.d("OBL:book", "Book: " + b.getS("title"));
                     adapter.add(b);
                 }
             } catch (JSONException e) {
@@ -309,14 +306,14 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
                 row = inflater.inflate(R.layout.list_shelf_details, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
-            title.setText(getItem(position).title);
+            title.setText(getItem(position).getS("title"));
 
             TextView author = ((TextView) row.findViewById(R.id.author));
-            author.setText(getItem(position).author);
+            author.setText(getItem(position).getS("author"));
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image));
             cover.setLayoutParams(new RelativeLayout.LayoutParams(IMG_SIZE / 2, IMG_SIZE / 2));
-            MainActivity.imageLoader.displayImage(getItem(position).cover, cover);
+            MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
 
             return row;
         }
@@ -328,7 +325,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
 
         @Override
         public boolean noMore() {
-            return adapter.getCount() == primary.book_count;
+            return adapter.getCount() == primary.getI("book_count");
         }
     }
 

@@ -6,36 +6,46 @@ import android.os.Bundle;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+// Returned by GetUserFollowers
 public class UserPartial extends ModelBase {
-
-    @Override
-    public String modelName() { return "user"; }
-
-    public String username, domain, photo; //Returned by GetUserFollowers
-
-    public UserPartial(JSONObject json) throws JSONException {
-        super(json);
-        username = json.getString("usr_username");
-        domain = json.getString("usr_domain");
-        photo = json.getString("usr_photo"); //url
-    }
+    private final static String[]
+            STRING_FIELDS = new String[] {"username", "domain", "photo"};
 
     public UserPartial(Bundle b) {
         super(b);
-        b = b.getBundle(modelName());
-        username = b.getString("username");
-        domain = b.getString("domain");
-        photo = b.getString("photo");
+    }
+
+    public UserPartial(JSONObject json) throws JSONException {
+        super(json);
     }
 
     @Override
-    public Bundle toBundle() {
-        Bundle b = super.asBundle();
-        b.putString("username", username);
-        b.putString("domain", domain);
-        b.putString("photo", photo);
-        return b;
+    protected String[] idFields() {
+        return new String[0];
     }
 
-    protected static class Void {}
+    @Override
+    protected String[] stringFields() {
+        return STRING_FIELDS;
+    }
+
+    @Override
+    protected String[] intFields() {
+        return new String[0];
+    }
+
+    @Override
+    public String apiPrefix() {
+        return "usr";
+    }
+
+    @Override
+    public String apiName() {
+        return "user";
+    }
+
+    @Override
+    public String apiNamePlural() {
+        return "users";
+    }
 }

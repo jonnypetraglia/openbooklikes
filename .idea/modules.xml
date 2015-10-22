@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/openbooklikes.iml" filepath="$PROJECT_DIR$/openbooklikes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/readingchallengeparser/readingchallengeparser.iml" filepath="$PROJECT_DIR$/readingchallengeparser/readingchallengeparser.iml" />
     </modules>
   </component>
 </project>

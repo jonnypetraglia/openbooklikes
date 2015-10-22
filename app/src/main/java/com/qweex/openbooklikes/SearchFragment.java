@@ -55,9 +55,9 @@ public class SearchFragment extends ShelfFragment<Search> {
         if(adapter.noMore())
             return false;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
-        params.put("q", primary.q);
-        if(primary.lng!=null)
-            params.put("lng", primary.lng);
+        params.put("q", primary.getS("q"));
+        if(primary.getS("lng")!=null)
+            params.put("lng", primary.getS("lng"));
 
         ApiClient.get(params, searchHandler);
         return true;
@@ -68,6 +68,7 @@ public class SearchFragment extends ShelfFragment<Search> {
         public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
             String s = textView.getText().toString().trim();
             if (i == EditorInfo.IME_ACTION_SEARCH && s.length() > 0) {
+                textView.clearFocus();
                 adapter.clear();
                 primary = Search.create(s);
                 getMainActivity().setMainTitle();

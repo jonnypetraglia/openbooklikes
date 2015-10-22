@@ -11,7 +11,7 @@ LATER
     - Make Loading Screen when logging in better (have some text or something)
     - Add "Reading Challenge" to drawer
         - only display if user has an active one
-    - Search books / AddBookToShelf
+    - AddBookToShelf
     - shelf counts on right of drawer menu
 
 BUGS

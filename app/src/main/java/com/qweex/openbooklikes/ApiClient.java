@@ -1,9 +1,9 @@
 package com.qweex.openbooklikes;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -13,15 +13,18 @@ import org.json.JSONObject;
 import cz.msebera.android.httpclient.Header;
 
 public class ApiClient {
-    private static final String BASE_URL = "http://booklikes.com/api/v1_05/",
-                                API_KEY = "dfb2e5ef0dab25e69041d7e3fc9111e7";
+    private static final String BASE_URL = "http://booklikes.com/api/v1_05/";
+    private static String API_KEY;
+
+    public static void setApiKey(Resources r) { API_KEY = r.getString(R.string.api_key); }
+
 
     protected static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(RequestParams params, ApiResponseHandler responseHandler) {
         params.put("key", API_KEY);
         if(MainActivity.me !=null) {
-            params.put("usr_token", MainActivity.me.token);
+            params.put("usr_token", MainActivity.me.token());
             //if(!params.has("uid"))
                 //params.put("uid", MainActivity.me.id);
         }
@@ -35,7 +38,7 @@ public class ApiClient {
     public static void post(RequestParams params, ApiResponseHandler responseHandler) {
         params.put("key", API_KEY);
         if(MainActivity.me !=null) {
-            params.put("usr_token", MainActivity.me.token);
+            params.put("usr_token", MainActivity.me.token());
             //if(!params.has("uid"))
                 //params.put("uid", MainActivity.me.id);
         }

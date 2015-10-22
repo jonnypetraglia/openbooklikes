@@ -51,7 +51,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
         showLoading();
 
         RequestParams params = new RequestParams();
-        params.put("uid", primary.id);
+        params.put("uid", primary.id());
         ApiClient.get(params, shelvesHandler);
     }
 
@@ -86,8 +86,8 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
                 row = inflater.inflate(R.layout.list_shelf, parent, false);
             }
 
-            ((TextView)row.findViewById(R.id.title)).setText(getItem(position).name);
-            ((TextView)row.findViewById(R.id.count)).setText(Integer.toString(getItem(position).book_count));
+            ((TextView)row.findViewById(R.id.title)).setText(getItem(position).getS("name"));
+            ((TextView)row.findViewById(R.id.count)).setText(Integer.toString(getItem(position).getI("book_count")));
 
             return row;
         }

@@ -11,11 +11,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+// Only applicable for Me
 public class Me extends User {
+    private final static String[]
+            STRING_FIELDS = new String[] {"token", "email"};
+
     public static final String USER_DATA_PREFS = "UserData";
     public static final int USER_DATA_MODE = Activity.MODE_PRIVATE;
-
-    public String token = null, email; // Only applicable for Me
 
     public Me(JSONObject json, Activity a) throws JSONException {
         this(json);
@@ -24,8 +26,15 @@ public class Me extends User {
 
     public Me(JSONObject json) throws JSONException {
         super(json);
-        token = json.getString("usr_token");
-        email = json.getString("usr_email");
+    }
+
+    public String token() {
+        return getS("token");
+    }
+
+    @Override
+    protected String[] stringFields() {
+        return mergeArrays(STRING_FIELDS, super.stringFields());
     }
 
     public static Me fromPrefs(Activity a) throws JSONException {
@@ -33,40 +42,35 @@ public class Me extends User {
         if(prefs.getString("usr_token", null)==null || prefs.getString("id_user", null)==null)
             return null;
 
-        JSONObject fakeson = new JSONObject();
-        fakeson.put("id_user", prefs.getString("id_user", null));
-        String[] fields = new String[] {"token", "email",
-                "username", "domain", "photo", "blog_title", "blog_desc", "following_count", "followed_count"};
-        for(String f : fields)
-            fakeson.put("usr_" + f, prefs.getString("usr_" + f, null));
-        fakeson.put("usr_book_count", prefs.getInt("usr_book_count", -1));
-        return new Me(fakeson);
-    }
+        Bundle b = new Bundle(); //TODO: Ugly
+        b.putBundle("user", new Bundle());
+        b.getBundle("user").putString("id", "NA");
+        User fakeUser = new User(b);
 
-    @Override
-    public Bundle toBundle() {
-        Bundle b = super.toBundle();
-        b.putString("token", token);
-        b.putString("email", email);
-        return b;
+        JSONObject fakeson = new JSONObject();
+        fakeson.put("id_" + fakeUser.apiName(), prefs.getString("id_" + fakeUser.apiName(), null));
+        for(String f : fakeUser.idFields())
+            fakeson.put("id_" + f, prefs.getString("id_" + f, null));
+        for(String f : mergeArrays(STRING_FIELDS, fakeUser.stringFields()))
+            fakeson.put("usr_" + f, prefs.getString("usr_" + f, null));
+        for(String f : fakeUser.intFields())
+            fakeson.put("usr_" + f, prefs.getInt("usr_" + f, -1));
+
+        return new Me(fakeson);
     }
 
     private void save(Activity a) {
         SharedPreferences.Editor prefs = a.getSharedPreferences(USER_DATA_PREFS, USER_DATA_MODE).edit();
-        prefs.putString("id_user", id);
-        prefs.putString("usr_username", username);
-        prefs.putString("usr_domain", domain);
-        prefs.putString("usr_photo", photo);
 
-        prefs.putString("usr_email", email);
-        prefs.putString("usr_blog_title", blog_title);
-        prefs.putString("usr_blog_desc", blog_desc);
-        prefs.putString("usr_following_count", following_count);
-        prefs.putString("usr_followed_count", followed_count);
-        prefs.putInt("usr_book_count", book_count);
+        prefs.putString("id_" + apiName(), id());
+        for(String f : idFields())
+            prefs.putString(apiPrefix() + "_" + f, getS(f));
+        for(String f : stringFields())
+            prefs.putString(apiPrefix() + "_" + f, getS(f));
+        for(String f : intFields())
+            prefs.putInt(apiPrefix() + "_" + f, getI(f));
 
-        prefs.putString("usr_token", token);
-        Log.d("OBL:saveAsMe", token);
+        Log.d("OBL:saveAsMe", getS("token"));
         prefs.apply();
     }
 }

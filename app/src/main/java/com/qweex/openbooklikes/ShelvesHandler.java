@@ -47,16 +47,16 @@ public class ShelvesHandler extends ApiClient.ApiResponseHandler {
 
             JSONObject allBooks = new JSONObject();
             allBooks.put("id_category", "-1");
-            allBooks.put("id_user", owner.id);
+            allBooks.put("id_user", owner.id());
             allBooks.put("category_name", "All books");
-            allBooks.put("category_book_count", owner.book_count);
+            allBooks.put("category_book_count", owner.getI("book_count"));
             Shelf s = new Shelf(allBooks);
             shelves.add(s);
 
             for (int i = 0; i < categories.length(); i++) {
                 s = new Shelf(categories.getJSONObject(i));
                 shelves.add(s);
-                Log.d("OBL:Cat", s.name);
+                Log.d("OBL:Cat", s.getS("name"));
             }
         } catch (JSONException e) {
             Log.e("OBL:Cat!", "Failed cause " + e.getMessage());

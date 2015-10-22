@@ -43,10 +43,10 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         String c;
         if(b.getInt("relationId")==R.id.followingCount) {
             relation = "Followings";
-            c = primary.following_count;
+            c = primary.getS("following_count");
         } else {
             relation = "Followers";
-            c = primary.followed_count;
+            c = primary.getS("followed_count");
         }
         if(c!=null)
             relationCount = Integer.parseInt(c);
@@ -58,7 +58,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         if (!super.fetchMore(page))
             return false;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
-        params.put("uid", primary.id);
+        params.put("uid", primary.id());
 
 
         ApiClient.get(params, friendsHandler);
@@ -89,7 +89,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.d("OBL:Friends", "Clicked " + adapter.getItem(i).id);
+        Log.d("OBL:Friends", "Clicked " + adapter.getItem(i).id());
         getMainActivity().loadUser(adapter.getItem(i));
     }
 
@@ -107,7 +107,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-            Log.d("OBL:primary.", "Success " + response.length());
+            Log.d("OBL:friends.", "Success " + response.length());
 
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
@@ -116,17 +116,17 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
                 for(int i=0; i<friends.length(); i++) {
                     UserPartial f = new UserPartial(friends.getJSONObject(i));
                     adapter.add(f);
-                    Log.d("OBL:primary", "User: " + f.id + " | " + adapter.getCount());
+                    Log.d("OBL:friends", "User: " + f.id() + " | " + adapter.getCount());
                 }
             } catch (JSONException e) {
-                Log.e("OBL:User!", "Failed cause " + e.getMessage());
+                Log.e("OBL:friends!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:primary", "Failed cause " + error.getMessage());
+            Log.e("OBL:friends", "Failed cause " + error.getMessage());
         }
     };
 
@@ -144,9 +144,9 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             }
             UserPartial user = getItem(position);
 
-            MainActivity.imageLoader.displayImage(user.photo, (ImageView) row.findViewById(R.id.profilePic));
+            MainActivity.imageLoader.displayImage(user.getS("photo"), (ImageView) row.findViewById(R.id.profilePic));
 
-            ((TextView)row.findViewById(R.id.title)).setText(user.username);
+            ((TextView)row.findViewById(R.id.title)).setText(user.getS("username"));
 
             return row;
         }

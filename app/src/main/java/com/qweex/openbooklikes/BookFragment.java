@@ -22,14 +22,14 @@ public class BookFragment extends FragmentBase<Book> {
 
     @Override
     public String getTitle() {
-        return primary.title;
+        return primary.getS("title");
     }
 
     @Override
     public void setArguments(Bundle a) {
         Log.d("OBL", "setArguments " + a.getBundle("book").getString("cover"));
         primary = new Book(a);
-        Log.d("OBL", "setArguments " + primary.id + " | " + primary.cover);
+        Log.d("OBL", "setArguments " + primary.id() + " | " + primary.getS("cover"));
         imgHeight = a.getInt("imgHeight");
         super.setArguments(a);
     }
@@ -110,7 +110,7 @@ public class BookFragment extends FragmentBase<Book> {
 
         ((ImageView) cover).setImageBitmap(null);
         MainActivity.imageLoader.displayImage(
-                primary.cover.replace("300/300", IMG_SIZE_PX+"/"+IMG_SIZE_PX),
+                primary.getS("cover").replace("300/300", IMG_SIZE_PX + "/" + IMG_SIZE_PX),
                 (ImageView) cover);
         cover.requestLayout();
         title.requestLayout();
@@ -124,21 +124,21 @@ public class BookFragment extends FragmentBase<Book> {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
         ImageView cover = (ImageView) view.findViewById(R.id.cover);
-        MainActivity.imageLoader.displayImage(primary.cover, cover);
+        MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
 
-        setOrHide(view, R.id.title, primary.title);
-        setOrHide(view, R.id.author, primary.author);
+        setOrHide(view, R.id.title, primary.getS("title"));
+        setOrHide(view, R.id.author, primary.getS("author"));
         // And this is where I'd put a Description
         //
         // IF I HAD ONE
 
-        setOrHide(view, R.id.format, primary.format); //TODO: Figure out what the numbers map to
-        setOrHide(view, R.id.isbn_13, primary.isbn_13);
-        setOrHide(view, R.id.isbn_10, primary.isbn_10);
-        setOrHide(view, R.id.publishDate, primary.publish_date);
-        setOrHide(view, R.id.publisher, primary.publisher);
-        setOrHide(view, R.id.pageCount, primary.pages);
-        setOrHide(view, R.id.language, primary.language);
+        setOrHide(view, R.id.format, primary.getS("format")); //TODO: Figure out what the numbers map to
+        setOrHide(view, R.id.isbn_13, primary.getS("isbn_13"));
+        setOrHide(view, R.id.isbn_10, primary.getS("isbn_10"));
+        setOrHide(view, R.id.publishDate, primary.getS("publish_date"));
+        setOrHide(view, R.id.publisher, primary.getS("publisher"));
+        setOrHide(view, R.id.pageCount, primary.getS("pages"));
+        setOrHide(view, R.id.language, primary.getS("language"));
 
 
         adjustOrientation(view, getActivity().getResources().getConfiguration());

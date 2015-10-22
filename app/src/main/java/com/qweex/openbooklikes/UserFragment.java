@@ -78,7 +78,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("OBL:userFragment", "!" + primary.id);
+        Log.d("OBL:userFragment", "!" + primary.id());
         if(primary.equals(MainActivity.me)) {
             // no need to fetch, MainActivity.me has all the info already
             Log.d("OBL:user is me", "woah");
@@ -86,8 +86,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             // UI will be filled in onViewCreated
         } else {
             RequestParams params = new RequestParams();
-            params.put("username", primary.username);
-            Log.d("Fetching User", primary.username + "!");
+            params.put("username", primary.getS("username"));
+            Log.d("Fetching User", primary.getS("username") + "!");
             ApiClient.get(params, userHandler);
             // UI will be filled in userHandler
         }
@@ -97,7 +97,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(primary !=null) {
-            Log.d("OBL:primary", "Filling UI from onViewCreated");
+            Log.d("OBL:user", "Filling UI from onViewCreated");
             fillUi();
         }
     }
@@ -115,7 +115,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             return false;
         Log.d("OBL:fetchMore", "Fetching more posts, page " + page);
         RequestParams params = new ApiClient.PagedParams(page, adapter);
-        params.put("uid", primary.id);
+        params.put("uid", primary.id());
 
         ApiClient.get(params, blogHandler);
         return true;
@@ -127,17 +127,17 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
         MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE_PX), pic);
         ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
-        ((TextView)v.findViewById(R.id.description)).setText(primary.blog_desc);
+        ((TextView)v.findViewById(R.id.description)).setText(primary.getS("blog_desc"));
 
         Button books = ((Button)v.findViewById(R.id.bookCount));
-        books.setText(primary.book_count + " books");
+        books.setText(primary.getI("book_count") + " books");
         books.setOnClickListener(loadShelves);
 
         Button followers = ((Button)v.findViewById(R.id.followersCount));
-        followers.setText(primary.followed_count + " followers");
+        followers.setText(primary.getS("followed_count") + " followers");
         followers.setOnClickListener(loadFriends);
         Button followings = ((Button)v.findViewById(R.id.followingCount));
-        followings.setText(primary.following_count + " following");
+        followings.setText(primary.getS("following_count") + " following");
         followings.setOnClickListener(loadFriends);
 
         //TODO: UGGGGH I HATE THIS
@@ -147,11 +147,11 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     View.OnClickListener loadShelves = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if(MainActivity.me.id.equals(primary.id))
+            if(MainActivity.me.id().equals(primary.id()))
                 getMainActivity().openLeftDrawer();
             else {
                 ShelvesFragment shelvesFragment = new ShelvesFragment();
-                shelvesFragment.setArguments(primary.intoBundle(new Bundle()));
+                shelvesFragment.setArguments(primary.wrapInBundle(new Bundle()));
                 getMainActivity().loadSideFragment(shelvesFragment);
             }
         }
@@ -160,10 +160,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     View.OnClickListener loadFriends = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Bundle args = primary.intoBundle(new Bundle());
-
             FriendsFragment friendsFragment = new FriendsFragment();
-            friendsFragment.setArguments(args);
+            friendsFragment.setArguments(primary.wrapInBundle(new Bundle()));
 
             getMainActivity().loadSideFragment(friendsFragment);
         }
@@ -184,20 +182,20 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-            Log.d("OBL:primary.", "Success " + response.length());
+            Log.d("OBL:user.", "Success " + response.length());
             try {
                 primary = new User(response);
-                Log.d("OBL:primary", "Filling UI from userHandler");
+                Log.d("OBL:user", "Filling UI from userHandler");
                 fillUi();
             } catch (JSONException e) {
-                Log.e("OBL:User!", "Failed cause " + e.getMessage());
+                Log.e("OBL:user!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            Log.e("OBL:primary", "Failed cause " + error.getMessage());
+            Log.e("OBL:user", "Failed cause " + error.getMessage());
         }
     };
 
@@ -225,7 +223,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i));
-                    Log.d("OBL:primary", "Post: " + p.title);
+                    Log.d("OBL:blog", "Post: " + p.getS("date"));
                     adapter.add(p);
                 }
             } catch (JSONException e) {
@@ -254,31 +252,31 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             Post post = getItem(position);
 
             ImageView photo = (ImageView) row.findViewById(R.id.image);
-            if(post.photo_url!=null)
-                MainActivity.imageLoader.displayImage(post.photo_url, photo);
+            if(post.getS("photo_url")!=null)
+                MainActivity.imageLoader.displayImage(post.getS("photo_url"), photo);
             else
                 photo.setVisibility(View.GONE);
 
 
 
-            Log.d("OBL:primary", post.title + " ");
-            setOrHide(row, R.id.type, post.type);
-            setOrHide(row, R.id.date, post.date);
-            setOrHide(row, R.id.title, post.title);
+            Log.d("OBL:blogadapter", post.getS("title") + " ");
+            setOrHide(row, R.id.type, post.getS("type"));
+            setOrHide(row, R.id.date, post.getS("date"));
+            setOrHide(row, R.id.title, post.getS("title"));
 
-            TextView special = setOrHide(row, R.id.special, post.special);
+            TextView special = setOrHide(row, R.id.special, post.getS("special"));
             special.setVerticalFadingEdgeEnabled(true);
             special.setMaxHeight(MAX_POST_HEIGHT);
             row.findViewById(R.id.special_fadeout).setVisibility(special.getVisibility());
 
-            TextView desc = setOrHide(row, R.id.description, post.desc);
+            TextView desc = setOrHide(row, R.id.description, post.getS("desc"));
             desc.setVerticalFadingEdgeEnabled(true);
             desc.setMaxHeight(MAX_POST_HEIGHT);
             row.findViewById(R.id.description_fadeout).setVisibility(desc.getVisibility());
 
-            Log.d("OBL:bg", "Listview: " + listView.getBackground());
-            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent()).getBackground());
-            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent().getParent()).getBackground());
+//            Log.d("OBL:bg", "Listview: " + listView.getBackground());
+//            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent()).getBackground());
+//            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent().getParent()).getBackground());
 
             return row;
         }
@@ -296,11 +294,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Log.d("Clicked!", adapter.getItem(position).date);
+        Log.d("Clicked!", adapter.getItem(position).getS("date"));
         Post post = adapter.getItem(position - listView.getHeaderViewsCount()); //???? Why is this? because of header?
 
-        Bundle b = post.intoBundle(new Bundle());
-        primary.intoBundle(b);
+        Bundle b = primary.wrapInBundle(post.wrapInBundle(new Bundle()));
 
         PostFragment postFragment = new PostFragment();
         postFragment.setArguments(b);

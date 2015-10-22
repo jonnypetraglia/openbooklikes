@@ -7,30 +7,21 @@ import org.json.JSONObject;
 
 
 abstract public class BookListPartial extends ModelBase {
-    public int book_count;
+    private final static String[]
+            INT_FIELDS = new String[] {"book_count"};
 
     public abstract String title();
 
+    @Override
+    protected String[] intFields() {
+        return INT_FIELDS;
+    }
+
     public BookListPartial(Bundle b) {
         super(b);
-        b = b.getBundle(modelName());
-        book_count = b.getInt("book_count");
     }
 
     public BookListPartial(JSONObject json) throws JSONException {
         super(json);
-        book_count = json.getInt("category_book_count");
-    }
-
-    @Override
-    public String modelName() {
-        return null;
-    }
-
-    @Override
-    public Bundle toBundle() {
-        Bundle b = super.asBundle();
-        b.putInt("book_count", book_count);
-        return b;
     }
 }

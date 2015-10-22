@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("OBL:MASTER", "token: " + me.token);
+        Log.d("OBL:MASTER", "token: " + me.token());
 
         setContentView(R.layout.activity_main);
 
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
+        drawer.setFocusableInTouchMode(false);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -87,9 +89,9 @@ public class MainActivity extends AppCompatActivity
         imageLoader.init(config);
 
         // Load primary info
-        ((TextView) findViewById(R.id.user_username)).setText(me.username);
-        ((TextView)findViewById(R.id.user_email)).setText(me.email);
-        imageLoader.displayImage(me.photo, (ImageView) findViewById(R.id.user_pic));
+        ((TextView) findViewById(R.id.user_username)).setText(me.getS("username"));
+        ((TextView)findViewById(R.id.user_email)).setText(me.getS("email"));
+        imageLoader.displayImage(me.getS("photo"), (ImageView) findViewById(R.id.user_pic));
 
 
 
@@ -103,9 +105,9 @@ public class MainActivity extends AppCompatActivity
         shelfNav.clear();
         for(Shelf s : shelves) {
             MenuItem mitem = shelfNav.add(R.id.nav_group,
-                        s.id.equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
+                        s.id().equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
                         0,
-                        s.name + " (" + s.book_count + ")")
+                        s.getS("name") + " (" + s.getI("book_count") + ")")
                 .setCheckable(true)
                 .setIcon(android.R.drawable.ic_menu_compass); //TODO: Icon
             shelfMenuItems.add(mitem);
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
                 Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
-                Log.d("OBL:nav_shelf", shelf.name);
+                Log.d("OBL:nav_shelf", shelf.getS("name"));
                 loadShelf(shelf, me);
                 break;
             case R.id.nav_blog:
@@ -203,9 +205,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void openRightDrawer() {
-        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
-        drawer.openDrawer(GravityCompat.END);
-        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END);
     }
 
     public void openLeftDrawer() {
@@ -214,9 +215,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void closeRightDrawer() {
-        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
-        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
-        drawer.closeDrawer(GravityCompat.END);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
     }
 
     public void closeLeftDrawer() {
@@ -224,11 +224,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void loadShelf(Shelf shelf, User user) {
-        Log.d("OBL", "loadShelf " + shelf.name + " | " + user.username);
+        Log.d("OBL", "loadShelf " + shelf.getS("name") + " | " + user.getS("username"));
 
         Bundle b = new Bundle();
-        shelf.intoBundle(b);
-        user.intoBundle(b);
+        shelf.wrapInBundle(b);
+        user.wrapInBundle(b);
 
         ShelfFragment shelfFragment = new ShelfFragment();
         shelfFragment.setArguments(b);
@@ -236,9 +236,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void loadUser(UserPartial user) {
-        Log.d("OBL", "loadUser " + user.id);
+        Log.d("OBL", "loadUser " + user.id());
 
-        Bundle b = user.intoBundle(new Bundle());
+        Bundle b = user.wrapInBundle(new Bundle());
 
         UserFragment userFragment = new UserFragment();
         userFragment.setArguments(b);
