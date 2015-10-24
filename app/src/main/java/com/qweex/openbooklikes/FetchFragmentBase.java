@@ -1,13 +1,33 @@
 package com.qweex.openbooklikes;
 
+import android.os.Bundle;
+
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
+
+import java.util.ArrayList;
 
 abstract public class FetchFragmentBase<Primary extends ModelBase, T extends ModelBase> extends FragmentBase<Primary>
 {
 
 
     protected AdapterBase<T> adapter;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        adapter.clear();
+        if(savedInstanceState!=null) {
+            ArrayList<T> data = savedInstanceState.getParcelableArrayList("adapter");
+            adapter.addAll(data);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("adapter", adapter.getData());
+    }
 
     protected boolean fetchMore(int page) {
         if(adapter.noMore())

@@ -16,13 +16,18 @@ import com.qweex.openbooklikes.model.Book;
 
 
 public class BookFragment extends FragmentBase<Book> {
-
     static final int IMG_SIZE_PX = 700;
     int imgHeight;
 
     @Override
     public String getTitle() {
         return primary.getS("title");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("imgHeight", imgHeight);
     }
 
     @Override

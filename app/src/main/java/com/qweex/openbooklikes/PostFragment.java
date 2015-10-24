@@ -24,6 +24,12 @@ public class PostFragment extends FragmentBase<Post> {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        user.wrapInBundle(outState);
+    }
+
+    @Override
     public void setArguments(Bundle a) {
         primary = new Post(a);
         user = new User(a);

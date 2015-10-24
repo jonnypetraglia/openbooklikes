@@ -2,7 +2,6 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
-import com.qweex.openbooklikes.model.UserPartial;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +41,15 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public void setArguments(Bundle a) {
         primary = new User(a);
         super.setArguments(a);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState==null) {
+            adapter.clear(); //TODO: Is this in the right place? Or needed?
+            fetchMore(0);
+        }
     }
 
     @Override
@@ -100,13 +107,6 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             Log.d("OBL:user", "Filling UI from onViewCreated");
             fillUi();
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        adapter.clear(); //TODO: Is this in the right place? Or needed?
-        fetchMore(0);
     }
 
     @Override

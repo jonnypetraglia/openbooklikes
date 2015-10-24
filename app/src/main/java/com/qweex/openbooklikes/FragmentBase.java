@@ -1,6 +1,9 @@
 package com.qweex.openbooklikes;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +19,32 @@ import cz.msebera.android.httpclient.Header;
 
 
 abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
+    Primary primary;
+
     RelativeLayout contentView;
     View childView;
     ProgressBar progressView;
     TextView progressText;
-    Primary primary;
 
     abstract String getTitle();
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(primary!=null)
+            primary.wrapInBundle(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState!=null) {
+            setArguments(savedInstanceState);
+            Log.d("oac:" + getClass().getSimpleName(), "Saved data: " + primary.apiName());
+         } else {
+            Log.d("oac:" + getClass().getSimpleName(), "No saved, fetching data");
+        }
+    }
 
     protected TextView setOrHide(View container, int tvId, String text) {
         TextView tv = ((TextView)container.findViewById(tvId));
@@ -44,11 +66,11 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         progressView.setVisibility(View.GONE);
 
         this.childView = childView;
-        contentView.addView(childView);
+        contentView.addView(childView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return contentView;
     }
 
-    protected void showError() {
+    protected void showError(String text) {
         progressView.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
         contentView.setBackgroundColor(0xff99cc00);
@@ -90,7 +112,8 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
             //TODO: ???
-
+            showError(error.getMessage());
+            error.printStackTrace();
         }
     }
 

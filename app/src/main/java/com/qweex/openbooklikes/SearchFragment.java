@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,9 @@ public class SearchFragment extends ShelfFragment<Search> {
     @Override
     public void setArguments(Bundle a) {
         // Silence is golden
+        primary = new Search(a);
+        Log.d("setArguments", primary.id());
+        setArguments(a);
     }
 
     @Override
@@ -68,11 +72,11 @@ public class SearchFragment extends ShelfFragment<Search> {
         public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
             String s = textView.getText().toString().trim();
             if (i == EditorInfo.IME_ACTION_SEARCH && s.length() > 0) {
-                textView.clearFocus();
                 adapter.clear();
                 primary = Search.create(s);
                 getMainActivity().setMainTitle();
                 showLoading();
+                textView.clearFocus();
                 fetchMore(0);
                 return true;
             }

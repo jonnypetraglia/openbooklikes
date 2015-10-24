@@ -2,7 +2,8 @@ package com.qweex.openbooklikes.model;
 
 
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.loopj.android.http.RequestParams;
 
@@ -12,11 +13,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-abstract public class ModelBase {
+abstract public class ModelBase implements Parcelable {
 //    private final static String[]
 //            ID_FIELDS = new String[] {},
 //            STRING_FIELDS = new String[] {},
 //            INT_FIELDS = new String[] {};
+
     protected Bundle bundle = new Bundle();
 
     abstract protected String[] idFields();
@@ -57,8 +59,6 @@ abstract public class ModelBase {
 
     public ModelBase(Bundle b) {
         b = b.getBundle(apiName());
-        for(String s : b.keySet())
-            Log.d("Creating Model", s);
         if(b.getString("id")==null)
             throw new RuntimeException("Error Creating " + apiName() + ": id not supplied");
         bundle.putString("id", b.getString("id"));
@@ -101,8 +101,9 @@ abstract public class ModelBase {
         return params;
     }
 
+
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
-    public static String unHTML(String str) {
+    static public String unHTML(String str) {
         if (str == null || str.length() == 0)
             return null;
 
@@ -121,5 +122,21 @@ abstract public class ModelBase {
         String[] x = new String[fields.size()];
         fields.toArray(x);
         return x;
+    }
+
+
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeBundle(bundle);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public ModelBase(Parcel p) {
+        this(p.readBundle());
     }
 }

@@ -22,19 +22,11 @@ import cz.msebera.android.httpclient.Header;
 public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements AdapterView.OnItemClickListener {
 
     ListView listView;
-    ArrayList<Shelf> shelves = new ArrayList<>();
+    ShelvesHandler shelvesHandler;
 
     @Override
     public void setArguments(Bundle a) {
         primary = new User(a);
-        shelvesHandler = new ShelvesHandler(shelves, primary){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                adapter.notifyDataSetChanged();
-                showContent();
-            }
-        };
         super.setArguments(a);
     }
 
@@ -43,25 +35,40 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
         return "Shelves";
     }
 
+
     @Override
-    public void onStart() {
-        super.onStart();
-
-        adapter.clear(); //TODO: Is this in the right place? Or needed?
-        showLoading();
-
-        RequestParams params = new RequestParams();
-        params.put("uid", primary.id());
-        ApiClient.get(params, shelvesHandler);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState==null) {
+            shelvesHandler = new ShelvesHandler(new ArrayList<Shelf>(), primary) {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
+                    adapter.notifyDataSetChanged();
+                    showContent();
+                }
+            };
+            RequestParams params = new RequestParams();
+            params.put("uid", primary.id());
+            ApiClient.get(params, shelvesHandler);
+            showLoading();
+        }
     }
 
-    ShelvesHandler shelvesHandler;
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        adapter = new ShelvesAdapter(getActivity(), shelvesHandler.shelves);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         listView = new ListView(getActivity());
-        adapter = new ShelvesAdapter(getActivity(), shelves);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <at.grabner.circleprogress.CircleProgressView
+        android:id="@+id/progress"
+        android:layout_width="277dp"
+        android:layout_height="277dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="25dp"
+        CircleProgressView:cpv_barColor="#00796B"
+        CircleProgressView:cpv_barWidth="35dp"
+        CircleProgressView:cpv_contourSize="0dp"
+        CircleProgressView:cpv_autoTextSize="true"
+        CircleProgressView:cpv_maxValue="100"
+        CircleProgressView:cpv_rimColor="#B2DFDB"
+        CircleProgressView:cpv_rimWidth="35dp"
+        CircleProgressView:cpv_seekMode="false"
+        CircleProgressView:cpv_textColor="#00796B"
+        CircleProgressView:cpv_unit="%"
+        CircleProgressView:cpv_unitColor="#009688"
+        CircleProgressView:cpv_showUnit="true"
+         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/currentOfTotal"
+        android:layout_below="@+id/progress"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/daysRemaining"
+        android:layout_below="@+id/currentOfTotal"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/percentRemaining"
+        android:layout_below="@+id/daysRemaining"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/booksBehind"
+        android:layout_below="@+id/percentRemaining"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/perDay"
+        android:layout_below="@+id/booksBehind"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

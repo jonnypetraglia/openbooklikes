@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,7 +18,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +30,7 @@ import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity
     public static Me me;
     public static ImageLoader imageLoader;
     public static ArrayList<Shelf> shelves = new ArrayList<>();
+
+    static final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT", SIDE_FRAGMENT_TAG = "SIDE_FRAGMENT";
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
@@ -113,11 +116,6 @@ public class MainActivity extends AppCompatActivity
             shelfMenuItems.add(mitem);
         }
 
-        // Select default fragment
-        MenuItem start = navView.getMenu().findItem(R.id.nav_blog); //TODO: settings
-        onNavigationItemSelected(start);
-        navView.setCheckedItem(start.getItemId());
-
 
         toolbar = (Toolbar) findViewById(R.id.side_toolbar);
         toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel);
@@ -127,7 +125,28 @@ public class MainActivity extends AppCompatActivity
                 closeRightDrawer();
             }
         });
+
+
+        if(savedInstanceState==null) {
+            // Select default fragment
+            MenuItem start = navView.getMenu().findItem(R.id.nav_blog); //TODO: settings
+            onNavigationItemSelected(start);
+            navView.setCheckedItem(start.getItemId());
+        } else {
+            //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+            Fragment myFragment = (Fragment) getSupportFragmentManager()
+                    .findFragmentByTag(MAIN_FRAGMENT_TAG);
+        }
     }
+
+    /*
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, "mContent", mContent);
+    }
+    */
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -168,7 +187,15 @@ public class MainActivity extends AppCompatActivity
                 loadUser(me);
                 break;
             case R.id.nav_search:
-                loadMainFragment(new SearchFragment(), null);
+                loadMainFragment(new SearchFragment(), MainActivity.me);
+                break;
+            case R.id.nav_challenge:
+                ReadingChallengeFragment challengeFragment = new ReadingChallengeFragment();
+                Bundle b = new Bundle();
+                b.putInt("year", Calendar.getInstance().get(Calendar.YEAR));
+                MainActivity.me.wrapInBundle(b);
+                challengeFragment.setArguments(b);
+                loadMainFragment(challengeFragment, MainActivity.me);
                 break;
             case R.id.nav_logout:
                 logout();
@@ -263,7 +290,7 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment, fragment)
+                .replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG)
                 .commit();
         ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle());
     }
@@ -272,7 +299,7 @@ public class MainActivity extends AppCompatActivity
         openRightDrawer();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.side_fragment, fragment)
+                .replace(R.id.side_fragment, fragment, SIDE_FRAGMENT_TAG)
                 .commit();
         ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(fragment.getTitle());
     }

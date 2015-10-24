@@ -38,18 +38,41 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("relation", relation);
+        outState.putInt("relationCount", relationCount);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        adapter = new FriendAdapter(getActivity(), R.layout.list_user, new ArrayList<UserPartial>());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState==null) {
+            adapter.clear(); //TODO: Is this in the right place? Or needed?
+            fetchMore(0);
+        }
+    }
+
+    @Override
     public void setArguments(Bundle b) {
         primary = new User(b);
-        String c;
-        if(b.getInt("relationId")==R.id.followingCount) {
+        if(b.keySet().contains("relationCount")) {
+            relation = b.getString("relation");
+            relationCount = b.getInt("relationCount");
+        }
+        else if(b.getInt("relationId")==R.id.followingCount) {
             relation = "Followings";
-            c = primary.getS("following_count");
+            relationCount = Integer.parseInt(primary.getS("following_count"));
         } else {
             relation = "Followers";
-            c = primary.getS("followed_count");
+            relationCount = Integer.parseInt(primary.getS("followed_count"));
         }
-        if(c!=null)
-            relationCount = Integer.parseInt(c);
         super.setArguments(b);
     }
 
@@ -74,17 +97,8 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
 
-        adapter = new FriendAdapter(getActivity(), R.layout.list_user, new ArrayList<UserPartial>());
         listView.setAdapter(adapter);
         return super.createProgressView(inflater, container, listView);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        adapter.clear(); //TODO: Is this in the right place? Or needed?
-        fetchMore(0);
     }
 
     @Override

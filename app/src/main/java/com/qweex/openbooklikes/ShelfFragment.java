@@ -53,8 +53,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
 
     @Override
     String getTitle() {
-        String title = primary.title();
-        return title;
+        return primary.title();
     }
 
     @Override
@@ -63,6 +62,27 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         owner = new User(a);
         super.setArguments(a);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(primary!=null && savedInstanceState==null)
+            gridView.post(refreshData);
+    }
+
+    Runnable refreshData = new Runnable() {
+        @Override
+        public void run() {
+            adapter.clear();
+            showLoading();
+            fetchMore(0);
+        }
+    };
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -142,14 +162,14 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         if(statusTracker.has(id)) {
             item.setChecked(true);
             statusTracker.checkEx(id);
-            onStart();
+            gridView.post(refreshData);
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
         if(specialTracker.has(id)) {
             item.setChecked(!item.isChecked());
             specialTracker.check(id, item.isChecked());
-            onStart();
+            gridView.post(refreshData);
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
@@ -198,22 +218,6 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         BookFragment bookFragment = new BookFragment();
         bookFragment.setArguments(b);
         getMainActivity().loadSideFragment(bookFragment);
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (primary == null) //TODO: Why can this be
-            return;
-
-        adapter.clear();
-        gridView.post(new Runnable() {
-            @Override
-            public void run() {
-                fetchMore(0);
-            }
-        });
     }
 
     class CoverAdapter extends AdapterBase<Book> {

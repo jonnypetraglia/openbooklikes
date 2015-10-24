@@ -2,6 +2,9 @@
 
 // ListView in UserFragment should have a different drawable background for when pressed; should change bg of card, not row behind it
 
+//http://stackoverflow.com/questions/15313598/once-for-all-how-to-correctly-save-instance-state-of-fragments-in-back-stack
+
+
 
 NOW
     - While fetching, show a progress bar as a footer view for the listview/gridview
@@ -9,13 +12,10 @@ NOW
 
 LATER
     - Make Loading Screen when logging in better (have some text or something)
-    - Add "Reading Challenge" to drawer
-        - only display if user has an active one
     - AddBookToShelf
     - shelf counts on right of drawer menu
 
 BUGS
-    - Making progress on right drawer; just need to get full width
     - posts in UserFragment are sometimes in incorrect order
       - possibly due to race condition:
         - perScreen() returned 0 so it immediately fetched more
@@ -26,6 +26,7 @@ BUGS
       - also, can have multiple "<p>&nbsp;</p>" that leave a ton of blank space
 
 MUCH LATER
+    - https://github.com/daimajia/NumberProgressBar
     - re-color the (currently green) drawer header
     - Loading screens
     - setting: custom default shelf/fragment
