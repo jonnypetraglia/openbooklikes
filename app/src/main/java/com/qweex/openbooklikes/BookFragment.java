@@ -16,7 +16,6 @@ import com.qweex.openbooklikes.model.Book;
 
 
 public class BookFragment extends FragmentBase<Book> {
-    static final int IMG_SIZE_PX = 700;
     int imgHeight;
 
     @Override
@@ -70,13 +69,15 @@ public class BookFragment extends FragmentBase<Book> {
         ((TableLayout)table).setColumnStretchable(0, true);
         ((TableLayout)table).setColumnStretchable(1, true);
 
+        int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
+
         if(config.orientation==Configuration.ORIENTATION_LANDSCAPE) {
 //            mar*=2;
             coverlp.setMargins(mar, mar, 0, 0);
             titlelp.setMargins(0, 0, mar, 0);
             tablelp.setMargins(0, mar, 0, mar/2);
             coverlp.height = (int) Math.min(
-                    IMG_SIZE_PX,
+                    IMG_SIZE,
                     lHeight - mar*2
             );
             Log.d("OBL", "h=" + coverlp.height);
@@ -97,7 +98,7 @@ public class BookFragment extends FragmentBase<Book> {
             coverlp.setMargins(mar, mar, mar, mar);
             titlelp.setMargins(mar, 0, mar, 0);
             tablelp.setMargins(mar, mar, mar, mar);
-            coverlp.height = IMG_SIZE_PX;
+            coverlp.height = IMG_SIZE;
 
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
@@ -115,7 +116,7 @@ public class BookFragment extends FragmentBase<Book> {
 
         ((ImageView) cover).setImageBitmap(null);
         MainActivity.imageLoader.displayImage(
-                primary.getS("cover").replace("300/300", IMG_SIZE_PX + "/" + IMG_SIZE_PX),
+                primary.getS("cover").replace("300/300", IMG_SIZE + "/" + IMG_SIZE),
                 (ImageView) cover);
         cover.requestLayout();
         title.requestLayout();

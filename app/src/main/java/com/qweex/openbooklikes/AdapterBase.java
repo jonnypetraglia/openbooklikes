@@ -22,4 +22,8 @@ abstract class AdapterBase<T> extends ArrayAdapter<T> {
     }
 
     abstract public boolean noMore();
+
+    final protected int perScreen(int i) {
+        return Math.max(i, getContext().getResources().getInteger(R.integer.min_per_page));
+    }
 }

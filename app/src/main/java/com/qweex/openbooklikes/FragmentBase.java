@@ -1,9 +1,9 @@
 package com.qweex.openbooklikes;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,9 +64,25 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         progressText = (TextView) contentView.findViewById(R.id.textView);
 
         progressView.setVisibility(View.GONE);
+        progressText.setVisibility(View.GONE);
+
+
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        /*
+        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        lp.addRule(RelativeLayout.ABOVE, progressView.getId());
+        */
+        contentView.addView(childView, lp);
+        /*
+        lp = ((RelativeLayout.LayoutParams)progressView.getLayoutParams());
+        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        progressView.setLayoutParams(lp);
+        //*/
 
         this.childView = childView;
-        contentView.addView(childView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return contentView;
     }
 
@@ -74,6 +90,10 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         progressView.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
         contentView.setBackgroundColor(0xff99cc00);
+
+        TextView errorView = new TextView(getActivity());
+        errorView.setText(text);
+        contentView.addView(errorView);
         //TODO
     }
 
@@ -81,6 +101,10 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
         progressView.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
         contentView.setBackgroundColor(0xffaaaaaa);
+
+        TextView errorView = new TextView(getActivity());
+        errorView.setText("Nothing to show");
+        contentView.addView(errorView);
         //TODO
     }
 
@@ -90,6 +114,14 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
 
     protected void showLoading(String text) {
         childView.setVisibility(View.GONE);
+        showLoadingMore(text);
+    }
+
+    protected void showLoadingMore() {
+        showLoadingMore(null);
+    }
+
+    protected void showLoadingMore(String text) {
         progressView.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
         progressText.setText(text);
@@ -119,5 +151,10 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
 
     final public boolean isFor(Primary other) {
         return primary.equals(other);
+    }
+
+
+    final protected float dpToPx(float dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 }

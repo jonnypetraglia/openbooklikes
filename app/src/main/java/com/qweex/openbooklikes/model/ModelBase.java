@@ -4,6 +4,7 @@ package com.qweex.openbooklikes.model;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
 
@@ -82,11 +83,11 @@ abstract public class ModelBase implements Parcelable {
 
         // e.g. user_id = id_user
         for(String s : idFields())
-            bundle.putString(s + "_id", json.getString("id_" + s));
+            bundle.putString(s + "_id", getJSONString(json, "id_" + s));
 
         // e.g. username = usr_username
         for(String s : stringFields())
-            bundle.putString(s, unHTML(json.getString(apiPrefix() + "_" + s)));
+            bundle.putString(s, unHTML(getJSONString(json, apiPrefix() + "_" + s)));
 
         for(String i : intFields())
             bundle.putInt(i, json.getInt(apiPrefix() + "_" + i));
@@ -104,8 +105,10 @@ abstract public class ModelBase implements Parcelable {
 
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
     static public String unHTML(String str) {
-        if (str == null || str.length() == 0)
+        Log.w("unHTML", str + " ? " + (str==null));
+        if (str == null || str.trim().length() == 0)
             return null;
+
 
         return android.text.Html.fromHtml(str)
                 .toString()
@@ -122,6 +125,10 @@ abstract public class ModelBase implements Parcelable {
         String[] x = new String[fields.size()];
         fields.toArray(x);
         return x;
+    }
+
+    static private String getJSONString(JSONObject j, String s) throws JSONException {
+        return j.isNull(s) ? null : j.getString(s);
     }
 
 

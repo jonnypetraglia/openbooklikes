@@ -149,11 +149,6 @@ public class MainActivity extends AppCompatActivity
     */
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
     public void onBackPressed() {
         Log.d("onBackPressed", drawer.isDrawerOpen(GravityCompat.START) + " | " + drawer.isDrawerOpen(GravityCompat.END));
         if (drawer.isDrawerOpen(GravityCompat.END)) {
@@ -213,8 +208,8 @@ public class MainActivity extends AppCompatActivity
         //Ask the primary if they want to quit
         new AlertDialog.Builder(this)
             .setIcon(android.R.drawable.ic_dialog_alert)
-            .setTitle("Logout")
-            .setMessage("Really logout?")
+            .setTitle(R.string.menu_logout)
+            .setMessage(R.string.confirm_logout)
             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                 @Override
@@ -257,9 +252,9 @@ public class MainActivity extends AppCompatActivity
         shelf.wrapInBundle(b);
         user.wrapInBundle(b);
 
-        ShelfFragment shelfFragment = new ShelfFragment();
-        shelfFragment.setArguments(b);
-        loadMainFragment(shelfFragment, user);
+        BookListFragment bookListFragment = new BookListFragment();
+        bookListFragment.setArguments(b);
+        loadMainFragment(bookListFragment, user);
     }
 
     public void loadUser(UserPartial user) {

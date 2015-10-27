@@ -2,7 +2,6 @@ package com.qweex.openbooklikes;
 
 import android.util.Log;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 
@@ -41,16 +40,12 @@ public class ShelvesHandler extends ApiClient.ApiResponseHandler {
         Log.d("OBL:cat.", "Success " + response.length());
 
         try {
+            Shelf s = Shelf.allBooksOfUser(owner);
             if (response.getInt("status") != 0 || statusCode >= 400)
                 throw new JSONException(response.getString("message"));
-            JSONArray categories = response.getJSONArray("categories");
+            JSONArray categories = response.getJSONArray(s.apiNamePlural());
 
-            JSONObject allBooks = new JSONObject();
-            allBooks.put("id_category", "-1");
-            allBooks.put("id_user", owner.id());
-            allBooks.put("category_name", "All books");
-            allBooks.put("category_book_count", owner.getI("book_count"));
-            Shelf s = new Shelf(allBooks);
+            shelves.clear();
             shelves.add(s);
 
             for (int i = 0; i < categories.length(); i++) {

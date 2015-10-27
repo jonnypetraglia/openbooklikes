@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Search;
 
-public class SearchFragment extends ShelfFragment<Search> {
+public class SearchFragment extends BookListFragment<Search> {
 
     @Override
     String getTitle() {

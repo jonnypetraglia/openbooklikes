@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -33,20 +34,19 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 
 
-public class ShelfFragment<BookList extends BookListPartial> extends FetchFragmentBase<BookList, Book> implements AdapterView.OnItemClickListener {
+public class BookListFragment<BookList extends BookListPartial> extends FetchFragmentBase<BookList, Book> implements AdapterView.OnItemClickListener {
     User owner;
-    GridView gridView;
-    ListView listView;
-    static int IMG_SIZE = MainActivity.dpToPx(140), MIN_PER_PAGE = 25;
+    GridView grid;
+    ListView list;
 
     static CheckTracker statusTracker, specialTracker;
 
     static {
-        statusTracker = new ShelfFragment.CheckTracker();
+        statusTracker = new BookListFragment.CheckTracker();
         statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_currently);
         statusTracker.checkEx(R.id.filter_all); //TODO: Settings
 
-        specialTracker = new ShelfFragment.CheckTracker();
+        specialTracker = new BookListFragment.CheckTracker();
         specialTracker.add(R.id.filter_favourite, R.id.filter_wishlist, R.id.filter_reviewed, R.id.filter_private);
         //TODO: Settings
     }
@@ -68,7 +68,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(primary!=null && savedInstanceState==null)
-            gridView.post(refreshData);
+            listView.post(refreshData);
     }
 
     Runnable refreshData = new Runnable() {
@@ -95,31 +95,34 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_shelf, container, false);
+        View view = inflater.inflate(R.layout.fragment_book_list, container, false);
 
-        gridView = (GridView) view.findViewById(R.id.gridView);
-        gridView.setColumnWidth(IMG_SIZE);
-        gridView.setOnScrollListener(scrollMuch);
-        gridView.setOnItemClickListener(this);
+        grid = (GridView) view.findViewById(R.id.gridView);
+        grid.setColumnWidth((int) getResources().getDimension(R.dimen.list_book_size));
+        grid.setOnScrollListener(scrollMuch);
+        grid.setOnItemClickListener(this);
 
-        listView = (ListView) view.findViewById(R.id.listView);
-        gridView.setOnScrollListener(scrollMuch);
-        listView.setOnItemClickListener(this);
+        list = (ListView) view.findViewById(R.id.listView);
+        list.setOnScrollListener(scrollMuch);
+        list.setOnItemClickListener(this);
 
-        changeWidget();
         return super.createProgressView(inflater, container, view);
     }
 
-    public void changeWidget() {
-        if(listView.getVisibility()==View.VISIBLE) {
-            listView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
-        } else {
-            gridView.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-        }
+    public void changeWidget(AbsListView choice) {
+        if(choice==list) {
+            listView = list;
+            adapter = new DetailsAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is ugly
+            grid.setVisibility(View.GONE);
+        } else if(choice==grid) {
+            listView = grid;
+            adapter = new CoverAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is also ugly
+            list.setVisibility(View.GONE);
+        } else
+            throw new RuntimeException("Tried to change to an unknown widget");
+
+        listView.setVisibility(View.VISIBLE);
         listView.setAdapter(adapter);
-        gridView.setAdapter(adapter);
     }
 
     @Override
@@ -138,7 +141,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
             Log.d("OBL:checkedP", id + "!" + submenu.findItem(id).getTitle());
             submenu.findItem(id).setChecked(true);
         }
-        menu.findItem(R.id.change_view).setTitle("List view"); //TODO: settings
+        changeWidget(grid); //TODO: Settings
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -148,33 +151,33 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         Log.d("OBL", "OptionSelected");
 
         if(id==R.id.change_view) {
-            if(gridView.getVisibility()==View.VISIBLE) {
-                adapter = new CoverAdapter(getActivity(), adapter.getData()); //TODO: This is ugly
-                item.setTitle("List view");
+            if(listView==grid) {
+                item.setTitle(R.string.option_view_list);
+                changeWidget(list);
             } else {
-                adapter = new DetailsAdapter(getActivity(), adapter.getData()); //TODO: This is also ugly
-                item.setTitle("Grid view");
+                item.setTitle(R.string.option_view_grid);
+                changeWidget(grid);
             }
-            changeWidget();
             return true;
         }
 
         if(statusTracker.has(id)) {
             item.setChecked(true);
             statusTracker.checkEx(id);
-            gridView.post(refreshData);
+            listView.post(refreshData);
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
         if(specialTracker.has(id)) {
             item.setChecked(!item.isChecked());
             specialTracker.check(id, item.isChecked());
-            gridView.post(refreshData);
+            listView.post(refreshData);
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public boolean fetchMore(int page) {
@@ -197,7 +200,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         //for(String s : getArguments().wrapBundle("params").keySet())
             //params.put(s, getArguments().wrapBundle("params").get(s));
 
-        //TODO other params
+        //TODO other params?
         ApiClient.get(params, booksHandler);
         return true;
     }
@@ -230,14 +233,14 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         public View getView(int position, View row, ViewGroup parent) {
             if(row == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.list_shelf_cover, parent, false);
+                row = inflater.inflate(R.layout.list_book_cover, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).getS("title"));
             title.setVisibility(View.GONE);
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image));
-            cover.setLayoutParams(new LinearLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
+            cover.setLayoutParams(new LinearLayout.LayoutParams(grid.getColumnWidth(), grid.getColumnWidth()));
             MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
 
             return row;
@@ -245,10 +248,11 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
 
         @Override
         public int perScreen() {
-            int numberOfRows = (int) Math.ceil(gridView.getHeight() / IMG_SIZE); //140
-            int numberPerRow = (int) Math.floor(gridView.getWidth() / IMG_SIZE);  //140
+            float IMG_SIZE = getResources().getDimension(R.dimen.list_book_size);
+            int numberOfRows = (int) Math.ceil(grid.getHeight() / IMG_SIZE);
+            int numberPerRow = (int) Math.floor(grid.getWidth() / IMG_SIZE);
             Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
-            return Math.max(numberOfRows * numberPerRow, MIN_PER_PAGE);
+            return super.perScreen(numberOfRows * numberPerRow);
         }
 
         @Override
@@ -278,6 +282,10 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
+                if(response.getInt(countFieldName())==0) {
+                    showEmpty();
+                    return;
+                }
                 JSONArray books = response.getJSONArray("books");
                 for(int i=0; i<books.length(); i++) {
                     Book b = new Book(books.getJSONObject(i));
@@ -307,7 +315,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
         public View getView(int position, View row, ViewGroup parent) {
             if (row == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.list_shelf_details, parent, false);
+                row = inflater.inflate(R.layout.list_book_details, parent, false);
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).getS("title"));
@@ -316,15 +324,20 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
             author.setText(getItem(position).getS("author"));
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image));
+            int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.list_book_size);
             cover.setLayoutParams(new RelativeLayout.LayoutParams(IMG_SIZE / 2, IMG_SIZE / 2));
             MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
+
+
+            Log.d("Parent is", row.getLayoutParams().width + " vs " + ViewGroup.LayoutParams.MATCH_PARENT);
+
 
             return row;
         }
 
         @Override
         public int perScreen() {
-            return 10; //TODO
+            return super.perScreen(list.getLastVisiblePosition() - list.getFirstVisiblePosition() + 1);
         }
 
         @Override
@@ -334,7 +347,7 @@ public class ShelfFragment<BookList extends BookListPartial> extends FetchFragme
     }
 
 
-    public static class CheckTracker { //TODO: find an alternative to this class
+    public static class CheckTracker { //FIXME: find an alternative to this class
         HashMap<Integer, Boolean> group = new HashMap<>();
 
         public boolean has(int id) {

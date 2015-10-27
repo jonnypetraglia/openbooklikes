@@ -50,4 +50,16 @@ public class Shelf extends BookListPartial {
     public Shelf(Bundle b) {
         super(b);
     }
+
+
+    static public Shelf allBooksOfUser(User owner) {
+        Bundle b = new Bundle();
+        b.putString("id", "-1");
+        b.putString("id_user", owner.id());
+        b.putString("name", "All books");
+        b.putInt("book_count", owner.getI("book_count"));
+        Bundle w = new Bundle();
+        w.putBundle("category", b);
+        return new Shelf(w);
+    }
 }

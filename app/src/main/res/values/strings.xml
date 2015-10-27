@@ -13,4 +13,16 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
+
+    <string name="followings">Followings</string>
+    <string name="followers">Followers</string>
+
+    <string name="option_view_grid">Switch to Grid</string>
+    <string name="option_view_list">Switch to List</string>
+
+    <!-- Main Activity -->
+    <string name="menu_logout">Logout</string>
+    <string name="confirm_logout">Really logout?</string>
 </resources>

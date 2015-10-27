@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class UserFragment extends FetchFragmentBase<User, Post> implements AdapterView.OnItemClickListener {
-    static int MIN_PER_PAGE = 10, IMG_SIZE_PX = 600, MAX_POST_HEIGHT = 200;
-    ListView listView;
     // TODO: domain -> open in browser
 
 
@@ -47,7 +45,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(savedInstanceState==null) {
-            adapter.clear(); //TODO: Is this in the right place? Or needed?
+            adapter.clear();
             fetchMore(0);
         }
     }
@@ -56,7 +54,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
 
         View v = inflater.inflate(R.layout.fragment_user, null);
-        listView = (ListView) v.findViewById(R.id.list_view);
+        ListView listView = (ListView) v.findViewById(R.id.list_view);
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
@@ -67,6 +65,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);
+        this.listView = listView;
 
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -123,9 +122,11 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     void fillUi() {
         View v = getView();
-        Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE_PX));
+        int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
+
+        Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE));
         ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
-        MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE_PX), pic);
+        MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE), pic);
         ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
         ((TextView)v.findViewById(R.id.description)).setText(primary.getS("blog_desc"));
 
@@ -140,7 +141,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         followings.setText(primary.getS("following_count") + " following");
         followings.setOnClickListener(loadFriends);
 
-        //TODO: UGGGGH I HATE THIS
+        //FIXME: UGGGGH I HATE THIS
         getMainActivity().setMainTitle();
     }
 
@@ -223,7 +224,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i));
-                    Log.d("OBL:blog", "Post: " + p.getS("date"));
+                    Log.d("OBL:blog", "Post: " + (p.getS("tag")==null));
                     adapter.add(p);
                 }
             } catch (JSONException e) {
@@ -258,6 +259,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
                 photo.setVisibility(View.GONE);
 
 
+            int MAX_HEIGHT = getResources().getDimensionPixelSize(R.dimen.max_post_height);
+
 
             Log.d("OBL:blogadapter", post.getS("title") + " ");
             setOrHide(row, R.id.type, post.getS("type"));
@@ -266,24 +269,20 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
             TextView special = setOrHide(row, R.id.special, post.getS("special"));
             special.setVerticalFadingEdgeEnabled(true);
-            special.setMaxHeight(MAX_POST_HEIGHT);
+            special.setMaxHeight(MAX_HEIGHT);
             row.findViewById(R.id.special_fadeout).setVisibility(special.getVisibility());
 
             TextView desc = setOrHide(row, R.id.description, post.getS("desc"));
             desc.setVerticalFadingEdgeEnabled(true);
-            desc.setMaxHeight(MAX_POST_HEIGHT);
+            desc.setMaxHeight(MAX_HEIGHT);
             row.findViewById(R.id.description_fadeout).setVisibility(desc.getVisibility());
-
-//            Log.d("OBL:bg", "Listview: " + listView.getBackground());
-//            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent()).getBackground());
-//            Log.d("OBL:bg", "Parent 1: " + ((View)listView.getParent().getParent()).getBackground());
 
             return row;
         }
 
         @Override
         public int perScreen() {
-            return MIN_PER_PAGE; //TODO?
+            return super.perScreen(0); //TODO?
         }
 
         @Override
@@ -294,8 +293,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Log.d("Clicked!", adapter.getItem(position).getS("date"));
-        Post post = adapter.getItem(position - listView.getHeaderViewsCount()); //???? Why is this? because of header?
+        position -= ((ListView)adapterView).getHeaderViewsCount();
+        Post post = adapter.getItem(position);
 
         Bundle b = primary.wrapInBundle(post.wrapInBundle(new Bundle()));
 

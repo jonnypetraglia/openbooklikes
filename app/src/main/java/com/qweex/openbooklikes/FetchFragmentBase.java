@@ -1,6 +1,13 @@
 package com.qweex.openbooklikes;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.GridView;
+import android.widget.ListView;
 
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
@@ -10,7 +17,7 @@ import java.util.ArrayList;
 abstract public class FetchFragmentBase<Primary extends ModelBase, T extends ModelBase> extends FragmentBase<Primary>
 {
 
-
+    protected AbsListView listView;
     protected AdapterBase<T> adapter;
 
     @Override
@@ -24,6 +31,12 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     }
 
     @Override
+    protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
+        listView = new ListView(getActivity());
+        return super.createProgressView(inflater, container, childView);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("adapter", adapter.getData());
@@ -34,9 +47,10 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
             return false;
         if(page==0)
             showLoading();
+        else
+            showLoadingMore();
         return true;
     }
-
 
     protected EndlessScrollListener scrollMuch = new EndlessScrollListener() {
         @Override

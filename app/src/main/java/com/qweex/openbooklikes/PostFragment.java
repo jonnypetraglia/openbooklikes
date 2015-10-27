@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,25 +13,23 @@ import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
 
 public class PostFragment extends FragmentBase<Post> {
-
-    static final int IMG_SIZE_PX = 500;
-    User user;
+    User owner;
 
     @Override
     String getTitle() {
-        return user.getS("blog_title");
+        return owner.getS("blog_title");
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        user.wrapInBundle(outState);
+        owner.wrapInBundle(outState);
     }
 
     @Override
     public void setArguments(Bundle a) {
         primary = new Post(a);
-        user = new User(a);
+        owner = new User(a);
         super.setArguments(a);
     }
 
@@ -57,11 +54,15 @@ public class PostFragment extends FragmentBase<Post> {
             view.findViewById(R.id.image).setVisibility(View.GONE);
 
         LinearLayout tags = (LinearLayout) view.findViewById(R.id.tags);
+        tags.removeAllViews();
         if(primary.getS("tag")!=null && primary.getS("tag").trim().length()>0) {
             for (String s : primary.getS("tag").split(",")) {
-                Button tag = new Button(getActivity());
+                TextView tag = new TextView(getActivity());
+                tag.setBackgroundResource(R.drawable.tag);
                 tag.setText(s);
-                tag.setPadding(5, 5, 5, 5);
+                tag.setTextColor(getResources().getColor(android.R.color.white));
+                int dp = (int) dpToPx(5);
+                tag.setPadding(dp, dp, dp, dp);
                 tags.addView(tag);
             }
             tags.setVisibility(View.VISIBLE);

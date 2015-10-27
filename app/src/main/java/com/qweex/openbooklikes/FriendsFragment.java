@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implements AdapterView.OnItemClickListener {
-    ListView listView;
     String relation;
     int relationCount = 0;
 
@@ -54,7 +53,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(savedInstanceState==null) {
-            adapter.clear(); //TODO: Is this in the right place? Or needed?
+            adapter.clear();
             fetchMore(0);
         }
     }
@@ -67,10 +66,10 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             relationCount = b.getInt("relationCount");
         }
         else if(b.getInt("relationId")==R.id.followingCount) {
-            relation = "Followings";
+            relation = getResources().getString(R.string.followings);
             relationCount = Integer.parseInt(primary.getS("following_count"));
         } else {
-            relation = "Followers";
+            relation = getResources().getString(R.string.followers);
             relationCount = Integer.parseInt(primary.getS("followed_count"));
         }
         super.setArguments(b);
@@ -95,7 +94,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         listView.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.MATCH_PARENT));
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(scrollMuch);
-        listView.setDivider(null);
+        ((ListView)listView).setDivider(null);
 
         listView.setAdapter(adapter);
         return super.createProgressView(inflater, container, listView);
@@ -167,7 +166,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
         @Override
         public int perScreen() {
-            return 16;
+            return super.perScreen(0);
         }
 
         @Override

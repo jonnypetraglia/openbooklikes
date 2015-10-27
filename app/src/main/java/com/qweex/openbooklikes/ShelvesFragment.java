@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements AdapterView.OnItemClickListener {
-
-    ListView listView;
     ShelvesHandler shelvesHandler;
 
     @Override
@@ -101,7 +99,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
         @Override
         public int perScreen() {
-            return 25;
+            return super.perScreen(0); // api usually fetches all shelves, so just supply default
         }
 
         @Override

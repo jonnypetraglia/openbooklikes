@@ -37,7 +37,7 @@ public class FullDrawerLayout extends DrawerLayout{
             if(child.getVisibility()==GONE || !isDrawerView(child))
                 continue;
 
-            if(getGrav(child) != Gravity.RIGHT) //TODO: This just uses the default margin in DrawerLayout for the START drawer
+            if(getGrav(child) != Gravity.RIGHT) //FIXME: This just uses the default margin in DrawerLayout for the START drawer
                 continue;
 
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();

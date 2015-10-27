@@ -42,7 +42,7 @@ public class Me extends User {
         if(prefs.getString("usr_token", null)==null || prefs.getString("id_user", null)==null)
             return null;
 
-        Bundle b = new Bundle(); //TODO: Ugly
+        Bundle b = new Bundle(); //FIXME: Ugly
         b.putBundle("user", new Bundle());
         b.getBundle("user").putString("id", "NA");
         User fakeUser = new User(b);

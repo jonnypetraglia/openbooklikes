@@ -25,8 +25,6 @@ public class ApiClient {
         params.put("key", API_KEY);
         if(MainActivity.me !=null) {
             params.put("usr_token", MainActivity.me.token());
-            //if(!params.has("uid"))
-                //params.put("uid", MainActivity.me.id);
         }
         Log.d("OBL:Getting", getAbsoluteUrl(responseHandler.urlPath()) + "?" + params.toString());
         client.get(getAbsoluteUrl(responseHandler.urlPath()), params, responseHandler);
@@ -39,8 +37,6 @@ public class ApiClient {
         params.put("key", API_KEY);
         if(MainActivity.me !=null) {
             params.put("usr_token", MainActivity.me.token());
-            //if(!params.has("uid"))
-                //params.put("uid", MainActivity.me.id);
         }
         Log.d("OBL:Posting", getAbsoluteUrl(responseHandler.urlPath()) + "?" + params.toString());
         client.post(getAbsoluteUrl(responseHandler.urlPath()), params, responseHandler);
