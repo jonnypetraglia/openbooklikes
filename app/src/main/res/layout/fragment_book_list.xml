@@ -2,19 +2,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="@layout/activity_main"
     tools:context="com.qweex.openbooklikes.BookListFragment"
-    android:id="@+id/shelf_views"
-    android:background="#aaa"
+    android:background="#fff"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView
+    <jp.co.recruit_mp.android.widget.HeaderFooterGridView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/gridView"
+        android:id="@id/grid_view"
+        android:background="#aaa"
 
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:paddingBottom="0dp"
         android:drawSelectorOnTop="true"
         android:gravity="center"
         android:numColumns="auto_fit"
@@ -29,7 +29,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
+        android:id="@id/list_view"
 
         android:focusable="true"
         android:clickable="true"

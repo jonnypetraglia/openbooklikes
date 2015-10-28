@@ -3,18 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/linearLayout">
+    android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@id/image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/cover"
         android:gravity="start"
         android:layout_gravity="center_horizontal"
-        android:contentDescription="Book cover"
+        android:contentDescription="@string/img_desc_book"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="false"
         android:src="@android:drawable/ic_menu_compass"
@@ -25,11 +25,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/title"
+        android:id="@id/title"
         android:gravity="start"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/cover"
+        android:layout_below="@id/image_view"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -37,18 +36,19 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Medium Text"
-        android:id="@+id/author"
+        android:id="@id/author"
         android:gravity="start"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/title"
+        android:layout_below="@id/title"
          />
 
     <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
-        android:id="@+id/table"
-        android:layout_below="@+id/author"
+        android:id="@id/table"
+        android:layout_below="@id/author"
+        android:stretchColumns="*"
         android:layout_centerHorizontal="true">
 
         <TableRow
@@ -59,13 +59,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Format:"
+                android:text="@string/book_format"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/format" />
+                android:id="@id/format" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -75,13 +75,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="ISBN-13:"
+                android:text="@string/book_isbn_13"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/isbn_13" />
+                android:id="@id/isbn_13" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -91,13 +91,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="ISBN-10:"
+                android:text="@string/book_isbn_10"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/isbn_10" />
+                android:id="@id/isbn_10" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -107,13 +107,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Publish date:"
+                android:text="@string/book_publish_date"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/publishDate" />
+                android:id="@id/date" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -123,13 +123,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Publisher:"
+                android:text="@string/book_publisher"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/publisher" />
+                android:id="@id/publisher" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -139,13 +139,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Pages no:"
+                android:text="@string/book_pages"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/pageCount" />
+                android:id="@id/pages" />
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -155,13 +155,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Language:"
+                android:text="@string/book_language"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/language" />
+                android:id="@id/language" />
         </TableRow>
     </TableLayout>
 </RelativeLayout>

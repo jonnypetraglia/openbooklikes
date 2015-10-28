@@ -6,7 +6,7 @@
 
 
     <at.grabner.circleprogress.CircleProgressView
-        android:id="@+id/progress"
+        android:id="@id/progress"
         android:layout_width="277dp"
         android:layout_height="277dp"
         android:layout_alignParentTop="true"
@@ -27,48 +27,45 @@
          />
 
     <TextView
+        android:id="@id/current_of_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/currentOfTotal"
-        android:layout_below="@+id/progress"
+        android:layout_below="@id/progress"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@id/days"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:layout_below="@id/current_of_total"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/daysRemaining"
-        android:layout_below="@+id/currentOfTotal"
+        android:id="@id/percent"
+        android:layout_below="@id/days"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/percentRemaining"
-        android:layout_below="@+id/daysRemaining"
+        android:id="@id/status"
+        android:layout_below="@id/percent"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/booksBehind"
-        android:layout_below="@+id/percentRemaining"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/perDay"
-        android:layout_below="@+id/booksBehind"
+        android:id="@id/per_day"
+        android:layout_below="@id/status"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

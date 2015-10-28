@@ -2,4 +2,72 @@
 <resources>
     <item type="id" name="nav_shelf" />
     <item type="id" name="nav_all_shelf" />
+    <item type="id" name="option_browser" />
+
+
+    <item type="id" name="loading" />
+
+
+    <item type="id" name="progress" />
+
+    <item type="id" name="fragment" />
+    <item type="id" name="toolbar" />
+    <item type="id" name="side_fragment" />
+    <item type="id" name="side_toolbar" />
+    <item type="id" name="table" />
+
+    <item type="id" name="nav_view" />
+    <item type="id" name="sidebar_content" />
+    <item type="id" name="drawer_layout" />
+    <item type="id" name="list_view" />
+    <item type="id" name="grid_view" />
+    <item type="id" name="image_view" />
+    <item type="id" name="edit_text" />
+
+    <item type="id" name="email_sign_in_button" />
+    <item type="id" name="username" />
+    <item type="id" name="email" />
+    <item type="id" name="password" />
+
+    <!-- Generic -->
+    <item type="id" name="title" />
+    <item type="id" name="desc" />
+
+
+    <!-- Post -->
+    <item type="id" name="type" />
+    <item type="id" name="date" />
+    <item type="id" name="rating" />
+    <item type="id" name="special" />
+    <item type="id" name="separator" />
+    <item type="id" name="tags" />
+    <item type="id" name="likes" />
+    <item type="id" name="reblogs" />
+    <item type="id" name="fadeout1" />
+    <item type="id" name="fadeout2" />
+
+    <!-- Book -->
+    <item type="id" name="author" />
+    <item type="id" name="format" />
+    <item type="id" name="isbn_10" />
+    <item type="id" name="isbn_13" />
+    <item type="id" name="publisher" />
+    <item type="id" name="pages" />
+    <item type="id" name="language" />
+
+    <!-- User -->
+    <item type="id" name="book_count" />
+    <item type="id" name="followers" />
+    <item type="id" name="followings" />
+
+
+    <!-- Reading Challenge -->
+    <item type="id" name="current_of_total" />
+    <item type="id" name="days" />
+    <item type="id" name="percent" />
+    <item type="id" name="status" />
+    <item type="id" name="per_day" />
+
+
+    <item type="id" name="ime_login" format="integer">1001</item>
 </resources>

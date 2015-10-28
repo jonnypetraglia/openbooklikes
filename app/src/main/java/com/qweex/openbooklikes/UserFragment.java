@@ -1,9 +1,15 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -48,6 +54,20 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             adapter.clear();
             fetchMore(0);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(primary.getS("domain")));
+        startActivity(browserIntent);
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        menu.add(0, 0, R.id.option_browser, R.string.option_browser);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -125,20 +145,22 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
         Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE));
-        ImageView pic = (ImageView) v.findViewById(R.id.profilePic);
+        ImageView pic = (ImageView) v.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE), pic);
         ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
-        ((TextView)v.findViewById(R.id.description)).setText(primary.getS("blog_desc"));
+        ((TextView)v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
 
-        Button books = ((Button)v.findViewById(R.id.bookCount));
-        books.setText(primary.getI("book_count") + " books");
+        Resources res = getResources();
+
+        Button books = ((Button)v.findViewById(R.id.book_count));
+        books.setText(res.getString(R.string.book_count, primary.getI("book_count")));
         books.setOnClickListener(loadShelves);
 
-        Button followers = ((Button)v.findViewById(R.id.followersCount));
-        followers.setText(primary.getS("followed_count") + " followers");
+        Button followers = ((Button)v.findViewById(R.id.followers));
+        followers.setText(res.getString(R.string.follower_count, primary.getS("followed_count")));
         followers.setOnClickListener(loadFriends);
-        Button followings = ((Button)v.findViewById(R.id.followingCount));
-        followings.setText(primary.getS("following_count") + " following");
+        Button followings = ((Button)v.findViewById(R.id.followings));
+        followings.setText(res.getString(R.string.following_count, primary.getS("following_count")));
         followings.setOnClickListener(loadFriends);
 
         //FIXME: UGGGGH I HATE THIS
@@ -161,9 +183,13 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     View.OnClickListener loadFriends = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            FriendsFragment friendsFragment = new FriendsFragment();
-            friendsFragment.setArguments(primary.wrapInBundle(new Bundle()));
+            Bundle args = new Bundle();
+            args.putInt("relationId", view.getId());
+            args.putString("relation", getResources().getString(view.getId()==R.id.followings ? R.string.followings : R.string.followers));
+            primary.wrapInBundle(args);
 
+            FriendsFragment friendsFragment = new FriendsFragment();
+            friendsFragment.setArguments(args);
             getMainActivity().loadSideFragment(friendsFragment);
         }
     };
@@ -252,7 +278,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             }
             Post post = getItem(position);
 
-            ImageView photo = (ImageView) row.findViewById(R.id.image);
+            ImageView photo = (ImageView) row.findViewById(R.id.image_view);
             if(post.getS("photo_url")!=null)
                 MainActivity.imageLoader.displayImage(post.getS("photo_url"), photo);
             else
@@ -270,12 +296,12 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             TextView special = setOrHide(row, R.id.special, post.getS("special"));
             special.setVerticalFadingEdgeEnabled(true);
             special.setMaxHeight(MAX_HEIGHT);
-            row.findViewById(R.id.special_fadeout).setVisibility(special.getVisibility());
+            row.findViewById(R.id.fadeout1).setVisibility(special.getVisibility());
 
-            TextView desc = setOrHide(row, R.id.description, post.getS("desc"));
+            TextView desc = setOrHide(row, R.id.desc, post.getS("desc"));
             desc.setVerticalFadingEdgeEnabled(true);
             desc.setMaxHeight(MAX_HEIGHT);
-            row.findViewById(R.id.description_fadeout).setVisibility(desc.getVisibility());
+            row.findViewById(R.id.fadeout2).setVisibility(desc.getVisibility());
 
             return row;
         }

@@ -61,7 +61,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
         contentView = (RelativeLayout) inflater.inflate(R.layout.loading, null);
         progressView = (ProgressBar) contentView.findViewById(R.id.progress);
-        progressText = (TextView) contentView.findViewById(R.id.textView);
+        progressText = (TextView) contentView.findViewById(R.id.title);
 
         progressView.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
@@ -69,17 +69,17 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        /*
-        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        lp.addRule(RelativeLayout.ABOVE, progressView.getId());
-        */
+
+//        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+//        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//        lp.addRule(RelativeLayout.ABOVE, progressView.getId());
+//
         contentView.addView(childView, lp);
-        /*
-        lp = ((RelativeLayout.LayoutParams)progressView.getLayoutParams());
-        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        progressView.setLayoutParams(lp);
+//
+//        lp = ((RelativeLayout.LayoutParams)progressView.getLayoutParams());
+//        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+//        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//        progressView.setLayoutParams(lp);
         //*/
 
         this.childView = childView;
@@ -114,14 +114,6 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment {
 
     protected void showLoading(String text) {
         childView.setVisibility(View.GONE);
-        showLoadingMore(text);
-    }
-
-    protected void showLoadingMore() {
-        showLoadingMore(null);
-    }
-
-    protected void showLoadingMore(String text) {
         progressView.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
         progressText.setText(text);

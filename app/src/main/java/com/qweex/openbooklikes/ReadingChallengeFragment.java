@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -83,18 +84,24 @@ public class ReadingChallengeFragment extends FragmentBase {
             progress.setMaxValue(parser.total);
             progress.setValue(parser.current);
 
-            ((TextView)layout.findViewById(R.id.currentOfTotal)).setText(parser.current + "/" + parser.total + " books read");
-            ((TextView)layout.findViewById(R.id.percentRemaining)).setText(ceil(parser.percentageOfYear) + "% through year");
-            ((TextView)layout.findViewById(R.id.daysRemaining)).setText(ceil(parser.daysRemaining()) + " days remaining");
-            ((TextView)layout.findViewById(R.id.booksBehind)).setText(parser.behind() <= 0 ? dec(parser.behind()*-1) + " books ahead" : dec(parser.behind()) + " books behind");
+            Resources res = getResources();
 
-            TextView perDay = ((TextView)layout.findViewById(R.id.perDay));
+            ((TextView)layout.findViewById(R.id.current_of_total)).setText(res.getString(R.string.challenge_read, parser.current + "/" + parser.total));
+            ((TextView)layout.findViewById(R.id.percent)).setText(res.getString(R.string.challenge_year_percent, ceil(parser.percentageOfYear)));
+            ((TextView)layout.findViewById(R.id.days)).setText(res.getString(R.string.challenge_days_remaining, ceil(parser.daysRemaining())));
+            ((TextView)layout.findViewById(R.id.status)).setText(
+                    res.getString(
+                            parser.behind()<=0 ? R.string.challenge_behind : R.string.challenge_ahead,
+                            dec((parser.behind()<=0 ? -1 : 1) * parser.behind())
+                    ));
+
+            TextView perDay = ((TextView)layout.findViewById(R.id.per_day));
             if(parser.current >= parser.total)
-                perDay.setText("Congratulations!");
+                perDay.setText(R.string.challenge_completed);
             else if(parser.perDay()>=2)
-                perDay.setText("One book every " + ceil(parser.perDay()) + " days");
+                perDay.setText(res.getString(R.string.challenge_needed_daily, ceil(parser.perDay())));
             else
-                perDay.setText("One book every " + dec(parser.perDay()*24) + " hours");
+                perDay.setText(res.getString(R.string.challenge_needed_hourly, ceil(parser.perDay()*24)));
 
             showContent();
         }

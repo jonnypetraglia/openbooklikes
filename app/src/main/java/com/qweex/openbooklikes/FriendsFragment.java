@@ -61,15 +61,13 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     @Override
     public void setArguments(Bundle b) {
         primary = new User(b);
+        relation = b.getString("relation");
+
         if(b.keySet().contains("relationCount")) {
-            relation = b.getString("relation");
             relationCount = b.getInt("relationCount");
-        }
-        else if(b.getInt("relationId")==R.id.followingCount) {
-            relation = getResources().getString(R.string.followings);
+        } else if(b.getInt("relationId")==R.id.followings) {
             relationCount = Integer.parseInt(primary.getS("following_count"));
         } else {
-            relation = getResources().getString(R.string.followers);
             relationCount = Integer.parseInt(primary.getS("followed_count"));
         }
         super.setArguments(b);
@@ -157,7 +155,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             }
             UserPartial user = getItem(position);
 
-            MainActivity.imageLoader.displayImage(user.getS("photo"), (ImageView) row.findViewById(R.id.profilePic));
+            MainActivity.imageLoader.displayImage(user.getS("photo"), (ImageView) row.findViewById(R.id.image_view));
 
             ((TextView)row.findViewById(R.id.title)).setText(user.getS("username"));
 
@@ -166,7 +164,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
         @Override
         public int perScreen() {
-            return super.perScreen(0);
+            return super.perScreen(listView.getLastVisiblePosition() - listView.getFirstVisiblePosition() + 1);
         }
 
         @Override

@@ -18,11 +18,38 @@
 
     <string name="followings">Followings</string>
     <string name="followers">Followers</string>
+    <string name="following_count">%s followings</string>
+    <string name="follower_count">%s followers</string>
+    <string name="book_count">%s books</string>
 
     <string name="option_view_grid">Switch to Grid</string>
     <string name="option_view_list">Switch to List</string>
 
-    <!-- Main Activity -->
+    <string name="option_browser">Open in Browser</string>
+
     <string name="menu_logout">Logout</string>
     <string name="confirm_logout">Really logout?</string>
+    <string name="search">Search</string>
+
+
+
+    <string name="book_format">Format</string>
+    <string name="book_isbn_10">ISBN-10</string>
+    <string name="book_isbn_13">ISBN-13</string>
+    <string name="book_publish_date">Publish date</string>
+    <string name="book_publisher">Publisher</string>
+    <string name="book_pages">Pages no</string>
+    <string name="book_language">Language</string>
+
+
+    <string name="challenge_completed">Congratulations!</string>
+    <string name="challenge_read">%s books read</string>
+    <string name="challenge_year_percent">%s%% through year</string>
+    <string name="challenge_days_remaining">%s days remaining</string>
+    <string name="challenge_behind">%s books behind</string>
+    <string name="challenge_ahead">%s books ahead</string>
+    <string name="challenge_needed_daily">One book every %s days</string>
+    <string name="challenge_needed_hourly">One book every %s hours</string>
+
+    <string name="img_desc_book">Book cover</string>
 </resources>

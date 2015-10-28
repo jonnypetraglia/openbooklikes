@@ -3,9 +3,12 @@
 <com.qweex.openbooklikes.FullDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer_layout"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:fitsSystemWindows="true" tools:openDrawer="start">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
     <!-- The main layout -->
     <include layout="@layout/app_bar_main"
@@ -14,16 +17,18 @@
 
     <!-- Left drawer -->
     <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
+        android:id="@id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start" android:fitsSystemWindows="true"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/app_bar_main_header"
         app:menu="@menu/drawer_menu_main" />
 
     <!-- Right drawer -->
-    <include layout="@layout/app_bar_side"
-        android:id="@+id/sidebar_content"
+    <include
+        android:id="@id/sidebar_content"
+        layout="@layout/app_bar_side"
         android:layout_width="match_parent"
         android:layout_gravity="end"
         android:layout_height="match_parent"/>

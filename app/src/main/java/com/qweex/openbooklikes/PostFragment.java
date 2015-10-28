@@ -43,15 +43,15 @@ public class PostFragment extends FragmentBase<Post> {
         setOrHide(view, R.id.title, primary.getS("title"));
         setOrHide(view, R.id.date, primary.getS("date"));
         setOrHide(view, R.id.special, primary.getS("special"));
-        setOrHide(view, R.id.description, primary.getS("desc"));
+        setOrHide(view, R.id.desc, primary.getS("desc"));
 
         ((TextView)view.findViewById(R.id.likes)).setText(primary.getS("like_count"));
         ((TextView)view.findViewById(R.id.reblogs)).setText(primary.getS("reblog_count"));
 
         if(primary.getS("photo_url")!=null)
-            MainActivity.imageLoader.displayImage(primary.getS("photo_url"), (ImageView) view.findViewById(R.id.image));
+            MainActivity.imageLoader.displayImage(primary.getS("photo_url"), (ImageView) view.findViewById(R.id.image_view));
         else
-            view.findViewById(R.id.image).setVisibility(View.GONE);
+            view.findViewById(R.id.image_view).setVisibility(View.GONE);
 
         LinearLayout tags = (LinearLayout) view.findViewById(R.id.tags);
         tags.removeAllViews();

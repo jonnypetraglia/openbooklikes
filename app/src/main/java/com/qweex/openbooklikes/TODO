@@ -1,4 +1,7 @@
+//http://javapapers.com/android/android-searchview-action-bar-tutorial/
+
 NOW
+    - the whole "move the progressView"
     - Pull to Refresh
       - https://github.com/liaohuqiu/android-Ultra-Pull-To-Refresh
     - Switch from CircularImageView to RoundedImageView?

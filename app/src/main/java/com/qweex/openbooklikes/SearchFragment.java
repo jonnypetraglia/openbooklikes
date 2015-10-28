@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -7,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,10 +19,12 @@ import com.qweex.openbooklikes.model.Search;
 
 public class SearchFragment extends BookListFragment<Search> {
 
+    EditText editText;
+
     @Override
     String getTitle() {
         if(primary==null)
-            return "Search Books";
+            return "Search Books"; //TODO: getResources()
         else
             return primary.title();
     }
@@ -43,14 +48,23 @@ public class SearchFragment extends BookListFragment<Search> {
                              Bundle savedInstanceState) {
         View shelfView = super.onCreateView(inflater, null, savedInstanceState);
         shelfView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        shelfView.findViewById(R.id.shelf_views).setVisibility(View.GONE);
+        //shelfView.findViewById(R.id.shelf_views).setVisibility(View.GONE);
 
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fragment_search, null, false);
         layout.addView(shelfView);
 
-        ((EditText)layout.findViewById(R.id.editText)).setOnEditorActionListener(performSearch);
+        editText = ((EditText)layout.findViewById(R.id.edit_text));
+        editText.setOnEditorActionListener(performSearch);
 
+        changeWidget(listView);
         return layout;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        mIMEMgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     @Override
@@ -77,6 +91,10 @@ public class SearchFragment extends BookListFragment<Search> {
                 getMainActivity().setMainTitle();
                 showLoading();
                 textView.clearFocus();
+
+                InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                mIMEMgr.hideSoftInputFromWindow(textView.getWindowToken(), 0);
+
                 fetchMore(0);
                 return true;
             }

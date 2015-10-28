@@ -92,9 +92,9 @@ public class MainActivity extends AppCompatActivity
         imageLoader.init(config);
 
         // Load primary info
-        ((TextView) findViewById(R.id.user_username)).setText(me.getS("username"));
-        ((TextView)findViewById(R.id.user_email)).setText(me.getS("email"));
-        imageLoader.displayImage(me.getS("photo"), (ImageView) findViewById(R.id.user_pic));
+        ((TextView) findViewById(R.id.username)).setText(me.getS("username"));
+        ((TextView)findViewById(R.id.email)).setText(me.getS("email"));
+        imageLoader.displayImage(me.getS("photo"), (ImageView) findViewById(R.id.image_view));
 
 
 

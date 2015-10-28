@@ -2,14 +2,16 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:id="@id/loading"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <!-- Height is very important; wrap_content means the ProgressView
          will be at the top, even though it's set as alignParentBottom -->
 
     <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
+        android:id="@id/progress"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:layout_alignParentTop="true"
@@ -17,10 +19,11 @@
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_below="@+id/progress"
+        android:id="@id/title"
+        android:layout_below="@id/progress"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

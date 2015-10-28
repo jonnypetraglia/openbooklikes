@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    android:orientation="vertical" >
 
 
     <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/profilePic"
+        android:id="@id/image_view"
         android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,15 +17,15 @@
         app:civ_border_color="#ffffffff"/>
 
     <TextView
+        android:id="@id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="BlogTitle (or Username)"
-        android:id="@+id/title"
         android:layout_gravity="center_horizontal"
         android:textSize="32sp" />
 
     <TextView
+        android:id="@id/desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -33,30 +33,25 @@
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="Blog Description"
-        android:id="@+id/description"
         android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="X books"
-        android:id="@+id/bookCount"
+        android:id="@id/book_count"
         android:layout_gravity="center_horizontal"
         android:textSize="24sp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Y Followers"
-        android:id="@+id/followersCount"
+        android:id="@id/followers"
         android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Z Following"
-        android:id="@+id/followingCount"
+        android:id="@id/followings"
         android:layout_gravity="center_horizontal" />
 
 

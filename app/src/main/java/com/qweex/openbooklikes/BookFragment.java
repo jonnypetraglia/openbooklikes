@@ -56,7 +56,7 @@ public class BookFragment extends FragmentBase<Book> {
                 - ((MainActivity)getActivity()).getActionBarHeight();
 
 
-        View cover = v.findViewById(R.id.cover),
+        View cover = v.findViewById(R.id.image_view),
              title = v.findViewById(R.id.title),
                 author = v.findViewById(R.id.author),
              table = v.findViewById(R.id.table);
@@ -65,9 +65,6 @@ public class BookFragment extends FragmentBase<Book> {
                 authorlp = (LayoutParams) author.getLayoutParams(),
                 tablelp = (LayoutParams) table.getLayoutParams();
 
-
-        ((TableLayout)table).setColumnStretchable(0, true);
-        ((TableLayout)table).setColumnStretchable(1, true);
 
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
 
@@ -84,8 +81,8 @@ public class BookFragment extends FragmentBase<Book> {
 
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            titlelp.addRule(RelativeLayout.RIGHT_OF, R.id.cover);
-            titlelp.addRule(RelativeLayout.ALIGN_TOP, R.id.cover);
+            titlelp.addRule(RelativeLayout.RIGHT_OF, R.id.image_view);
+            titlelp.addRule(RelativeLayout.ALIGN_TOP, R.id.image_view);
             authorlp.addRule(ALIGN_START, R.id.title);
             tablelp.addRule(RelativeLayout.ALIGN_LEFT, R.id.title);
 
@@ -111,7 +108,7 @@ public class BookFragment extends FragmentBase<Book> {
             titlelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
             authorlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
             tablelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            titlelp.addRule(RelativeLayout.BELOW, R.id.cover);
+            titlelp.addRule(RelativeLayout.BELOW, R.id.image_view);
         }
 
         ((ImageView) cover).setImageBitmap(null);
@@ -129,7 +126,7 @@ public class BookFragment extends FragmentBase<Book> {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
-        ImageView cover = (ImageView) view.findViewById(R.id.cover);
+        ImageView cover = (ImageView) view.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
 
         setOrHide(view, R.id.title, primary.getS("title"));
@@ -141,9 +138,9 @@ public class BookFragment extends FragmentBase<Book> {
         setOrHide(view, R.id.format, primary.getS("format")); //TODO: Figure out what the numbers map to
         setOrHide(view, R.id.isbn_13, primary.getS("isbn_13"));
         setOrHide(view, R.id.isbn_10, primary.getS("isbn_10"));
-        setOrHide(view, R.id.publishDate, primary.getS("publish_date"));
+        setOrHide(view, R.id.date, primary.getS("publish_date"));
         setOrHide(view, R.id.publisher, primary.getS("publisher"));
-        setOrHide(view, R.id.pageCount, primary.getS("pages"));
+        setOrHide(view, R.id.pages, primary.getS("pages"));
         setOrHide(view, R.id.language, primary.getS("language"));
 
 

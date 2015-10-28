@@ -17,7 +17,7 @@ import java.util.ArrayList;
 abstract public class FetchFragmentBase<Primary extends ModelBase, T extends ModelBase> extends FragmentBase<Primary>
 {
 
-    protected AbsListView listView;
+    protected ListView listView;
     protected AdapterBase<T> adapter;
 
     @Override
@@ -32,7 +32,8 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
 
     @Override
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
-        listView = new ListView(getActivity());
+        if(listView == null)
+            listView = new ListView(getActivity());
         return super.createProgressView(inflater, container, childView);
     }
 
@@ -50,6 +51,29 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
         else
             showLoadingMore();
         return true;
+    }
+
+
+    protected void showLoadingMore() {
+        showLoadingMore(null);
+    }
+
+    protected void moveLoadingViews() {
+        ((ViewGroup)progressView.getParent()).removeView(progressView);
+        ((ViewGroup)progressText.getParent()).removeView(progressText);
+
+        listView.addFooterView(progressView);
+        listView.addFooterView(progressText);
+    }
+
+    protected void showLoadingMore(String text) {
+        ViewGroup p = (ViewGroup) progressView.getParent();
+        if(p!=null && p.getId()==R.id.loading)
+            moveLoadingViews();
+
+        progressView.setVisibility(View.VISIBLE);
+        progressText.setVisibility(View.VISIBLE);
+        progressText.setText(text);
     }
 
     protected EndlessScrollListener scrollMuch = new EndlessScrollListener() {

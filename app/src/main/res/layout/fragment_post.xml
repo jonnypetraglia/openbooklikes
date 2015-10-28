@@ -12,9 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Title"
         android:textStyle="bold"
-        android:id="@+id/title"
+        android:id="@id/title"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_centerHorizontal="true"/>
@@ -25,38 +24,36 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_centerHorizontal="true"
         android:textSize="14sp"
-        android:text="Date"
-        android:id="@+id/date"
+        android:id="@id/date"
         android:layout_below="@id/title" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:id="@+id/rating"
+        android:id="@id/rating"
         android:layout_alignParentRight="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/date"
+        android:layout_below="@id/date"
         android:gravity="center_horizontal" />
 
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/image"
-        android:layout_below="@+id/rating"
-        android:layout_alignLeft="@+id/title"
+        android:id="@id/image_view"
+        android:layout_below="@id/rating"
+        android:layout_alignLeft="@id/title"
         android:maxWidth="100dp"
         android:layout_margin="10dp" />
 
     <TextView
+        android:id="@id/special"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Special"
         android:textStyle="italic"
-        android:id="@+id/special"
-        android:layout_below="@+id/image"
+        android:layout_below="@id/image_view"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"/>
 
@@ -64,39 +61,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Desc"
-        android:id="@+id/description"
-        android:layout_below="@+id/special"
+        android:id="@id/desc"
+        android:layout_below="@id/special"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:visibility="gone" />
 
+    <!-- separator -->
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
+        android:id="@id/separator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_below="@+id/description"
+        android:layout_below="@id/desc"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tags"
-        android:layout_below="@+id/progressBar"
+        android:id="@id/tags"
+        android:layout_below="@id/separator"
         android:orientation="horizontal"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/reblogs" />
+        android:layout_toLeftOf="@id/reblogs" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:background="@android:drawable/ic_input_add"
-        android:id="@+id/likes"
+        android:id="@id/likes"
         android:gravity="center"
-        android:layout_below="@+id/progressBar"
+        android:layout_below="@id/separator"
         android:layout_alignParentRight="true" />
 
     <TextView
@@ -104,10 +101,10 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:background="@android:drawable/ic_menu_revert"
-        android:id="@+id/reblogs"
+        android:id="@id/reblogs"
         android:gravity="center"
-        android:layout_below="@+id/progressBar"
-        android:layout_toLeftOf="@+id/likes" />
+        android:layout_below="@id/separator"
+        android:layout_toLeftOf="@id/likes" />
 
 </RelativeLayout>
 </ScrollView>

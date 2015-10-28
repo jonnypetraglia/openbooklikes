@@ -17,7 +17,7 @@
 
 
         <ImageView
-            android:id="@+id/profilePic"
+            android:id="@id/image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/sym_def_app_icon"
@@ -26,20 +26,20 @@
             android:layout_alignParentLeft="true" />
 
         <TextView
-            android:id="@+id/title"
+            android:id="@id/title"
             android:textAppearance="?android:attr/textAppearanceSearchResultTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/profilePic"
-            android:layout_toRightOf="@+id/profilePic"
+            android:layout_alignTop="@id/image_view"
+            android:layout_toRightOf="@id/image_view"
             android:layout_marginLeft="10dp" />
 
         <TextView
-            android:id="@+id/description"
+            android:id="@id/desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title"
-            android:layout_alignLeft="@+id/title" />
+            android:layout_below="@id/title"
+            android:layout_alignLeft="@id/title" />
 
 
     </RelativeLayout>
