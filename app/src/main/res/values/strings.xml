@@ -27,6 +27,7 @@
     <string name="option_view_list">Switch to List</string>
 
     <string name="option_browser">Open in Browser</string>
+    <string name="option_share">Share</string>
 
     <string name="menu_logout">Logout</string>
     <string name="confirm_logout">Really logout?</string>

@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         shelfNav.clear();
         for(Shelf s : shelves) {
             MenuItem mitem = shelfNav.add(R.id.nav_group,
-                        s.id().equals("-1") ? R.id.nav_all_shelf : R.id.nav_shelf,
+                        s.isAllBooks() ? R.id.nav_all_shelf : R.id.nav_shelf,
                         0,
                         s.getS("name") + " (" + s.getI("book_count") + ")")
                 .setCheckable(true)
@@ -296,7 +296,10 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.side_fragment, fragment, SIDE_FRAGMENT_TAG)
                 .commit();
-        ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(fragment.getTitle());
+        Toolbar sideToolbar = ((Toolbar) findViewById(R.id.side_toolbar));
+        sideToolbar.setTitle(fragment.getTitle());
+        fragment.onCreateOptionsMenu(sideToolbar.getMenu(), getMenuInflater());
+        sideToolbar.setOnMenuItemClickListener(fragment);
     }
 
     public void setMainTitle() {

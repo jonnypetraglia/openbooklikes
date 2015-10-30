@@ -60,10 +60,10 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     @Override
     public void setArguments(Bundle a) {
-        //noinspection unchecked
-        primary = (BookList) new Shelf(a);
-        Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         owner = new User(a);
+        //noinspection unchecked
+        primary = (BookList) new Shelf(a, owner);
+        Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         super.setArguments(a);
     }
 
@@ -140,9 +140,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_shelf, menu);
-        getActivity().onCreateOptionsMenu(menu);
+
         Log.d("OBL:createOptions", "?");
         Menu submenu = menu.findItem(R.id.filter_status).getSubMenu();
         for(int id : statusTracker.getChecked()) {
@@ -155,7 +155,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             submenu.findItem(id).setChecked(true);
         }
         changeWidget(gridView); //TODO: Settings
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -200,7 +199,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             return true;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", owner.id());
-        if(!primary.id().equals("-1"))
+        if(!primary.isAllBooks())
             params.put("Cat", primary.id());
         if(specialTracker.isChecked(R.id.filter_wishlist))
             params.put("BookIsWish", specialTracker.isChecked(R.id.filter_wishlist) ? 1 : 0);

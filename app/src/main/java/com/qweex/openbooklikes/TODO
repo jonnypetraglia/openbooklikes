@@ -4,7 +4,6 @@ NOW
     - Switch from CircularImageView to RoundedImageView?
     - shelf counts on right of drawer menu
     - Option buttons
-      - User: open in browser
       - Book: share
 
 LATER

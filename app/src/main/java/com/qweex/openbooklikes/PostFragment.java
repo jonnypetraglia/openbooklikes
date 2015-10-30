@@ -28,8 +28,7 @@ public class PostFragment extends FragmentBase<Post> {
 
     @Override
     public void setArguments(Bundle a) {
-        primary = new Post(a);
-        owner = new User(a);
+        primary = new Post(a, owner = new User(a));
         super.setArguments(a);
     }
 

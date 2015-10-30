@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
-import android.widget.TableLayout;
 
 import com.qweex.openbooklikes.model.Book;
 
@@ -30,12 +30,46 @@ public class BookFragment extends FragmentBase<Book> {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void setArguments(Bundle a) {
         Log.d("OBL", "setArguments " + a.getBundle("book").getString("cover"));
         primary = new Book(a);
         Log.d("OBL", "setArguments " + primary.id() + " | " + primary.getS("cover"));
         imgHeight = a.getInt("imgHeight");
         super.setArguments(a);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_book, container, false);
+
+        ImageView cover = (ImageView) view.findViewById(R.id.image_view);
+        MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
+
+        setOrHide(view, R.id.title, primary.getS("title"));
+        setOrHide(view, R.id.author, primary.getS("author"));
+        // And this is where I'd put a Description
+        //
+        // IF I HAD ONE
+
+        setOrHide(view, R.id.format, primary.getS("format")); //TODO: Figure out what the numbers map to
+        setOrHide(view, R.id.isbn_13, primary.getS("isbn_13"));
+        setOrHide(view, R.id.isbn_10, primary.getS("isbn_10"));
+        setOrHide(view, R.id.date, primary.getS("publish_date"));
+        setOrHide(view, R.id.publisher, primary.getS("publisher"));
+        setOrHide(view, R.id.pages, primary.getS("pages"));
+        setOrHide(view, R.id.language, primary.getS("language"));
+
+
+        adjustOrientation(view, getActivity().getResources().getConfiguration());
+
+        return super.createProgressView(inflater, container, view);
     }
 
     @Override
@@ -57,9 +91,9 @@ public class BookFragment extends FragmentBase<Book> {
 
 
         View cover = v.findViewById(R.id.image_view),
-             title = v.findViewById(R.id.title),
-             author = v.findViewById(R.id.author),
-             table = v.findViewById(R.id.table);
+                title = v.findViewById(R.id.title),
+                author = v.findViewById(R.id.author),
+                table = v.findViewById(R.id.table);
         LayoutParams coverlp = (LayoutParams) cover.getLayoutParams(),
                 titlelp = (LayoutParams) title.getLayoutParams(),
                 authorlp = (LayoutParams) author.getLayoutParams(),
@@ -119,33 +153,5 @@ public class BookFragment extends FragmentBase<Book> {
         title.requestLayout();
         author.requestLayout();
         table.requestLayout();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_book, container, false);
-
-        ImageView cover = (ImageView) view.findViewById(R.id.image_view);
-        MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
-
-        setOrHide(view, R.id.title, primary.getS("title"));
-        setOrHide(view, R.id.author, primary.getS("author"));
-        // And this is where I'd put a Description
-        //
-        // IF I HAD ONE
-
-        setOrHide(view, R.id.format, primary.getS("format")); //TODO: Figure out what the numbers map to
-        setOrHide(view, R.id.isbn_13, primary.getS("isbn_13"));
-        setOrHide(view, R.id.isbn_10, primary.getS("isbn_10"));
-        setOrHide(view, R.id.date, primary.getS("publish_date"));
-        setOrHide(view, R.id.publisher, primary.getS("publisher"));
-        setOrHide(view, R.id.pages, primary.getS("pages"));
-        setOrHide(view, R.id.language, primary.getS("language"));
-
-
-        adjustOrientation(view, getActivity().getResources().getConfiguration());
-
-        return super.createProgressView(inflater, container, view);
     }
 }

@@ -3,7 +3,6 @@ package com.qweex.openbooklikes;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +30,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class UserFragment extends FetchFragmentBase<User, Post> implements AdapterView.OnItemClickListener {
-    // TODO: domain -> open in browser
+    // TODO: link -> open in browser
 
 
     ViewGroup listViewFooter;
@@ -56,16 +55,20 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(primary.getS("domain")));
-        startActivity(browserIntent);
+        if(item.getItemId()==R.id.option_browser) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, primary.link());
+            startActivity(browserIntent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        menu.add(0, 0, R.id.option_browser, R.string.option_browser);
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem item = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.option_browser);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -103,6 +106,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         Log.d("OBL:userFragment", "!" + primary.id());
         if(primary.equals(MainActivity.me)) {
@@ -263,7 +267,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
                 JSONArray posts = response.getJSONArray("posts");
 
                 for(int i=0; i<posts.length(); i++) {
-                    Post p = new Post(posts.getJSONObject(i));
+                    Post p = new Post(posts.getJSONObject(i), primary);
                     Log.d("OBL:blog", "Post: " + (p.getS("tag")==null));
                     adapter.add(p);
                 }

@@ -10,6 +10,8 @@ abstract public class BookListPartial extends ModelBase {
     private final static String[]
             INT_FIELDS = new String[] {"book_count"};
 
+    public final static String ALL_BOOKS_ID = "-1";
+
     public abstract String title();
 
     @Override
@@ -23,5 +25,9 @@ abstract public class BookListPartial extends ModelBase {
 
     public BookListPartial(JSONObject json) throws JSONException {
         super(json);
+    }
+
+    public boolean isAllBooks() {
+        return id().equals(ALL_BOOKS_ID);
     }
 }

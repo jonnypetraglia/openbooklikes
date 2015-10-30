@@ -20,6 +20,8 @@ abstract public class ModelBase implements Parcelable {
 //            STRING_FIELDS = new String[] {},
 //            INT_FIELDS = new String[] {};
 
+    protected final String DEFAULT_DOMAIN_SCHEME = "http";
+
     protected Bundle bundle = new Bundle();
 
     abstract protected String[] idFields();
@@ -29,12 +31,14 @@ abstract public class ModelBase implements Parcelable {
     abstract protected String[] intFields();
 
     public String getS(String f) {
-        if(!Arrays.asList(mergeArrays(stringFields(), idFields())).contains(f))
+        if(!arrayContains(stringFields(), f) &&
+                !(f.endsWith("_id") && arrayContains(idFields(), f.substring(0, f.length() - "_id".length())))
+                )
             throw new RuntimeException("Field is not valid for string: " + f);
         return bundle.getString(f);
     }
     public int getI(String f) {
-        if(!Arrays.asList(intFields()).contains(f))
+        if(!arrayContains(intFields(), f))
             throw new RuntimeException("Field is not valid for int: " + f);
         return bundle.getInt(f);
     }
@@ -65,7 +69,7 @@ abstract public class ModelBase implements Parcelable {
         bundle.putString("id", b.getString("id"));
 
         for(String s : idFields())
-            bundle.putString(s, b.getString(s));
+            bundle.putString(s + "_id", b.getString(s + "_id"));
 
         for(String s : stringFields())
             bundle.putString(s, b.getString(s));
@@ -125,6 +129,10 @@ abstract public class ModelBase implements Parcelable {
         String[] x = new String[fields.size()];
         fields.toArray(x);
         return x;
+    }
+
+    static protected boolean arrayContains(String[] array, String s) {
+        return Arrays.asList(array).contains(s);
     }
 
     static private String getJSONString(JSONObject j, String s) throws JSONException {

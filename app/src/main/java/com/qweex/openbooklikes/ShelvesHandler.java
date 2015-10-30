@@ -49,7 +49,7 @@ public class ShelvesHandler extends ApiClient.ApiResponseHandler {
             shelves.add(s);
 
             for (int i = 0; i < categories.length(); i++) {
-                s = new Shelf(categories.getJSONObject(i));
+                s = new Shelf(categories.getJSONObject(i), owner);
                 shelves.add(s);
                 Log.d("OBL:Cat", s.getS("name"));
             }

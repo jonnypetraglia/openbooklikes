@@ -3,6 +3,7 @@
     <item type="id" name="nav_shelf" />
     <item type="id" name="nav_all_shelf" />
     <item type="id" name="option_browser" />
+    <item type="id" name="option_share" />
 
 
     <item type="id" name="loading" />

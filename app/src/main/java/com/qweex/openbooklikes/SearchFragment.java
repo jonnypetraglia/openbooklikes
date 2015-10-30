@@ -41,12 +41,6 @@ public class SearchFragment extends BookListFragment<Search> {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View shelfView = super.onCreateView(inflater, null, savedInstanceState);
