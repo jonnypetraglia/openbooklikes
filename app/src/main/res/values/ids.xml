@@ -59,9 +59,10 @@
     <item type="id" name="language" />
 
     <!-- User -->
-    <item type="id" name="book_count" />
+    <item type="id" name="count" />
     <item type="id" name="followers" />
     <item type="id" name="followings" />
+    <item type="id" name="books" />
 
 
     <!-- Reading Challenge -->

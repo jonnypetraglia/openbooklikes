@@ -7,6 +7,7 @@
     <ListView
         android:id="@id/list_view"
         android:listSelector="@android:color/transparent"
+        android:headerDividersEnabled="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -18,6 +19,23 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_menu_add" />
+        -->
+
+    <!--
+    <include layout="@layout/list_user_count"
+        android:id="@id/books"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include layout="@layout/list_user_count"
+        android:id="@id/followers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include layout="@layout/list_user_count"
+        android:id="@id/followings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
         -->
 
 </android.support.design.widget.CoordinatorLayout>

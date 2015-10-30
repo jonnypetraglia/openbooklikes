@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -78,10 +77,14 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         @Override
         public void run() {
             adapter.clear();
-            showLoading();
-            fetchMore(0);
+            fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
         }
     };
+
+    @Override
+    protected ViewGroup getLoadingMoreViewGroup() {
+        return loadingViewGroup;
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

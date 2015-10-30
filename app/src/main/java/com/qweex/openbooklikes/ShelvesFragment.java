@@ -94,7 +94,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
             }
 
             ((TextView)row.findViewById(R.id.title)).setText(getItem(position).getS("name"));
-            ((TextView)row.findViewById(R.id.book_count)).setText(Integer.toString(getItem(position).getI("book_count")));
+            ((TextView)row.findViewById(R.id.count)).setText(Integer.toString(getItem(position).getI("book_count")));
 
             return row;
         }

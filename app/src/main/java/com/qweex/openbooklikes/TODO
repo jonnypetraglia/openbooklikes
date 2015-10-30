@@ -1,18 +1,11 @@
 //http://javapapers.com/android/android-searchview-action-bar-tutorial/
 
 NOW
-    - Switch from CircularImageView to RoundedImageView?
     - shelf counts on right of drawer menu
-    - Option buttons
-      - Book: share
 
 LATER
     - Make Loading Screen when logging in better (have some text or something)
     - AddBookToShelf
-    - Make profile buttons look prettier
-          - put followers/followings side by side?
-          - Add icons?
-          - Maybe a card? Or a listview-like item
 
 BUGS
     - posts in UserFragment are sometimes in incorrect order

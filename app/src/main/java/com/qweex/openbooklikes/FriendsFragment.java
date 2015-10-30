@@ -54,7 +54,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         super.onActivityCreated(savedInstanceState);
         if(savedInstanceState==null) {
             adapter.clear();
-            fetchMore(0);
+            fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
         }
     }
 
@@ -79,7 +79,6 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             return false;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", primary.id());
-
 
         ApiClient.get(params, friendsHandler);
         return true;

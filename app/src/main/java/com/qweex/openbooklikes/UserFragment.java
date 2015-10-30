@@ -2,7 +2,6 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,10 +28,30 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class UserFragment extends FetchFragmentBase<User, Post> implements AdapterView.OnItemClickListener {
-    // TODO: link -> open in browser
 
+    ArrayList<HeaderData> headerDatas = new ArrayList<>();
 
-    ViewGroup listViewFooter;
+    private class HeaderData {
+        public int layoutId, stringId;
+        public String primaryDataName;
+        public View.OnClickListener listener;
+
+        public HeaderData(int l, int s, String p, View.OnClickListener o) {
+            layoutId = l;
+            stringId = s;
+            primaryDataName = p;
+            listener = o;
+        }
+
+        public void doView(View v) {
+            v.setId(layoutId);
+            try {
+                ((TextView) v.findViewById(R.id.count)).setText(primary.getS(primaryDataName));
+            } catch(RuntimeException e) {
+                ((TextView) v.findViewById(R.id.count)).setText(Integer.toString(primary.getI(primaryDataName)));
+            }
+        }
+    }
 
     @Override
     String getTitle() {
@@ -45,6 +63,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     @Override
     public void setArguments(Bundle a) {
         primary = new User(a);
+        Log.d("SET ARGUMENTS", a.getBundle("user").getString("followed_count") + "?" + primary.getS("followed_count"));
         super.setArguments(a);
     }
 
@@ -81,12 +100,21 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         listView.setDivider(null);
 
         View header = inflater.inflate(R.layout.fragment_user_header, null);
-        listView.addHeaderView(header);
+
+        listView.addHeaderView(header, null, false);
+
         Log.d("OBL:userOnCreateView", "?" + header);
 
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);
         this.listView = listView;
+
+        for(HeaderData h : headerDatas) {
+            View g = inflater.inflate(R.layout.list_user_count, null);
+            g.setId(h.layoutId);
+            ((TextView)g.findViewById(R.id.title)).setText(h.stringId);
+            listView.addHeaderView(g);
+        }
 
         listView.addFooterView(listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
 
@@ -94,7 +122,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void listener(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -121,6 +149,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             ApiClient.get(params, userHandler);
             // UI will be filled in userHandler
         }
+
+        headerDatas.add(new HeaderData(R.id.books, R.string.books, "book_count", loadShelves));
+        headerDatas.add(new HeaderData(R.id.followers, R.string.followers, "followed_count", loadFriends));
+        headerDatas.add(new HeaderData(R.id.followings, R.string.followings, "following_count", loadFriends));
     }
 
     @Override
@@ -154,27 +186,15 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
         ((TextView)v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
 
-        Resources res = getResources();
 
-        Button books = ((Button)v.findViewById(R.id.book_count));
-        books.setText(res.getString(R.string.book_count, primary.getI("book_count")));
-        books.setOnClickListener(loadShelves);
+        for(HeaderData h : headerDatas) {
+            h.doView(v.findViewById(h.layoutId));
+        }
 
-        Button followers = ((Button)v.findViewById(R.id.followers));
-        followers.setText(res.getString(R.string.follower_count, primary.getS("followed_count")));
-        followers.setOnClickListener(loadFriends);
-        Button followings = ((Button)v.findViewById(R.id.followings));
-        followings.setText(res.getString(R.string.following_count, primary.getS("following_count")));
-        followings.setOnClickListener(loadFriends);
-
-        //FIXME: UGGGGH I HATE THIS
-        getMainActivity().setMainTitle();
-
-
+        getMainActivity().setMainTitle(); //FIXME: UGGGGH I HATE THIS
         hideLoading();
         loadingViewGroup = listViewFooter;
-        adapter.clear();
-        fetchMore(0);
+        fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
     }
 
     View.OnClickListener loadShelves = new View.OnClickListener() {
@@ -343,6 +363,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        if(position < ((ListView)adapterView).getHeaderViewsCount()) {
+            headerDatas.get(position - 1).listener.onClick(view);
+            return;
+        }
         position -= ((ListView)adapterView).getHeaderViewsCount();
         Post post = adapter.getItem(position);
 

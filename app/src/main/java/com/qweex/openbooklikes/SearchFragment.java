@@ -82,7 +82,6 @@ public class SearchFragment extends BookListFragment<Search> {
         public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
             String s = textView.getText().toString().trim();
             if (i == EditorInfo.IME_ACTION_SEARCH && s.length() > 0) {
-                adapter.clear();
                 primary = Search.create(s);
                 getMainActivity().setMainTitle();
                 showLoading();
@@ -91,7 +90,8 @@ public class SearchFragment extends BookListFragment<Search> {
                 InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 mIMEMgr.hideSoftInputFromWindow(textView.getWindowToken(), 0);
 
-                fetchMore(0);
+                adapter.clear();
+                fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
                 return true;
             }
             return false;
