@@ -92,7 +92,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         listView.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.MATCH_PARENT));
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(scrollMuch);
-        ((ListView)listView).setDivider(null);
+        listView.setDivider(null);
 
         listView.setAdapter(adapter);
         return super.createProgressView(inflater, container, listView);
@@ -119,7 +119,13 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:friends.", "Success " + response.length());
-
+            if(wasLastFetchNull()) {
+                if(adapter.getCount()==0)
+                    showEmpty();
+                else
+                    hideLoading();
+                return;
+            }
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
@@ -132,11 +138,13 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             } catch (JSONException e) {
                 Log.e("OBL:friends!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
+                showError(e.getMessage());
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            super.onFailure(statusCode, headers, error, responseBody);
             Log.e("OBL:friends", "Failed cause " + error.getMessage());
         }
     };

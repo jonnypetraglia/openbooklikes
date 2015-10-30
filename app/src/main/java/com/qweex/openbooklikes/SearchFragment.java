@@ -15,7 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Search;
+
+import java.util.ArrayList;
 
 public class SearchFragment extends BookListFragment<Search> {
 
@@ -34,7 +37,7 @@ public class SearchFragment extends BookListFragment<Search> {
         // Silence is golden
         primary = new Search(a);
         Log.d("setArguments", primary.id());
-        setArguments(a);
+        super.setArguments(a);
     }
 
     @Override
@@ -48,7 +51,6 @@ public class SearchFragment extends BookListFragment<Search> {
                              Bundle savedInstanceState) {
         View shelfView = super.onCreateView(inflater, null, savedInstanceState);
         shelfView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        //shelfView.findViewById(R.id.shelf_views).setVisibility(View.GONE);
 
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fragment_search, null, false);
         layout.addView(shelfView);
@@ -69,8 +71,8 @@ public class SearchFragment extends BookListFragment<Search> {
 
     @Override
     public boolean fetchMore(int page) {
-        // Don't call Super
-        if(adapter.noMore())
+        // This will not execute all of BookList's fetchMore; just FetchFragmentBase's part
+        if(!super.fetchMore(page))
             return false;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("q", primary.getS("q"));

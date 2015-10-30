@@ -163,14 +163,14 @@ public class LaunchActivity extends AppCompatActivity {
                     startApp();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    showContent();
+                    showContentOnly();
                     mPasswordView.setError(statusCode + ": " + e.getMessage());
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-                showContent();
+                showContentOnly();
                 mPasswordView.setError("Error " + statusCode + " " + error.getMessage());
             }
         };

@@ -44,6 +44,8 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
                     super.onSuccess(statusCode, headers, response);
                     adapter.notifyDataSetChanged();
                     showContent();
+                    if(this.wasLastFetchNull())
+                        hideLoading();
                 }
             };
             RequestParams params = new RequestParams();

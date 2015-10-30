@@ -34,6 +34,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     // TODO: domain -> open in browser
 
 
+    ViewGroup listViewFooter;
+
     @Override
     String getTitle() {
         if(primary ==null) //TODO: I don't like this;
@@ -50,10 +52,6 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState==null) {
-            adapter.clear();
-            fetchMore(0);
-        }
     }
 
     @Override
@@ -86,6 +84,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);
         this.listView = listView;
+
+        listView.addFooterView(listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
 
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -165,6 +165,12 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
         //FIXME: UGGGGH I HATE THIS
         getMainActivity().setMainTitle();
+
+
+        hideLoading();
+        loadingViewGroup = listViewFooter;
+        adapter.clear();
+        fetchMore(0);
     }
 
     View.OnClickListener loadShelves = new View.OnClickListener() {
@@ -210,6 +216,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:user.", "Success " + response.length());
+            if(wasLastFetchNull()) {
+                hideLoading();
+                return;
+            }
             try {
                 primary = new User(response);
                 Log.d("OBL:user", "Filling UI from userHandler");
@@ -217,11 +227,13 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             } catch (JSONException e) {
                 Log.e("OBL:user!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
+                showError(e.getMessage());
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            super.onFailure(statusCode, headers, error, responseBody);
             Log.e("OBL:user", "Failed cause " + error.getMessage());
         }
     };
@@ -241,8 +253,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-            if(wasLastFetchNull())
+            if(wasLastFetchNull()) {
+                hideLoading();
                 return;
+            }
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
@@ -256,7 +270,13 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             } catch (JSONException e) {
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
+                showError(e.getMessage());
             }
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            super.onFailure(statusCode, headers, error, responseBody);
         }
     };
 

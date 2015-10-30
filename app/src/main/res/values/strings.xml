@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">OpenBookLikes</string>
-    
+
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -30,6 +31,7 @@
     <string name="menu_logout">Logout</string>
     <string name="confirm_logout">Really logout?</string>
     <string name="search">Search</string>
+    <string name="empty">Nothing to show</string>
 
 
 

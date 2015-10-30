@@ -58,7 +58,7 @@ public class BookFragment extends FragmentBase<Book> {
 
         View cover = v.findViewById(R.id.image_view),
              title = v.findViewById(R.id.title),
-                author = v.findViewById(R.id.author),
+             author = v.findViewById(R.id.author),
              table = v.findViewById(R.id.table);
         LayoutParams coverlp = (LayoutParams) cover.getLayoutParams(),
                 titlelp = (LayoutParams) title.getLayoutParams(),
@@ -73,7 +73,7 @@ public class BookFragment extends FragmentBase<Book> {
             coverlp.setMargins(mar, mar, 0, 0);
             titlelp.setMargins(0, 0, mar, 0);
             tablelp.setMargins(0, mar, 0, mar/2);
-            coverlp.height = (int) Math.min(
+            coverlp.height = Math.min(
                     IMG_SIZE,
                     lHeight - mar*2
             );
@@ -81,10 +81,10 @@ public class BookFragment extends FragmentBase<Book> {
 
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             coverlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            titlelp.addRule(RelativeLayout.RIGHT_OF, R.id.image_view);
-            titlelp.addRule(RelativeLayout.ALIGN_TOP, R.id.image_view);
-            authorlp.addRule(ALIGN_START, R.id.title);
-            tablelp.addRule(RelativeLayout.ALIGN_LEFT, R.id.title);
+            titlelp.addRule(RelativeLayout.RIGHT_OF, cover.getId());
+            titlelp.addRule(RelativeLayout.ALIGN_TOP, cover.getId());
+            authorlp.addRule(ALIGN_START, title.getId());
+            tablelp.addRule(RelativeLayout.ALIGN_LEFT, title.getId());
 
             coverlp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
             titlelp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
@@ -108,7 +108,7 @@ public class BookFragment extends FragmentBase<Book> {
             titlelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
             authorlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
             tablelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            titlelp.addRule(RelativeLayout.BELOW, R.id.image_view);
+            titlelp.addRule(RelativeLayout.BELOW, cover.getId());
         }
 
         ((ImageView) cover).setImageBitmap(null);

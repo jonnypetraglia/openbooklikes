@@ -103,7 +103,7 @@ public class ReadingChallengeFragment extends FragmentBase {
             else
                 perDay.setText(res.getString(R.string.challenge_needed_hourly, ceil(parser.perDay()*24)));
 
-            showContent();
+            showContentOnly();
         }
     }
 

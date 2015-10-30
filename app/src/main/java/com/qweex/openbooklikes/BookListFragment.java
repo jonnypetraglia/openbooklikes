@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -40,6 +41,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     static CheckTracker statusTracker, specialTracker;
 
+    ViewGroup listFooter, gridFooter;
+
     static {
         statusTracker = new BookListFragment.CheckTracker();
         statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_currently);
@@ -57,6 +60,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     @Override
     public void setArguments(Bundle a) {
+        //noinspection unchecked
         primary = (BookList) new Shelf(a);
         Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         owner = new User(a);
@@ -100,49 +104,38 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         gridView.setColumnWidth((int) getResources().getDimension(R.dimen.list_book_size));
         gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(this);
+        gridFooter = (ViewGroup) inflater.inflate(R.layout.loading, gridView, false);
+        gridView.addFooterView(gridFooter);
+
 
         listView = (ListView) view.findViewById(R.id.list_view);
         listView.setOnScrollListener(scrollMuch);
         listView.setOnItemClickListener(this);
+        listView.addFooterView(listFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
 
         return super.createProgressView(inflater, container, view);
     }
 
     public void changeWidget(AbsListView choice) {
+        showContent(); //hide the corrent progressView & progressText
         if(choice==listView) {
             adapter = new DetailsAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is ugly
             gridView.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
             listView.setAdapter(adapter);
+            if(adapter.getCount()>0)
+                loadingViewGroup = listFooter;
         } else if(choice==gridView) {
             adapter = new CoverAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is also ugly
             listView.setVisibility(View.GONE);
             gridView.setVisibility(View.VISIBLE);
             gridView.setAdapter(adapter);
+            if(adapter.getCount()>0)
+                loadingViewGroup = gridFooter;
         } else
             throw new RuntimeException("Tried to change to an unknown widget");
-        moveLoadingViews();
-    }
 
-    @Override
-    protected void moveLoadingViews() {
-        ViewGroup p = (ViewGroup)progressView.getParent();
-        if(p!=listView && p!=gridView) {
-            moveLoadingViews();
-            return;
-        }
-        if(gridView.getVisibility()!=View.GONE && p==listView) {
-            listView.removeFooterView(progressView);
-            listView.removeFooterView(progressText);
-            gridView.addFooterView(progressView);
-            gridView.addFooterView(progressText);
-        } else if(listView.getVisibility()!=View.GONE && p==gridView) {
-            gridView.removeFooterView(progressView);
-            gridView.removeFooterView(progressText);
-            listView.addFooterView(progressView);
-            listView.addFooterView(progressText);
-        } else
-            throw new RuntimeException("Tried to move views but neither adapterview is visible");
+        Log.d("Changed widget", "loadingViewGroup=" + loadingViewGroup);
     }
 
     @Override
@@ -172,10 +165,10 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
         if(id==R.id.change_view) {
             if(gridView.getVisibility()!=View.GONE) {
-                item.setTitle(R.string.option_view_list);
+                item.setTitle(R.string.option_view_grid);
                 changeWidget(listView);
             } else {
-                item.setTitle(R.string.option_view_grid);
+                item.setTitle(R.string.option_view_list);
                 changeWidget(gridView);
             }
             return true;
@@ -203,6 +196,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     public boolean fetchMore(int page) {
         if(!super.fetchMore(page))
             return false;
+        if(!this.getClass().equals(BookListFragment.class))
+            return true;
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", owner.id());
         if(!primary.id().equals("-1"))
@@ -251,10 +246,11 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
         @Override
         public View getView(int position, View row, ViewGroup parent) {
-            if(row == null) {
+            if(row == null || row.findViewById(R.id.title)==null) { //FIXME: cause bug in HeaderFooterGridView, apparently
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 row = inflater.inflate(R.layout.list_book_cover, parent, false);
             }
+
             TextView title = ((TextView) row.findViewById(R.id.title));
             title.setText(getItem(position).getS("title"));
             title.setVisibility(View.GONE);
@@ -279,6 +275,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public boolean noMore() {
             return getCount() == primary.getI("book_count") || booksHandler.wasLastFetchNull();
         }
+
+        @Override
+        public boolean isEmpty() { return false; }
     }
 
     BookHandler booksHandler = new BookHandler();
@@ -298,14 +297,16 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:book.", "Success " + response.length());
-
+            if(wasLastFetchNull()) {
+                if(adapter.getCount()==0)
+                    showEmpty();
+                else
+                    hideLoading();
+                return;
+            }
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
-                if(response.getInt(countFieldName())==0) {
-                    showEmpty();
-                    return;
-                }
                 JSONArray books = response.getJSONArray("books");
                 for(int i=0; i<books.length(); i++) {
                     Book b = new Book(books.getJSONObject(i));
@@ -315,14 +316,16 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             } catch (JSONException e) {
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
+                showError(e.getMessage());
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+            super.onFailure(statusCode, headers, error, responseBody);
             Log.e("OBL:Cat", "Failed cause " + error.getMessage());
         }
-    };
+    }
 
 
     class DetailsAdapter extends AdapterBase<Book> {
@@ -364,6 +367,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public boolean noMore() {
             return adapter.getCount() == primary.getI("book_count");
         }
+
+        @Override
+        public boolean isEmpty() { return false; }
     }
 
 
