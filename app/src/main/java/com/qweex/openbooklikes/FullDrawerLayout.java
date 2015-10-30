@@ -6,7 +6,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
@@ -44,7 +43,6 @@ public class FullDrawerLayout extends DrawerLayout{
             final int margin = (getGrav(child) == Gravity.LEFT) ? TRUE_MARGIN : 0;
 
 
-            Log.d("MARGIN", margin + " >_<");
             final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec,
                     margin + lp.leftMargin + lp.rightMargin,
                     lp.width);
