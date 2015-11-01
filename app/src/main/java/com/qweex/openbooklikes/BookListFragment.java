@@ -70,16 +70,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(primary!=null && savedInstanceState==null)
-            listView.post(refreshData);
+            reload();
     }
-
-    Runnable refreshData = new Runnable() {
-        @Override
-        public void run() {
-            adapter.clear();
-            fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
-        }
-    };
 
     @Override
     protected ViewGroup getLoadingMoreViewGroup() {
@@ -95,6 +87,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        responseHandler = new BookHandler();
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
     }
 
@@ -179,14 +172,14 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         if(statusTracker.has(id)) {
             item.setChecked(true);
             statusTracker.checkEx(id);
-            gridView.post(refreshData);
+            reload();
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
         if(specialTracker.has(id)) {
             item.setChecked(!item.isChecked());
             specialTracker.check(id, item.isChecked());
-            gridView.post(refreshData);
+            reload();
             Log.d("OBL", "optionselected? " + item.getTitle() + "=" + item.isChecked());
             return true;
         }
@@ -200,6 +193,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             return false;
         if(!this.getClass().equals(BookListFragment.class))
             return true;
+        Log.d("Here we go!", " asddsa");
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", owner.id());
         if(!primary.isAllBooks())
@@ -218,7 +212,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             //params.put(s, getArguments().wrapBundle("params").get(s));
 
         //TODO other params?
-        ApiClient.get(params, booksHandler);
+        ApiClient.get(params, responseHandler);
         return true;
     }
 
@@ -275,14 +269,13 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
         @Override
         public boolean noMore() {
-            return getCount() == primary.getI("book_count") || booksHandler.wasLastFetchNull();
+            return getCount() == primary.getI("book_count") || responseHandler.wasLastFetchNull();
         }
 
         @Override
         public boolean isEmpty() { return false; }
     }
 
-    BookHandler booksHandler = new BookHandler();
     protected class BookHandler extends LoadingResponseHandler {
 
         @Override
@@ -373,7 +366,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         @Override
         public boolean isEmpty() { return false; }
     }
-
 
     public static class CheckTracker { //FIXME: find an alternative to this class
         HashMap<Integer, Boolean> group = new HashMap<>();

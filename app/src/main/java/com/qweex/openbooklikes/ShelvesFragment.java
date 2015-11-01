@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements AdapterView.OnItemClickListener {
-    ShelvesHandler shelvesHandler;
 
     @Override
     public void setArguments(Bundle a) {
@@ -36,21 +35,24 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        responseHandler = new ShelvesHandler(new ArrayList<Shelf>(), primary) {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                adapter.notifyDataSetChanged();
+                showContent();
+                if(this.wasLastFetchNull())
+                    hideLoading();
+            }
+        };
+        adapter = new ShelvesAdapter(getActivity(), ((ShelvesHandler)responseHandler).shelves);
+
         super.onActivityCreated(savedInstanceState);
+
         if(savedInstanceState==null) {
-            shelvesHandler = new ShelvesHandler(new ArrayList<Shelf>(), primary) {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    super.onSuccess(statusCode, headers, response);
-                    adapter.notifyDataSetChanged();
-                    showContent();
-                    if(this.wasLastFetchNull())
-                        hideLoading();
-                }
-            };
             RequestParams params = new RequestParams();
             params.put("uid", primary.id());
-            ApiClient.get(params, shelvesHandler);
+            ApiClient.get(params, responseHandler);
             showLoading();
         }
     }
@@ -58,12 +60,6 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        adapter = new ShelvesAdapter(getActivity(), shelvesHandler.shelves);
     }
 
     @Override
@@ -106,7 +102,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
         @Override
         public boolean noMore() {
-            return shelvesHandler.wasLastFetchNull();
+            return responseHandler.wasLastFetchNull();
         }
     }
 }

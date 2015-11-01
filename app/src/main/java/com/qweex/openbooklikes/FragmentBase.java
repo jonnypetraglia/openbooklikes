@@ -25,6 +25,7 @@ import cz.msebera.android.httpclient.Header;
 
 abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener {
     Primary primary;
+    ApiClient.ApiResponseHandler responseHandler;
 
     ViewGroup contentView;
     View childView;
@@ -93,18 +94,16 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         if(loadingViewGroup==null)
             loadingViewGroup = contentView;
 
-//        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 //        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 //        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 //        lp.addRule(RelativeLayout.ABOVE, R.id.progress);
+        contentView.addView(childView, lp);
 
-        contentView.addView(childView); //, lp);
-//
 //        lp = ((RelativeLayout.LayoutParams)progressView.getLayoutParams());
 //        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
 //        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 //        progressView.setLayoutParams(lp);
-        //*/
 
         this.childView = childView;
         showContentOnly();
@@ -210,11 +209,6 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
             showError(error.getMessage());
         }
     }
-
-    final public boolean isFor(Primary other) {
-        return primary.equals(other);
-    }
-
 
     final protected float dpToPx(float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());

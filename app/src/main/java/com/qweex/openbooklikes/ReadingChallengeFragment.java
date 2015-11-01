@@ -3,7 +3,6 @@ package com.qweex.openbooklikes;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +50,7 @@ public class ReadingChallengeFragment extends FragmentBase {
     @Override
     String getTitle() {
         return "Reading Challenge " + year;
-    }
+    } // TODO: getResources()
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,26 +59,32 @@ public class ReadingChallengeFragment extends FragmentBase {
         return super.createProgressView(inflater, container, layout);
     }
 
-    private class MyTask extends AsyncTask<String, Void, Void> {
+    private class MyTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected void onPreExecute() {
             showLoading();
         }
 
         @Override
-        protected Void doInBackground(String... strings) {
+        protected Boolean doInBackground(String... strings) {
             try {
                 parser = new ReadingChallengeParser(owner.id(), year);
                 getArguments().putInt("total", parser.total);
                 getArguments().putInt("current", parser.current);
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             }
-            return null;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(Boolean success) {
+            if(!success) {
+                showEmpty();
+                return;
+            }
+
             CircleProgressView progress = (CircleProgressView) layout.findViewById(R.id.progress);
             progress.setMaxValue(parser.total);
             progress.setValue(parser.current);

@@ -2,11 +2,12 @@ package com.qweex.openbooklikes;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -136,7 +137,20 @@ public class MainActivity extends AppCompatActivity
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
                     .findFragmentByTag(MAIN_FRAGMENT_TAG);
+            //FIXME: what do
         }
+
+
+
+        getSupportFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+                    public void onBackStackChanged() {
+                        //TODO: THis doesn't work for some reason
+                        // but if I can get it working, it will take away the need to do it in loadMainFragment
+                        String currentName = getSupportFragmentManager().getBackStackEntryAt(0).getName();
+                        notMeNav.setVisible(!currentName.equals(me.id()));
+                    }
+                });
     }
 
     /*
@@ -185,12 +199,7 @@ public class MainActivity extends AppCompatActivity
                 loadMainFragment(new SearchFragment(), MainActivity.me);
                 break;
             case R.id.nav_challenge:
-                ReadingChallengeFragment challengeFragment = new ReadingChallengeFragment();
-                Bundle b = new Bundle();
-                b.putInt("year", Calendar.getInstance().get(Calendar.YEAR));
-                MainActivity.me.wrapInBundle(b);
-                challengeFragment.setArguments(b);
-                loadMainFragment(challengeFragment, MainActivity.me);
+                loadChallengeFragment(MainActivity.me, Calendar.getInstance().get(Calendar.YEAR));
                 break;
             case R.id.nav_logout:
                 logout();
@@ -267,8 +276,23 @@ public class MainActivity extends AppCompatActivity
         loadMainFragment(userFragment, user);
     }
 
+    public void loadChallengeFragment(User user, int year) {
+        ReadingChallengeFragment challengeFragment = new ReadingChallengeFragment();
+        Bundle b = new Bundle();
+        b.putInt("year", year);
+        user.wrapInBundle(b);
+        challengeFragment.setArguments(b);
+        if(user.equals(MainActivity.me))
+            loadMainFragment(challengeFragment, user);
+        else
+            loadSideFragment(challengeFragment);
+    }
+
     private void loadMainFragment(FragmentBase fragment, UserPartial owner) {
         closeRightDrawer();
+
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction();
 
         if(owner!=null && me.equals(owner)) {
             notMeNav.setVisible(false);
@@ -278,15 +302,15 @@ public class MainActivity extends AppCompatActivity
             notMeNav.setChecked(true);
             notMeNav.setTitle(fragment.getTitle());
             if(fragment.getClass().equals(UserFragment.class))
-                notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon
+                notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
             else
-                notMeNav.setIcon(android.R.drawable.ic_menu_compass); //TODO: icon
+                notMeNav.setIcon(android.R.drawable.ic_menu_compass); //TODO: icon for shelf?
+            //transaction.add(R.id.fragment, fragment, MAIN_FRAGMENT_TAG);
         }
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG)
-                .commit();
+        transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
+        //transaction.addToBackStack(owner.id());
+        transaction.commit();
         ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle());
     }
 

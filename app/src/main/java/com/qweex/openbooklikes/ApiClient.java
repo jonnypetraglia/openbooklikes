@@ -56,6 +56,7 @@ public class ApiClient {
 
         private boolean lastFetchWasNull = false;
         public boolean wasLastFetchNull() { return lastFetchWasNull; }
+        public void reset() { lastFetchWasNull = false; }
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

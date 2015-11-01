@@ -8,17 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
-import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.Search;
-
-import java.util.ArrayList;
 
 public class SearchFragment extends BookListFragment<Search> {
 
@@ -38,6 +34,12 @@ public class SearchFragment extends BookListFragment<Search> {
         primary = new Search(a);
         Log.d("setArguments", primary.id());
         super.setArguments(a);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        responseHandler = new SearchHandler();
     }
 
     @Override
@@ -73,7 +75,7 @@ public class SearchFragment extends BookListFragment<Search> {
         if(primary.getS("lng")!=null)
             params.put("lng", primary.getS("lng"));
 
-        ApiClient.get(params, searchHandler);
+        ApiClient.get(params, responseHandler);
         return true;
     }
 
@@ -90,16 +92,13 @@ public class SearchFragment extends BookListFragment<Search> {
                 InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 mIMEMgr.hideSoftInputFromWindow(textView.getWindowToken(), 0);
 
-                adapter.clear();
-                fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
+                reload();
                 return true;
             }
             return false;
         }
     };
 
-
-    SearchHandler searchHandler = new SearchHandler();
     class SearchHandler extends BookHandler {
         @Override
         protected String urlPath() {

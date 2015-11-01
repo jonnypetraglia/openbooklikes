@@ -1,9 +1,16 @@
 //http://javapapers.com/android/android-searchview-action-bar-tutorial/
 
+// https://github.com/consp1racy/material-navigation-drawer
+// https://github.com/mikepenz/MaterialDrawer
+
+
 NOW
-    - shelf counts on right of drawer menu
+    - Loading views still suck ass in terms of being shown correctly
+    - Shelves do not show after loading because ShelvesHandler inherits from ApiResponseHandler, not LoadingResponseHandler
 
 LATER
+    - Update current page for book
+    - shelf counts on right of drawer menu
     - Make Loading Screen when logging in better (have some text or something)
     - AddBookToShelf
 
@@ -21,7 +28,6 @@ MUCH LATER
     - FlowTextView to flow text around images
     - https://github.com/daimajia/NumberProgressBar
     - re-color the (currently green) drawer header
-    - Loading screens
     - setting: custom default shelf/fragment
     - add background image to shelf view
     - better Login screen

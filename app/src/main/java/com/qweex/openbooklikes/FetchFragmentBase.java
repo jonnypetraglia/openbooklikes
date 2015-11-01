@@ -1,7 +1,11 @@
 package com.qweex.openbooklikes;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -77,4 +81,26 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
             return b;
         }
     };
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.add(Menu.NONE, R.id.reload, Menu.NONE, R.string.reload)
+                .setIcon(android.R.drawable.ic_menu_preferences)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.reload)
+            reload();
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void reload() {
+        Log.d("OBL", "Reloading " + getClass().getSimpleName());
+        responseHandler.reset();
+        adapter.clear();
+        fetchMore(0);
+    }
 }

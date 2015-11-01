@@ -109,7 +109,6 @@ abstract public class ModelBase implements Parcelable {
 
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
     static public String unHTML(String str) {
-        Log.w("unHTML", str + " ? " + (str==null));
         if (str == null || str.trim().length() == 0)
             return null;
 

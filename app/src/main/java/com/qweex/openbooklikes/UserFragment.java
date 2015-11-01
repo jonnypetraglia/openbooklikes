@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -44,11 +45,15 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         }
 
         public void doView(View v) {
-            v.setId(layoutId);
+            TextView count = (TextView) v.findViewById(R.id.count);
             try {
-                ((TextView) v.findViewById(R.id.count)).setText(primary.getS(primaryDataName));
-            } catch(RuntimeException e) {
-                ((TextView) v.findViewById(R.id.count)).setText(Integer.toString(primary.getI(primaryDataName)));
+                try {
+                    count.setText(primary.getS(primaryDataName));
+                } catch (RuntimeException e) {
+                    count.setText(Integer.toString(primary.getI(primaryDataName)));
+                }
+            } catch (RuntimeException e) {
+                count.setText(primaryDataName);
             }
         }
     }
@@ -112,7 +117,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         for(HeaderData h : headerDatas) {
             View g = inflater.inflate(R.layout.list_user_count, null);
             g.setId(h.layoutId);
-            ((TextView)g.findViewById(R.id.title)).setText(h.stringId);
+            ((TextView)g.findViewById(R.id.title)).setText(getResources().getString(h.stringId, ""));
             listView.addHeaderView(g);
         }
 
@@ -135,6 +140,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        responseHandler = userHandler;
 
         Log.d("OBL:userFragment", "!" + primary.id());
         if(primary.equals(MainActivity.me)) {
@@ -143,16 +149,14 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             primary = MainActivity.me;
             // UI will be filled in onViewCreated
         } else {
-            RequestParams params = new RequestParams();
-            params.put("username", primary.getS("username"));
-            Log.d("Fetching User", primary.getS("username") + "!");
-            ApiClient.get(params, userHandler);
+            reload();
             // UI will be filled in userHandler
         }
 
         headerDatas.add(new HeaderData(R.id.books, R.string.books, "book_count", loadShelves));
         headerDatas.add(new HeaderData(R.id.followers, R.string.followers, "followed_count", loadFriends));
         headerDatas.add(new HeaderData(R.id.followings, R.string.followings, "following_count", loadFriends));
+        headerDatas.add(new HeaderData(R.id.challenge, R.string.challenge, Integer.toString(Calendar.getInstance().get(Calendar.YEAR)), loadChallenge));
     }
 
     @Override
@@ -187,9 +191,8 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         ((TextView)v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
 
 
-        for(HeaderData h : headerDatas) {
+        for(HeaderData h : headerDatas)
             h.doView(v.findViewById(h.layoutId));
-        }
 
         getMainActivity().setMainTitle(); //FIXME: UGGGGH I HATE THIS
         hideLoading();
@@ -221,6 +224,14 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             FriendsFragment friendsFragment = new FriendsFragment();
             friendsFragment.setArguments(args);
             getMainActivity().loadSideFragment(friendsFragment);
+        }
+    };
+
+    View.OnClickListener loadChallenge = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            int year = Integer.parseInt(((TextView) view.findViewById(R.id.count)).getText().toString());
+            getMainActivity().loadChallengeFragment(primary, year);
         }
     };
 
@@ -375,5 +386,13 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         PostFragment postFragment = new PostFragment();
         postFragment.setArguments(b);
         getMainActivity().loadSideFragment(postFragment);
+    }
+
+    @Override
+    protected void reload() {
+        RequestParams params = new RequestParams();
+        params.put("username", primary.getS("username"));
+        Log.d("Fetching User", primary.getS("username") + "!");
+        ApiClient.get(params, responseHandler);
     }
 }

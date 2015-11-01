@@ -9,6 +9,7 @@
     <item type="id" name="loading" />
     <item type="id" name="error" />
     <item type="id" name="empty" />
+    <item type="id" name="reload" />
 
 
     <item type="id" name="progress" />
@@ -63,6 +64,7 @@
     <item type="id" name="followers" />
     <item type="id" name="followings" />
     <item type="id" name="books" />
+    <item type="id" name="challenge" />
 
 
     <!-- Reading Challenge -->

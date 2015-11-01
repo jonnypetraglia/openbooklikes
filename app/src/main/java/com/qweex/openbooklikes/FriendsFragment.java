@@ -46,16 +46,15 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        responseHandler = friendsHandler;
         adapter = new FriendAdapter(getActivity(), R.layout.list_user, new ArrayList<UserPartial>());
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState==null) {
-            adapter.clear();
-            fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
-        }
+        if(savedInstanceState==null)
+            reload();
     }
 
     @Override
@@ -178,5 +177,11 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         public boolean noMore() {
             return getCount()==relationCount || friendsHandler.wasLastFetchNull();
         }
+    }
+
+    @Override
+    protected void reload() {
+        friendsHandler.reset();
+        super.reload();
     }
 }

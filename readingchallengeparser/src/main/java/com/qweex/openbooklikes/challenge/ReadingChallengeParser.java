@@ -33,8 +33,12 @@ public class ReadingChallengeParser {
         this.year = year;
         doc = Jsoup.connect(String.format(URL, userId, year)).get();
 
-        current = Integer.parseInt(doc.select(".info > span:nth-of-type(1)").first().text());
-        total = Integer.parseInt(doc.select(".info > span:nth-of-type(2)").first().text());
+        try {
+            current = Integer.parseInt(doc.select(".info > span:nth-of-type(1)").first().text());
+            total = Integer.parseInt(doc.select(".info > span:nth-of-type(2)").first().text());
+        } catch(NullPointerException n) {
+            throw new IOException("No such Reading Challenge exists");
+        }
 
         percentageOfYear = 100.0*(365-daysRemaining()) / 365;
         percentageOfBooks = 100.0*current / total;
