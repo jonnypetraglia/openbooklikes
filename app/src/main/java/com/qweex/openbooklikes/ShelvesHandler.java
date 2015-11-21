@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class ShelvesHandler extends ApiClient.ApiResponseHandler {
+public class ShelvesHandler extends LoadingResponseHandler {
     protected ArrayList<Shelf> shelves;
     User owner;
 
@@ -28,7 +28,8 @@ public class ShelvesHandler extends ApiClient.ApiResponseHandler {
     }
 
 
-    public ShelvesHandler(ArrayList<Shelf> s, User o) {
+    public ShelvesHandler(LoadingViewManager m, ArrayList<Shelf> s, User o) {
+        super(m);
         shelves = s;
         owner = o;
     }

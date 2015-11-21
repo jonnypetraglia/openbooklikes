@@ -2,6 +2,7 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,12 +36,12 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        responseHandler = new ShelvesHandler(new ArrayList<Shelf>(), primary) {
+        responseHandler = new ShelvesHandler(loadingManager, new ArrayList<Shelf>(), primary) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 adapter.notifyDataSetChanged();
-                loadingManager.content();
+                this.loadingManager.content();
             }
         };
         adapter = new ShelvesAdapter(getActivity(), ((ShelvesHandler)responseHandler).shelves);
@@ -51,7 +52,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
             RequestParams params = new RequestParams();
             params.put("uid", primary.id());
             ApiClient.get(params, responseHandler);
-            loadingManager.show();
+            this.loadingManager.show();
         }
     }
 

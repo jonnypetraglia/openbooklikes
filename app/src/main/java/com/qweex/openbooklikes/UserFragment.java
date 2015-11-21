@@ -16,8 +16,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
+import com.qweex.openbooklikes.model.UserPartial;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +30,7 @@ import java.util.Calendar;
 
 import cz.msebera.android.httpclient.Header;
 
-public class UserFragment extends FetchFragmentBase<User, Post> implements AdapterView.OnItemClickListener {
+public class UserFragment extends FetchFragmentBase<UserPartial, Post> implements AdapterView.OnItemClickListener {
 
     ArrayList<HeaderData> headerDatas = new ArrayList<>();
 
@@ -60,9 +62,12 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
     @Override
     String getTitle() {
-        if(primary ==null) //TODO: I don't like this;
+        if(primary==null || primary instanceof User)  //TODO: I don't like this;
             return null; // It's null when the fragment is first created because User is fetched asyncronously
-        return primary == MainActivity.me ? "Blog" : primary.properName();
+        if(primary instanceof Me)
+            return "Blog"; //TODO: string
+        else
+            return ((User)primary).properName();
     }
 
     @Override
@@ -165,7 +170,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(primary !=null) {
+        if(primary != null && primary.getS("following_count")!=null) {
             Log.d("OBL:user", "Filling UI from onViewCreated");
             fillUi();
         }
@@ -187,10 +192,10 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         View v = getView();
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
-        Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE));
+        Log.d("OBL:fillUi", ((User)primary).photoSize(IMG_SIZE));
         ImageView pic = (ImageView) v.findViewById(R.id.image_view);
-        MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE), pic);
-        ((TextView) v.findViewById(R.id.title)).setText(primary.properName());
+        MainActivity.imageLoader.displayImage(((User)primary).photoSize(IMG_SIZE), pic);
+        ((TextView) v.findViewById(R.id.title)).setText(((User)primary).properName());
         ((TextView) v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
 
 
@@ -238,7 +243,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         }
     };
 
-    LoadingResponseHandler userHandler = new LoadingResponseHandler() {
+    LoadingResponseHandler userHandler = new LoadingResponseHandler(this) {
 
         @Override
         protected String urlPath() {
@@ -275,7 +280,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         }
     };
 
-    LoadingResponseHandler blogHandler = new LoadingResponseHandler() {
+    LoadingResponseHandler blogHandler = new LoadingResponseHandler(this) {
 
         @Override
         protected String urlPath() {

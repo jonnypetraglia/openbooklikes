@@ -18,7 +18,7 @@ public class Post extends ModelBase implements Shareable {
             NO_PREFIX_STRING_FIELDS = new String[] {"photo_url", "photo_caption"},   // These should be better data types
             INT_FIELDS = new String[] {};
 
-    User owner;
+    UserPartial owner;
 
     @Override
     protected String[] idFields() {
@@ -50,7 +50,7 @@ public class Post extends ModelBase implements Shareable {
         return "posts";
     }
 
-    public Post(JSONObject json, User o) throws JSONException {
+    public Post(JSONObject json, UserPartial o) throws JSONException {
         super(json);
         for(String s : NO_PREFIX_STRING_FIELDS)
             if(json.has(s))
@@ -60,7 +60,7 @@ public class Post extends ModelBase implements Shareable {
             throw new RuntimeException("User id does not match from owner's id:" + o.id() + " vs " + getS("user_id"));
     }
 
-    public Post(Bundle b, User o) {
+    public Post(Bundle b, UserPartial o) {
         super(b);
         owner = o;
         if(!o.id().equals(getS("user_id")))

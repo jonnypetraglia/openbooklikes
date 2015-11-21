@@ -276,13 +276,13 @@ public class MainActivity extends AppCompatActivity
         loadMainFragment(userFragment, user);
     }
 
-    public void loadChallengeFragment(User user, int year) {
+    public void loadChallengeFragment(UserPartial user, int year) {
         ReadingChallengeFragment challengeFragment = new ReadingChallengeFragment();
         Bundle b = new Bundle();
         b.putInt("year", year);
         user.wrapInBundle(b);
         challengeFragment.setArguments(b);
-        if(user.equals(MainActivity.me))
+        if(user instanceof Me)
             loadMainFragment(challengeFragment, user);
         else
             loadSideFragment(challengeFragment);

@@ -116,24 +116,6 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         return onOptionsItemSelected(item);
     }
 
-    public abstract class LoadingResponseHandler extends ApiClient.ApiResponseHandler {
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            super.onSuccess(statusCode, headers, response);
-            //TODO: if error show error, else hide loading
-
-            loadingManager.content();
-            loadingManager.changeState(LoadingViewManager.State.MORE);
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            //TODO: ???
-            error.printStackTrace();
-            loadingManager.error(error);
-        }
-    }
-
     final protected float dpToPx(float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }

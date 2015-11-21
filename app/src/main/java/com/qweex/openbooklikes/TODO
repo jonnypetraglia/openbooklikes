@@ -5,7 +5,6 @@
 
 
 NOW
-    - Loading views still suck ass in terms of being shown correctly
     - Shelves do not show after loading because ShelvesHandler inherits from ApiResponseHandler, not LoadingResponseHandler
 
 LATER

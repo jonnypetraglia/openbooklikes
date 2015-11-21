@@ -8,11 +8,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
@@ -25,6 +27,8 @@ import cz.msebera.android.httpclient.Header;
 
 public class LaunchActivity extends AppCompatActivity {
 
+    LoadingViewManager loadingManager = new LoadingViewManager();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +36,19 @@ public class LaunchActivity extends AppCompatActivity {
         FrameLayout f = new FrameLayout(this);
         f.setId(R.id.fragment);
 
-        setContentView(f);
+        ViewGroup loadingView = (ViewGroup) getLayoutInflater().inflate(R.layout.loading, null);
+        View emptyView = getLayoutInflater().inflate(R.layout.empty, null);
+
+        loadingManager.setInitial(loadingView, f, emptyView);
+        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+        loadingManager.content();
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.addView(loadingView);
+        layout.addView(emptyView);
+        layout.addView(f);
+
+        setContentView(layout);
 
 
         try {
@@ -190,7 +206,7 @@ public class LaunchActivity extends AppCompatActivity {
 
     private void startApp() {
         Log.d("OBL", "startApp");
-        ApiClient.get(new ShelvesHandler(MainActivity.shelves, MainActivity.me){
+        ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves, MainActivity.me){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);

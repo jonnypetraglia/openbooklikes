@@ -102,7 +102,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         getMainActivity().loadUser(adapter.getItem(i));
     }
 
-    LoadingResponseHandler friendsHandler = new LoadingResponseHandler() {
+    LoadingResponseHandler friendsHandler = new LoadingResponseHandler(this) {
         @Override
         protected String urlPath() {
             return "user/GetUser" + relation;

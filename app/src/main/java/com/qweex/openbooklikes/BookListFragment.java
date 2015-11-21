@@ -80,7 +80,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        responseHandler = new BookHandler();
+        responseHandler = new BookHandler(this);
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
     }
 
@@ -271,6 +271,10 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     protected class BookHandler extends LoadingResponseHandler {
 
+        public BookHandler(FragmentBase f) {
+            super(f);
+        }
+
         @Override
         protected String urlPath() {
             return "book/GetUserBooks";
@@ -287,9 +291,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             Log.d("OBL:book.", "Success " + response.length());
             if(wasLastFetchNull()) {
                 if(adapter.getCount()==0)
-                    loadingManager.empty();
+                    this.loadingManager.empty();
                 else
-                    loadingManager.content();
+                    this.loadingManager.content();
                 return;
             }
             try {
@@ -304,7 +308,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             } catch (JSONException e) {
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
-                loadingManager.error(e);
+                this.loadingManager.error(e);
             }
         }
 

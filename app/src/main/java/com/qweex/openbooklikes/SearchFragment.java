@@ -39,7 +39,7 @@ public class SearchFragment extends BookListFragment<Search> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        responseHandler = new SearchHandler();
+        responseHandler = new SearchHandler(this);
     }
 
     @Override
@@ -100,6 +100,10 @@ public class SearchFragment extends BookListFragment<Search> {
     };
 
     class SearchHandler extends BookHandler {
+        public SearchHandler(FragmentBase f) {
+            super(f);
+        }
+
         @Override
         protected String urlPath() {
             return "book/SearchBooks";
