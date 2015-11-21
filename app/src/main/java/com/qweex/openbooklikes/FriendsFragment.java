@@ -119,9 +119,9 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             Log.d("OBL:friends.", "Success " + response.length());
             if(wasLastFetchNull()) {
                 if(adapter.getCount()==0)
-                    showEmpty();
+                    loadingManager.empty();
                 else
-                    hideLoading();
+                    loadingManager.content();
                 return;
             }
             try {
@@ -136,7 +136,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             } catch (JSONException e) {
                 Log.e("OBL:friends!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
-                showError(e.getMessage());
+                loadingManager.error(e);
             }
         }
 

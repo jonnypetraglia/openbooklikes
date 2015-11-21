@@ -40,9 +40,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 adapter.notifyDataSetChanged();
-                showContent();
-                if(this.wasLastFetchNull())
-                    hideLoading();
+                loadingManager.content();
             }
         };
         adapter = new ShelvesAdapter(getActivity(), ((ShelvesHandler)responseHandler).shelves);
@@ -53,7 +51,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
             RequestParams params = new RequestParams();
             params.put("uid", primary.id());
             ApiClient.get(params, responseHandler);
-            showLoading();
+            loadingManager.show();
         }
     }
 

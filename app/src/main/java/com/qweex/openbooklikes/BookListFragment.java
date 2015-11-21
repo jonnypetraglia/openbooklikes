@@ -40,8 +40,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     static CheckTracker statusTracker, specialTracker;
 
-    ViewGroup listFooter, gridFooter;
-
     static {
         statusTracker = new BookListFragment.CheckTracker();
         statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_currently);
@@ -74,11 +72,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     }
 
     @Override
-    protected ViewGroup getLoadingMoreViewGroup() {
-        return loadingViewGroup;
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
@@ -96,12 +89,13 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_list, container, false);
 
+        ViewGroup listFooter, gridFooter;
+
         gridView = (HeaderFooterGridView) view.findViewById(R.id.grid_view);
         gridView.setColumnWidth((int) getResources().getDimension(R.dimen.list_book_size));
         gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(this);
-        gridFooter = (ViewGroup) inflater.inflate(R.layout.loading, gridView, false);
-        gridView.addFooterView(gridFooter);
+        gridView.addFooterView(gridFooter = (ViewGroup) inflater.inflate(R.layout.loading, gridView, false));
 
 
         listView = (ListView) view.findViewById(R.id.list_view);
@@ -109,29 +103,26 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         listView.setOnItemClickListener(this);
         listView.addFooterView(listFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
 
+        loadingManager.addMore(gridFooter, gridView, gridFooter); //FIXME: empty view
+        loadingManager.addMore(listFooter, listView, listFooter); //FIXME: empty view
+
         return super.createProgressView(inflater, container, view);
     }
 
     public void changeWidget(AbsListView choice) {
-        showContent(); //hide the corrent progressView & progressText
+        loadingManager.content();
         if(choice==listView) {
             adapter = new DetailsAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is ugly
             gridView.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
             listView.setAdapter(adapter);
-            if(adapter.getCount()>0)
-                loadingViewGroup = listFooter;
         } else if(choice==gridView) {
             adapter = new CoverAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is also ugly
             listView.setVisibility(View.GONE);
             gridView.setVisibility(View.VISIBLE);
             gridView.setAdapter(adapter);
-            if(adapter.getCount()>0)
-                loadingViewGroup = gridFooter;
         } else
             throw new RuntimeException("Tried to change to an unknown widget");
-
-        Log.d("Changed widget", "loadingViewGroup=" + loadingViewGroup);
     }
 
     @Override
@@ -150,7 +141,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             Log.d("OBL:checkedP", id + "!" + submenu.findItem(id).getTitle());
             submenu.findItem(id).setChecked(true);
         }
+
         changeWidget(gridView); //TODO: Settings
+        //menu.findItem(R.id.change_view).setTitle(R.string.option_view_list);
     }
 
     @Override
@@ -193,7 +186,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             return false;
         if(!this.getClass().equals(BookListFragment.class))
             return true;
-        Log.d("Here we go!", " asddsa");
+
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", owner.id());
         if(!primary.isAllBooks())
@@ -294,9 +287,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             Log.d("OBL:book.", "Success " + response.length());
             if(wasLastFetchNull()) {
                 if(adapter.getCount()==0)
-                    showEmpty();
+                    loadingManager.empty();
                 else
-                    hideLoading();
+                    loadingManager.content();
                 return;
             }
             try {
@@ -311,7 +304,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             } catch (JSONException e) {
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
-                showError(e.getMessage());
+                loadingManager.error(e);
             }
         }
 

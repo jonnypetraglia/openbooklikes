@@ -110,9 +110,6 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
 
         Log.d("OBL:userOnCreateView", "?" + header);
 
-        adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
-        listView.setAdapter(adapter);
-        this.listView = listView;
 
         for(HeaderData h : headerDatas) {
             View g = inflater.inflate(R.layout.list_user_count, null);
@@ -121,7 +118,13 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             listView.addHeaderView(g);
         }
 
-        listView.addFooterView(listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
+        ViewGroup listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false);
+        listView.addFooterView(listViewFooter);
+        loadingManager.addMore(listViewFooter, listView, listViewFooter); //FIXME: emptyView
+
+        adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
+        listView.setAdapter(adapter);
+        this.listView = listView;
 
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -187,16 +190,16 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         Log.d("OBL:fillUi", primary.photoSize(IMG_SIZE));
         ImageView pic = (ImageView) v.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(primary.photoSize(IMG_SIZE), pic);
-        ((TextView)v.findViewById(R.id.title)).setText(primary.properName());
-        ((TextView)v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
+        ((TextView) v.findViewById(R.id.title)).setText(primary.properName());
+        ((TextView) v.findViewById(R.id.desc)).setText(primary.getS("blog_desc"));
 
 
-        for(HeaderData h : headerDatas)
+        for (HeaderData h : headerDatas)
             h.doView(v.findViewById(h.layoutId));
 
         getMainActivity().setMainTitle(); //FIXME: UGGGGH I HATE THIS
-        hideLoading();
-        loadingViewGroup = listViewFooter;
+        loadingManager.content();
+        loadingManager.changeState(LoadingViewManager.State.MORE);
         fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
     }
 
@@ -251,10 +254,9 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:user.", "Success " + response.length());
-            if(wasLastFetchNull()) {
-                hideLoading();
+
+            if(wasLastFetchNull())
                 return;
-            }
             try {
                 primary = new User(response);
                 Log.d("OBL:user", "Filling UI from userHandler");
@@ -262,7 +264,7 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             } catch (JSONException e) {
                 Log.e("OBL:user!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
-                showError(e.getMessage());
+                loadingManager.error(e);
             }
         }
 
@@ -288,10 +290,12 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-            if(wasLastFetchNull()) {
-                hideLoading();
+
+            loadingManager.content();
+
+            if(wasLastFetchNull())
                 return;
-            }
+
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
@@ -305,8 +309,9 @@ public class UserFragment extends FetchFragmentBase<User, Post> implements Adapt
             } catch (JSONException e) {
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
-                showError(e.getMessage());
+                loadingManager.error(e);
             }
+            Log.d("OBL:book", "Count==" + adapter.getCount() + " ? " + adapter.isEmpty());
         }
 
         @Override

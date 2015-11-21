@@ -86,7 +86,7 @@ public class SearchFragment extends BookListFragment<Search> {
             if (i == EditorInfo.IME_ACTION_SEARCH && s.length() > 0) {
                 primary = Search.create(s);
                 getMainActivity().setMainTitle();
-                showLoading();
+                loadingManager.show();
                 textView.clearFocus();
 
                 InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);

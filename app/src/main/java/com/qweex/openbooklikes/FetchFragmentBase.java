@@ -19,7 +19,6 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
 {
 
     protected ListView listView;
-    protected ViewGroup listViewFooter;
     protected AdapterBase<T> adapter;
 
     @Override
@@ -36,8 +35,6 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
         if(listView == null)
             listView = new ListView(getActivity());
-        else if(listView.getFooterViewsCount()==0)
-            listView.addFooterView(listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
         return super.createProgressView(inflater, container, childView);
     }
 
@@ -50,24 +47,8 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     protected boolean fetchMore(int page) {
         if(primary==null || adapter.noMore())
             return false;
-        if(page==0)
-            showLoading();
-        else
-            showLoadingAlso();
+        loadingManager.show();
         return true;
-    }
-
-    @Override
-    protected void showLoadingAlso(String text) {
-        if(!adapter.isEmpty()) {
-            hideLoading();
-            loadingViewGroup = getLoadingMoreViewGroup();
-        }
-        super.showLoadingAlso(text);
-    }
-
-    protected ViewGroup getLoadingMoreViewGroup() {
-        return listViewFooter;
     }
 
     protected EndlessScrollListener scrollMuch = new EndlessScrollListener() {

@@ -124,7 +124,7 @@ public class LaunchActivity extends AppCompatActivity {
             } else {
                 // Show a progress spinner, and kick off a background task to
                 // perform the primary login attempt.
-                showLoading();
+                loadingManager.show();
                 RequestParams urlParams = new RequestParams();
                 urlParams.put("email", mEmailView.getText().toString());
                 urlParams.put("password", mPasswordView.getText().toString());
@@ -147,7 +147,7 @@ public class LaunchActivity extends AppCompatActivity {
 
             @Override
             public void onStart() {
-                showLoading();
+                loadingManager.show();
             }
 
             @Override
@@ -163,14 +163,14 @@ public class LaunchActivity extends AppCompatActivity {
                     startApp();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    showContentOnly();
+                    loadingManager.content();
                     mPasswordView.setError(statusCode + ": " + e.getMessage());
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-                showContentOnly();
+                loadingManager.error(error);
                 mPasswordView.setError("Error " + statusCode + " " + error.getMessage());
             }
         };

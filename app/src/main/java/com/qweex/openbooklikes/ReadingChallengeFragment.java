@@ -62,7 +62,7 @@ public class ReadingChallengeFragment extends FragmentBase {
     private class MyTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected void onPreExecute() {
-            showLoading();
+            loadingManager.show();
         }
 
         @Override
@@ -81,7 +81,7 @@ public class ReadingChallengeFragment extends FragmentBase {
         @Override
         protected void onPostExecute(Boolean success) {
             if(!success) {
-                showEmpty();
+                loadingManager.empty();
                 return;
             }
 
@@ -96,8 +96,8 @@ public class ReadingChallengeFragment extends FragmentBase {
             ((TextView)layout.findViewById(R.id.days)).setText(res.getString(R.string.challenge_days_remaining, ceil(parser.daysRemaining())));
             ((TextView)layout.findViewById(R.id.status)).setText(
                     res.getString(
-                            parser.behind()<=0 ? R.string.challenge_behind : R.string.challenge_ahead,
-                            dec((parser.behind()<=0 ? -1 : 1) * parser.behind())
+                            parser.behind()>0 ? R.string.challenge_behind : R.string.challenge_ahead,
+                            dec((parser.behind()<0 ? -1 : 1) * parser.behind())
                     ));
 
             TextView perDay = ((TextView)layout.findViewById(R.id.per_day));
@@ -108,7 +108,7 @@ public class ReadingChallengeFragment extends FragmentBase {
             else
                 perDay.setText(res.getString(R.string.challenge_needed_hourly, ceil(parser.perDay()*24)));
 
-            showContentOnly();
+            loadingManager.content();
         }
     }
 

@@ -12,6 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.ModelBase;
@@ -26,10 +28,7 @@ import cz.msebera.android.httpclient.Header;
 abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener {
     Primary primary;
     ApiClient.ApiResponseHandler responseHandler;
-
-    ViewGroup contentView;
-    View childView;
-    ViewGroup loadingViewGroup;
+    LoadingViewManager loadingManager = new LoadingViewManager();
 
     abstract String getTitle();
 
@@ -90,99 +89,26 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
 
 
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
-        contentView = (ViewGroup) inflater.inflate(R.layout.loading, null);
-        if(loadingViewGroup==null)
-            loadingViewGroup = contentView;
 
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//        lp.addRule(RelativeLayout.ABOVE, R.id.progress);
-        contentView.addView(childView, lp);
-
-//        lp = ((RelativeLayout.LayoutParams)progressView.getLayoutParams());
-//        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-//        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-//        progressView.setLayoutParams(lp);
-
-        this.childView = childView;
-        showContentOnly();
-        return contentView;
-    }
-
-    View getLoadingView(int id) {
-        return loadingViewGroup.findViewById(id);
-    }
-
-    void setLoadingVisibility(int status, int id) {
-        getLoadingView(id).setVisibility(status);
-    }
-
-    void setVisibleAndText(String text, int id) {
-        TextView v = (TextView) getLoadingView(id);
-        v.setVisibility(View.VISIBLE);
-        v.setText(text);
-    }
-
-    void setVisibleAndText(int textId, int id) {
-        TextView v = (TextView) getLoadingView(id);
-        v.setVisibility(View.VISIBLE);
-        v.setText(textId);
-    }
+        ViewGroup loadingView = (ViewGroup) inflater.inflate(R.layout.loading, null);
+        View emptyView = inflater.inflate(R.layout.empty, null);
 
 
-    protected void showError(String text) {
-        setLoadingVisibility(View.GONE, R.id.progress);
-        setLoadingVisibility(View.GONE, R.id.progress_text);
-        setVisibleAndText(text, R.id.error);
-        //TODO
+        childView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        childView.setVisibility(View.GONE);
-    }
+        LinearLayout linearLayout = new LinearLayout(getActivity());
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-    protected void showEmpty() {
-        childView.setVisibility(View.GONE);
-        setLoadingVisibility(View.GONE, R.id.progress);
-        setLoadingVisibility(View.GONE, R.id.progress_text);
-        setVisibleAndText(R.string.empty, R.id.empty);
-        //TODO
-    }
+        linearLayout.addView(loadingView);
+        linearLayout.addView(emptyView);
+        linearLayout.addView(childView);
 
-    protected void showLoading() {
-        showLoading(null);
-    }
-    protected void showLoadingAlso() {
-        showLoadingAlso(null);
-    }
+        loadingManager.setInitial(loadingView, childView, emptyView);
+        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+        loadingManager.content();
 
-    protected void showLoading(String text) {
-        childView.setVisibility(View.GONE);
-        setLoadingVisibility(View.GONE, R.id.empty);
-        setLoadingVisibility(View.GONE, R.id.error);
-        showLoadingAlso(text);
-    }
-
-    protected void showLoadingAlso(String text) {
-        Log.d("Showing", "loading");
-        setLoadingVisibility(View.VISIBLE, R.id.progress);
-        setVisibleAndText(text, R.id.progress_text);
-    }
-
-    protected void showContentOnly() {
-        showContent();
-        hideLoading();
-    }
-
-    protected void showContent() {
-        Log.d("Showing", "content");
-        childView.setVisibility(View.VISIBLE);
-        setLoadingVisibility(View.GONE, R.id.empty);
-        setLoadingVisibility(View.GONE, R.id.error);
-    }
-
-    protected void hideLoading() {
-        setLoadingVisibility(View.GONE, R.id.progress);
-        setLoadingVisibility(View.GONE, R.id.progress_text);
+        return linearLayout;
     }
 
     @Override
@@ -196,17 +122,15 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
             super.onSuccess(statusCode, headers, response);
             //TODO: if error show error, else hide loading
 
-            showContent();
-            if(this.wasLastFetchNull())
-                hideLoading();
-            Log.d("Showing? gone", this.wasLastFetchNull() + "? " + getLoadingView(R.id.progress).getVisibility() + " vs " + View.VISIBLE);
+            loadingManager.content();
+            loadingManager.changeState(LoadingViewManager.State.MORE);
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
             //TODO: ???
             error.printStackTrace();
-            showError(error.getMessage());
+            loadingManager.error(error);
         }
     }
 
