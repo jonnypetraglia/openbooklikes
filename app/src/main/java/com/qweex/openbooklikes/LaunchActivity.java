@@ -206,6 +206,7 @@ public class LaunchActivity extends AppCompatActivity {
 
     private void startApp() {
         Log.d("OBL", "startApp");
+        loadingManager.show();
         ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves, MainActivity.me){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -215,6 +216,8 @@ public class LaunchActivity extends AppCompatActivity {
                 LaunchActivity.this.startActivity(i);
                 LaunchActivity.this.finish();
             }
+
+            //TODO: onError
         });
     }
 }

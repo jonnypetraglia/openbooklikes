@@ -36,15 +36,19 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        responseHandler = new ShelvesHandler(loadingManager, new ArrayList<Shelf>(), primary) {
+        ArrayList<Shelf> shelves = new ArrayList<Shelf>();
+        responseHandler = new ShelvesHandler(loadingManager, shelves, primary) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
-                adapter.notifyDataSetChanged();
+                adapter = new ShelvesAdapter(getActivity(), shelves);
+                listView.setAdapter(adapter); //FIXME: I hate to do this, but the adapter does not update otherwise
                 this.loadingManager.content();
             }
         };
-        adapter = new ShelvesAdapter(getActivity(), ((ShelvesHandler)responseHandler).shelves);
+
+        adapter = new ShelvesAdapter(getActivity(), shelves);
+        listView.setAdapter(adapter);
 
         super.onActivityCreated(savedInstanceState);
 
@@ -87,6 +91,8 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 row = inflater.inflate(R.layout.list_shelf, parent, false);
             }
+
+            Log.d("gettingview", "?" + position + " " + getItem(position));
 
             ((TextView)row.findViewById(R.id.title)).setText(getItem(position).getS("name"));
             ((TextView)row.findViewById(R.id.count)).setText(Integer.toString(getItem(position).getI("book_count")));
