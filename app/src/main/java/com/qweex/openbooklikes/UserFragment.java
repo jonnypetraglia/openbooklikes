@@ -194,10 +194,10 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         View v = getView();
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
-        Log.d("OBL:fillUi", ((User)primary).photoSize(IMG_SIZE));
+        Log.d("OBL:fillUi", ((User) primary).photoSize(IMG_SIZE));
         ImageView pic = (ImageView) v.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(((User)primary).photoSize(IMG_SIZE), pic);
-        ((TextView) v.findViewById(R.id.title)).setText(((User)primary).properName());
+        ((TextView) v.findViewById(R.id.title)).setText(((User) primary).properName());
         TextView desc = (TextView) v.findViewById(R.id.desc);
         ModelBase.unHTML(desc, primary.getS("blog_desc"));
         desc.setMovementMethod(LinkMovementMethod.getInstance());
