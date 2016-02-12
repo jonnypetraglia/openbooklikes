@@ -103,8 +103,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         listView.setOnItemClickListener(this);
         listView.addFooterView(listFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
 
-        loadingManager.addMore(gridFooter, gridView, gridFooter); //FIXME: empty view
-        loadingManager.addMore(listFooter, listView, listFooter); //FIXME: empty view
+        loadingManager.addMore(gridFooter, gridView, gridFooter, gridFooter); //FIXME: empty view, error view
+        loadingManager.addMore(listFooter, listView, listFooter, gridFooter); //FIXME: empty view, error view
 
         return super.createProgressView(inflater, container, view);
     }

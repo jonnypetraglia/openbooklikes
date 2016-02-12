@@ -35,7 +35,15 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
         if(listView == null)
             listView = new ListView(getActivity());
-        return super.createProgressView(inflater, container, childView);
+
+        View v = super.createProgressView(inflater, container, childView);
+        v.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reload();
+            }
+        });
+        return v;
     }
 
     @Override

@@ -125,7 +125,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
 
         ViewGroup listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false);
         listView.addFooterView(listViewFooter);
-        loadingManager.addMore(listViewFooter, listView, listViewFooter); //FIXME: emptyView
+        loadingManager.addMore(listViewFooter, listView, listViewFooter, listViewFooter); //FIXME: emptyView
 
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);

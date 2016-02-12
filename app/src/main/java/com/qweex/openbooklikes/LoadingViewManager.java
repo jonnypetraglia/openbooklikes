@@ -12,12 +12,13 @@ public class LoadingViewManager {
 
     private class LoadingView {
         ViewGroup loadingView;
-        View contentView, emptyView;
+        View contentView, emptyView, errorView;
 
-        public LoadingView(ViewGroup l, View c, View e) {
+        public LoadingView(ViewGroup l, View c, View e, View x) {
             loadingView = l;
             contentView = c;
             emptyView = e;
+            errorView = x;
         }
 
         public void loading() { loading(null); }
@@ -37,10 +38,20 @@ public class LoadingViewManager {
             emptyView.setVisibility(View.GONE);
             if(currentState==State.INITIAL)
                 loadingView.setVisibility(View.GONE);
+            errorView.setVisibility(View.GONE);
         }
 
         public void empty() {
             emptyView.setVisibility(View.VISIBLE);
+            loadingView.setVisibility(View.GONE);
+            contentView.setVisibility(View.GONE);
+            errorView.setVisibility(View.GONE);
+        }
+
+        public void error(String error) {
+            errorView.setVisibility(View.VISIBLE);
+            ((TextView)errorView.findViewById(R.id.title)).setText(error);
+            emptyView.setVisibility(View.GONE);
             loadingView.setVisibility(View.GONE);
             contentView.setVisibility(View.GONE);
         }
@@ -59,8 +70,8 @@ public class LoadingViewManager {
         currentState = State.INITIAL;
     }
 
-    public void setInitial(ViewGroup loadingView, View contentView, View emptyView) {
-        initial = new LoadingView(loadingView, contentView, emptyView);
+    public void setInitial(ViewGroup loadingView, View contentView, View emptyView, View errorView) {
+        initial = new LoadingView(loadingView, contentView, emptyView, errorView);
     }
 
     public void changeState(State s) {
@@ -70,8 +81,8 @@ public class LoadingViewManager {
         //content();
     }
 
-    public void addMore(ViewGroup loadingView, View contentView, View emptyView) {
-        mores.add(new LoadingView(loadingView, contentView, emptyView));
+    public void addMore(ViewGroup loadingView, View contentView, View emptyView, View errorView) {
+        mores.add(new LoadingView(loadingView, contentView, emptyView, errorView));
     }
 
 
@@ -104,5 +115,12 @@ public class LoadingViewManager {
 
     public void error(Throwable err) {
         //TODO
+        if(currentState==State.MORE)
+            for(LoadingView v : mores)
+                v.error(err.getMessage());
+        else
+            initial.error(err.getMessage());
+        Log.e("OBL", "LoadingViewManager error");
+        err.printStackTrace();
     }
 }
