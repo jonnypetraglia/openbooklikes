@@ -56,6 +56,13 @@ public class LoadingViewManager {
             loadingView.setVisibility(View.GONE);
             contentView.setVisibility(View.GONE);
         }
+
+        public void nothing() {
+            emptyView.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
+            contentView.setVisibility(View.GONE);
+            errorView.setVisibility(View.GONE);
+        }
     }
 
 
@@ -88,7 +95,7 @@ public class LoadingViewManager {
 
 
     public void show(String loadingText) {
-        Log.d("LoadingManager", "Showing loading " + (currentState==State.MORE ? "more" : "Init") );
+        Log.d("LoadingManager", "Showing loading " + (currentState == State.MORE ? "more" : "Init"));
         if(currentState==State.MORE)
             for(LoadingView v : mores)
                 v.loading(loadingText);
@@ -124,5 +131,13 @@ public class LoadingViewManager {
             initial.error(err.getMessage());
         Log.e("OBL", "LoadingViewManager error");
         err.printStackTrace();
+    }
+
+    public void hide() {
+        if(currentState==State.MORE)
+            for(LoadingView v : mores)
+                v.nothing();
+        else
+            initial.nothing();
     }
 }

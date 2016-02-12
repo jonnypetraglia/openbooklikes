@@ -63,6 +63,8 @@ public class SearchFragment extends BookListFragment<Search> {
         super.onActivityCreated(savedInstanceState);
         InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         mIMEMgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+        loadingManager.hide();
     }
 
     @Override
