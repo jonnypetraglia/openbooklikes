@@ -55,7 +55,9 @@
         android:textStyle="italic"
         android:layout_below="@id/image_view"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true"
+        android:autoLink="web"
+        android:linksClickable="true"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -65,6 +67,8 @@
         android:layout_below="@id/special"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
+        android:autoLink="web"
+        android:linksClickable="true"
         android:visibility="gone" />
 
     <!-- separator -->

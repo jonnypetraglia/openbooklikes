@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -78,8 +79,9 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
 
     protected TextView setOrHide(View container, int tvId, String text) {
         TextView tv = ((TextView)container.findViewById(tvId));
-        tv.setText(text);
-        tv.setVisibility(text == null ? View.GONE : View.VISIBLE);
+        ModelBase.unHTML(tv, text);
+        tv.setMovementMethod(LinkMovementMethod.getInstance());
+        tv.setVisibility(tv.getText() == null || tv.getText().length()==0 ? View.GONE : View.VISIBLE);
         return tv;
     }
 

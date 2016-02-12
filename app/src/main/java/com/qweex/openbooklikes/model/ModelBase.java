@@ -4,9 +4,12 @@ package com.qweex.openbooklikes.model;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Spanned;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.notmine.URLImageParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,7 +94,7 @@ abstract public class ModelBase implements Parcelable {
 
         // e.g. username = usr_username
         for(String s : stringFields())
-            bundle.putString(s, unHTML(getJSONString(json, apiPrefix() + "_" + s)));
+            bundle.putString(s, getJSONString(json, apiPrefix() + "_" + s));
 
         for(String i : intFields())
             bundle.putInt(i, json.getInt(apiPrefix() + "_" + i));
@@ -106,18 +109,15 @@ abstract public class ModelBase implements Parcelable {
         return params;
     }
 
-
     // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
-    static public String unHTML(String str) {
-        if (str == null || str.trim().length() == 0)
-            return null;
-
-
-        return android.text.Html.fromHtml(str)
-                .toString()
-                .replaceAll("\\r\\n", "\n")
-                //.replaceAll("\\n\\n", "\n")
-                .trim();
+    static public void unHTML(TextView tv, String str) {
+        if (str == null || android.text.Html.fromHtml(str).toString().trim().length() == 0) {
+            tv.setText(null);
+        } else {
+            URLImageParser p = new URLImageParser(tv);
+            Spanned s = android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, null);
+            tv.setText(s);
+        }
     }
 
 
