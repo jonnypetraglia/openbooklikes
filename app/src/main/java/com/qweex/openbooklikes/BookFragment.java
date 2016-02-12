@@ -161,7 +161,7 @@ public class BookFragment extends FragmentBase<Book> {
         MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
 
         setOrHide(view, R.id.title, primary.getS("title"));
-        setOrHide(view, R.id.author, primary.getS("author"));
+        setOrHide(view, R.id.author, primary.getS("author").replaceAll(",", "<br>"));
         // And this is where I'd put a Description
         //
         // IF I HAD ONE
