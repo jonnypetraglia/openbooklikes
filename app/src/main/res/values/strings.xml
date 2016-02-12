@@ -69,4 +69,5 @@
     <string name="all">All</string>
     <string name="planning_to_read">Planning to Read</string>
     <string name="currently_reading">Currently Reading</string>
+    <string name="barcode">Scan Barcode</string>
 </resources>

@@ -89,4 +89,5 @@
     <item type="id" name="filter_special" />
     <item name="app_bar_main" type="id" />
     <item name="app_bar_side" type="id" />
+    <item name="barcode" type="id" />
 </resources>

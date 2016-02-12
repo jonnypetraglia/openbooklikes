@@ -1,10 +1,15 @@
 package com.qweex.openbooklikes;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -15,6 +20,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Search;
+import com.qweex.openbooklikes.notmine.SimpleScannerActivity;
 
 public class SearchFragment extends BookListFragment<Search> {
 
@@ -65,6 +71,36 @@ public class SearchFragment extends BookListFragment<Search> {
         mIMEMgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
         loadingManager.hide();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.removeItem(R.id.filter_status);
+        menu.removeItem(R.id.filter_special);
+
+        menu.add(Menu.NONE, R.id.barcode, Menu.NONE, R.string.barcode)
+                .setIcon(android.R.drawable.ic_menu_add)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.barcode) {
+            Intent i = new Intent(SearchFragment.this.getActivity(), SimpleScannerActivity.class);
+            SearchFragment.this.startActivityForResult(i, 1);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode != Activity.RESULT_OK)
+            return;
+        String ISBN = data.getStringExtra("barcode");
+        editText.setText(ISBN);
+        performSearch.onEditorAction(editText, EditorInfo.IME_ACTION_SEARCH, null);
     }
 
     @Override
