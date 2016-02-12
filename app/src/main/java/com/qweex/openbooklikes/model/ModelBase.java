@@ -4,15 +4,20 @@ package com.qweex.openbooklikes.model;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Editable;
+import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.notmine.URLImageParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.XMLReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,14 +114,16 @@ abstract public class ModelBase implements Parcelable {
         return params;
     }
 
-    // http://www.java2s.com/Code/Java/Servlets/Escapeandunescapestring.htm
     static public void unHTML(TextView tv, String str) {
         if (str == null || android.text.Html.fromHtml(str).toString().trim().length() == 0) {
             tv.setText(null);
         } else {
-            URLImageParser p = new URLImageParser(tv);
-            Spanned s = android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, null);
-            tv.setText(s);
+            if(tv.getTag()!=null && tv.getTag().toString().contains("unhtml")) {
+                URLImageParser p = new URLImageParser(tv);
+                tv.setText(android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, null));
+                tv.setMovementMethod(LinkMovementMethod.getInstance());
+            } else
+                tv.setText(android.text.Html.fromHtml(str.replaceAll("<p> *&nbsp; *</p>", "")));
         }
     }
 

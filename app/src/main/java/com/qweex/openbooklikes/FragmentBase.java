@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -13,16 +12,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Shareable;
-
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
 
 
 
@@ -80,7 +74,6 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     protected TextView setOrHide(View container, int tvId, String text) {
         TextView tv = ((TextView)container.findViewById(tvId));
         ModelBase.unHTML(tv, text);
-        tv.setMovementMethod(LinkMovementMethod.getInstance());
         tv.setVisibility(tv.getText() == null || tv.getText().length()==0 ? View.GONE : View.VISIBLE);
         return tv;
     }
