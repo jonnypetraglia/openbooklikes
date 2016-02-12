@@ -64,7 +64,7 @@ public class Shelf extends BookListPartial implements Linkable {
 
     static public Shelf allBooksOfUser(User owner) {
         Bundle b = new Bundle();
-        b.putString("id", ALL_BOOKS_ID);
+        b.putString("id", NO_SHELF_ID);
         b.putString("user_id", owner.id());
         b.putString("name", "All books");
         b.putInt("book_count", owner.getI("book_count"));

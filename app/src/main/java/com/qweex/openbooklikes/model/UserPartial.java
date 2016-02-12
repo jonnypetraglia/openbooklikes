@@ -3,7 +3,6 @@ package com.qweex.openbooklikes.model;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.qweex.openbooklikes.R;
 
@@ -66,7 +65,7 @@ public class UserPartial extends ModelBase implements Linkable {
                 .appendPath("shelf");
         String s;
         switch(specialId) {
-            case R.id.filter_currently:
+            case R.id.filter_reading:
                 s = "currentlyreading";
                 break;
             case R.id.filter_planning:

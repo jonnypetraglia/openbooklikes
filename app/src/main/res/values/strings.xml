@@ -57,4 +57,16 @@
     <string name="img_desc_book">Book cover</string>
     <string name="signing_in">Signing in</string>
     <string name="option_update">Update</string>
+    <string name="option_add">Add to Shelf</string>
+    <string name="favorite">Favorite</string>
+    <string name="wishlist">Wishlist</string>
+    <string name="reviewed">Reviewed</string>
+    <string name="private_">Private</string>
+    <string name="none">(None)</string>
+    <string name="planning">Planning</string>
+    <string name="reading">Reading</string>
+    <string name="read">Read</string>
+    <string name="all">All</string>
+    <string name="planning_to_read">Planning to Read</string>
+    <string name="currently_reading">Currently Reading</string>
 </resources>

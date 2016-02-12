@@ -10,7 +10,7 @@ abstract public class BookListPartial extends ModelBase {
     private final static String[]
             INT_FIELDS = new String[] {"book_count"};
 
-    public final static String ALL_BOOKS_ID = "-1";
+    public final static String NO_SHELF_ID = "-1";
 
     public abstract String title();
 
@@ -28,6 +28,6 @@ abstract public class BookListPartial extends ModelBase {
     }
 
     public boolean isAllBooks() {
-        return id().equals(ALL_BOOKS_ID);
+        return id().equals(NO_SHELF_ID);
     }
 }

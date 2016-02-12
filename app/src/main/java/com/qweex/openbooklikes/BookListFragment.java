@@ -42,7 +42,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     static {
         statusTracker = new BookListFragment.CheckTracker();
-        statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_currently);
+        statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_reading);
         statusTracker.checkEx(R.id.filter_all); //TODO: Settings
 
         specialTracker = new BookListFragment.CheckTracker();
@@ -198,7 +198,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             params.put("BookStatus", "read");
         else if(statusTracker.isChecked(R.id.filter_planning))
             params.put("BookStatus", "planning");
-        else if(statusTracker.isChecked(R.id.filter_currently))
+        else if(statusTracker.isChecked(R.id.filter_reading))
             params.put("BookStatus", "currently");
         //for(String s : getArguments().wrapBundle("params").keySet())
             //params.put(s, getArguments().wrapBundle("params").get(s));

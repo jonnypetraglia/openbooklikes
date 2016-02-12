@@ -10,6 +10,11 @@
     <item type="id" name="error" />
     <item type="id" name="empty" />
     <item type="id" name="reload" />
+    <item type="id" name="filter_favourite" />
+    <item type="id" name="filter_wishlist" />
+    <item type="id" name="filter_reviewed" />
+    <item type="id" name="filter_private" />
+
 
 
     <item type="id" name="progress" />
@@ -78,4 +83,10 @@
 
     <item type="id" name="ime_login" format="integer">1001</item>
     <item type="id" name="option_update" />
+    <item type="id" name="option_add" />
+    <item type="id" name="filter_all" />
+    <item type="id" name="filter_status" />
+    <item type="id" name="filter_special" />
+    <item name="app_bar_main" type="id" />
+    <item name="app_bar_side" type="id" />
 </resources>

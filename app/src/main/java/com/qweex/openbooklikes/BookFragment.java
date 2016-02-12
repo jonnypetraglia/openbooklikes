@@ -1,9 +1,12 @@
 package com.qweex.openbooklikes;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +15,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
@@ -20,7 +31,11 @@ import android.widget.TextView;
 import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Book;
+import com.qweex.openbooklikes.model.BookListPartial;
+import com.qweex.openbooklikes.model.Shelf;
+import com.qweex.openbooklikes.notmine.Misc;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -29,6 +44,7 @@ import cz.msebera.android.httpclient.Header;
 public class BookFragment extends FragmentBase<Book> {
     int imgHeight;
     NumberProgressBar bookProgress;
+    MenuItem addToShelfMenuItem;
 
     @Override
     public String getTitle() {
@@ -62,7 +78,10 @@ public class BookFragment extends FragmentBase<Book> {
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
+            addToShelfMenuItem.setEnabled(true);
             try {
+                if(!response.has("book_page_currently") || response.getString("book_page_currently").equals("0"))
+                    return;
                 Log.d("Hello", response.getString("book_page_max") + "!");
                 bookProgress.setMax(Integer.parseInt(response.getString("book_page_max")));
                 bookProgress.setProgress(Integer.parseInt(response.getString("book_page_currently")));
@@ -80,6 +99,7 @@ public class BookFragment extends FragmentBase<Book> {
     }
 
     void reload() {
+        addToShelfMenuItem.setEnabled(false);
         RequestParams params = new RequestParams();
         params.put("bid", primary.id());
         ApiClient.get(params, responseHandler);
@@ -98,6 +118,192 @@ public class BookFragment extends FragmentBase<Book> {
         });
     }
 
+    void addToShelf(AddChoices choices) {
+        RequestParams params = new RequestParams();
+        params.put("bid", primary.id());
+        if(choices.wish)
+            params.put("BookIsWish", choices.wish);
+        if(choices.fav)
+            params.put("Favourite", choices.fav);
+        if(!choices.shelfId.equals(BookListPartial.NO_SHELF_ID))
+            params.put("Cat", choices.wish);
+        if(choices.status!=null)
+            params.put("BookStatus", choices.status);
+        if(choices.pageMax > 0)
+            params.put("PageMax", choices.pageMax);
+        if(choices.pageCurrent > 0)
+            params.put("PageCurrently", choices.pageCurrent);
+        if(choices.rating!=null)
+            params.put("BookUserRating", choices.rating);
+        if(choices.priv)
+            params.put("Private", choices.priv);
+
+        Log.d("Test", choices.toString());
+
+        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Loading", null, false, false);
+
+        ApiClient.get(params, new ApiClient.ApiResponseHandler() {
+            @Override
+            protected String urlPath() {
+                return "book/AddBookToShelfASDF";
+            }
+
+            @Override
+            protected String countFieldName() {
+                return null;
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                Log.d("You did it!", "Yay!");
+                progressDialog.dismiss();
+                Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), "Successfully updated!", Snackbar.LENGTH_LONG)
+                        .show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                progressDialog.dismiss();
+                Snackbar snack = Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), "Update failed!", Snackbar.LENGTH_LONG);
+                snack.show();
+                ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(getActivity().getResources().getColor(android.R.color.holo_red_dark));
+            }
+        });
+
+        //TODO: Popup bottom of screen thingy; think "Error loading image" in Opengur
+    }
+
+    void showUpdateDialog() {
+        View layout = getActivity().getLayoutInflater().inflate(R.layout.update_page, null);
+        final TextView current = (TextView) layout.findViewById(R.id.current_of_total),
+                max = (TextView) layout.findViewById(R.id.count);
+        current.setText(Integer.toString(bookProgress.getProgress()));
+        max.setText(Integer.toString(bookProgress.getMax()));
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Update progress") // TODO: String
+                        //.setMessage(primary.getS("title"))
+                .setView(layout)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        bookProgress.setVisibility(View.INVISIBLE);
+                        update(
+                                Integer.parseInt(current.getText().toString()),
+                                Integer.parseInt(max.getText().toString())
+                        );
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    void showAddDialog() {
+        final AddChoices result = new AddChoices();
+
+        final int resid = android.R.layout.simple_list_item_single_choice;
+        final ArrayAdapter<Shelf> adapter = new ArrayAdapter<Shelf>(getActivity(), resid, MainActivity.shelves) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if(convertView == null)
+                    convertView = getActivity().getLayoutInflater().inflate(resid, null);
+                Shelf shelf = getItem(position);
+                CheckedTextView ctv = ((CheckedTextView) convertView.findViewById(android.R.id.text1));
+                if(shelf.isAllBooks())
+                    ctv.setText(R.string.none);
+                else
+                    ctv.setText(shelf.title());
+                if(shelf.id().equals(result.shelfId) || result.shelfId == null) {
+                    ctv.setChecked(true);
+                    result.shelfId = shelf.id();
+                }
+                return convertView;
+            }
+        };
+
+
+        final RelativeLayout rl = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.add_book, null);
+
+        // Set current page and max page
+        ((TextView) rl.findViewById(R.id.current_of_total)).setText(
+                Integer.toString(bookProgress.getProgress())
+        );
+        ((TextView) rl.findViewById(R.id.count)).setText(primary.getS("pages"));
+
+        ListView listView = new ListView(getActivity());
+        listView.setVerticalFadingEdgeEnabled(true);
+        listView.setFadingEdgeLength(Misc.convertPixelsToDp(25, getActivity()));
+        listView.addFooterView(rl);
+        listView.setAdapter(adapter);
+        listView.setItemsCanFocus(true);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setItemChecked(0, true);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ((CheckedTextView) view).setChecked(true);
+                result.shelfId = adapter.getItem(i).id();
+            }
+        });
+        Log.d("Herp", "!" + adapter.getCount());
+
+
+        AlertDialog alert = new AlertDialog.Builder(getActivity())
+                .setTitle("Add to Shelf") //TODO: String
+                        .setView(listView)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //TODO: result.status
+                        int statusId = ((RadioGroup) rl.findViewById(R.id.status)).getCheckedRadioButtonId();
+                        switch (statusId) {
+                            case R.id.filter_planning:
+                                result.status = "planing"; /* sic */
+                                break;
+                            case R.id.filter_reading:
+                                result.status = "currently";
+                                break;
+                            case R.id.filter_read:
+                                result.status = "read";
+                                break;
+                            case R.id.filter_all:
+                            default:
+                        }
+                        result.rating = String.format("%.1f", ((RatingBar) rl.findViewById(R.id.rating)).getRating());
+                        result.fav = ((CheckBox) rl.findViewById(R.id.filter_favourite)).isChecked();
+                        result.wish = ((CheckBox) rl.findViewById(R.id.filter_wishlist)).isChecked();
+                        result.priv = ((CheckBox) rl.findViewById(R.id.filter_private)).isChecked();
+                        result.priv = ((CheckBox) rl.findViewById(R.id.filter_private)).isChecked();
+                        result.pageCurrent = Integer.parseInt(((TextView) rl.findViewById(R.id.current_of_total)).getText().toString());
+                        result.pageMax = Integer.parseInt(((TextView) rl.findViewById(R.id.count)).getText().toString());
+
+                        addToShelf(result);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    }
+
+    class AddChoices {
+        public String shelfId = null, status = null, rating = null /* example: "4.5" */;
+        boolean fav = false, wish = false, priv = false;
+        int pageMax = 0, pageCurrent = 0;
+
+        @Override
+        public String toString() {
+            return "shelf=" + shelfId + "; "
+                    + "status=" + status + "; "
+                    + "rating=" + rating + "; "
+                    + "fav=" + fav + "; "
+                    + "wish=" + wish + "; "
+                    + "priv=" + priv + "; "
+                    + "pageCurrent=" + pageCurrent + "; "
+                    + "pageMax=" + pageMax + ";";
+        }
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -109,38 +315,28 @@ public class BookFragment extends FragmentBase<Book> {
             .setIcon(android.R.drawable.ic_menu_preferences)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
+        addToShelfMenuItem = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.option_add);
+        addToShelfMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
         setHasOptionsMenu(true);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.reload) {
-            bookProgress.setVisibility(View.INVISIBLE);
-            reload();
-        } else if(item.getItemId()==R.id.option_update) {
-            View layout = getActivity().getLayoutInflater().inflate(R.layout.update_page, null);
-            final TextView current = (TextView) layout.findViewById(R.id.current_of_total),
-                           max = (TextView) layout.findViewById(R.id.count);
-            current.setText(Integer.toString(bookProgress.getProgress()));
-            max.setText(Integer.toString(bookProgress.getMax()));
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Update progress")
-                    //.setMessage(primary.getS("title"))
-                    .setView(layout)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            bookProgress.setVisibility(View.INVISIBLE);
-                            update(
-                                    Integer.parseInt(current.getText().toString()),
-                                    Integer.parseInt(max.getText().toString())
-                            );
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
+        switch(item.getItemId()) {
+            case R.id.reload:
+                bookProgress.setVisibility(View.INVISIBLE);
+                reload();
+                break;
+            case R.id.option_update:
+                showUpdateDialog();
+                break;
+            case R.id.option_add:
+                showAddDialog();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        //TODO: Update page progress
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override

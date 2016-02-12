@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@id/filter_special"
+    android:layout_margin="20dp"
+    android:padding="20dp">
+
+    <View
+        android:id="@id/separator"
+        android:layout_width="5dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:id="@id/status"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/separator">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/planning"
+            android:id="@+id/filter_planning" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reading"
+            android:id="@+id/filter_reading" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/read"
+            android:id="@+id/filter_read" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/none"
+            android:id="@id/filter_all"
+            android:checked="true" />
+
+    </RadioGroup>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/favorite"
+        android:id="@id/filter_favourite"
+        android:layout_toRightOf="@id/separator"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wishlist"
+        android:id="@id/filter_wishlist"
+        android:layout_below="@id/filter_favourite"
+        android:layout_alignLeft="@id/filter_favourite"
+        android:layout_alignRight="@id/filter_favourite" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/private_"
+        android:id="@id/filter_private"
+        android:enabled="false"
+        android:layout_alignLeft="@id/filter_wishlist"
+        android:layout_below="@id/filter_wishlist"
+        android:layout_alignRight="@id/filter_wishlist" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@id/current_of_total"
+        android:layout_below="@id/status"
+        android:layout_alignLeft="@id/status"
+        android:layout_toLeftOf="@+id/pages" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="out of"
+        android:id="@id/pages"
+        android:layout_below="@id/status"
+        android:layout_centerHorizontal="true"
+        android:layout_alignBaseline="@id/current_of_total" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@id/count"
+        android:layout_toRightOf="@id/pages"
+        android:layout_alignTop="@id/current_of_total" />
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@id/rating"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:layout_below="@id/current_of_total"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

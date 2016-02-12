@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/filter_status"
+    <item android:id="@id/filter_status"
         android:title="Status">
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/filter_all"
-                    android:title="All" />
-                <item android:id="@+id/filter_read"
-                    android:title="Read" />
-                <item android:id="@+id/filter_planning"
-                    android:title="Planning to Read" />
-                <item android:id="@+id/filter_currently"
-                    android:title="Currently Reading" />
+                <item android:id="@id/filter_all"
+                    android:title="@string/all" />
+                <item android:id="@id/filter_read"
+                    android:title="@string/read" />
+                <item android:id="@id/filter_planning"
+                    android:title="@string/planning_to_read" />
+                <item android:id="@id/filter_reading"
+                    android:title="@string/currently_reading" />
             </group>
         </menu>
     </item>
 
-    <item android:id="@+id/filter_special"
+    <item android:id="@id/filter_special"
         android:title="Special">
         <menu>
             <group android:checkableBehavior="all">
-                <item android:id="@+id/filter_favourite"
-                    android:title="Favourite" />
-                <item android:id="@+id/filter_wishlist"
-                    android:title="Wishlist" />
-                <item android:id="@+id/filter_reviewed"
+                <item android:id="@id/filter_favourite"
+                    android:title="@string/favorite" />
+                <item android:id="@id/filter_wishlist"
+                    android:title="@string/wishlist" />
+                <item android:id="@id/filter_reviewed"
                     android:enabled="false"
-                    android:title="Reviewed" />
-                <item android:id="@+id/filter_private"
+                    android:title="@string/reviewed" />
+                <item android:id="@id/filter_private"
                     android:enabled="false"
-                    android:title="Private" />
+                    android:title="@string/private_" />
             </group>
         </menu>
     </item>
