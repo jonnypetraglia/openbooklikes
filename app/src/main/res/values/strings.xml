@@ -56,4 +56,5 @@
 
     <string name="img_desc_book">Book cover</string>
     <string name="signing_in">Signing in</string>
+    <string name="option_update">Update</string>
 </resources>

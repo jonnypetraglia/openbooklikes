@@ -1,22 +1,34 @@
 package com.qweex.openbooklikes;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
 
+import com.daimajia.numberprogressbar.NumberProgressBar;
+import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Book;
+
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 
 public class BookFragment extends FragmentBase<Book> {
     int imgHeight;
+    NumberProgressBar bookProgress;
 
     @Override
     public String getTitle() {
@@ -32,7 +44,103 @@ public class BookFragment extends FragmentBase<Book> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        responseHandler = new PageResponseHandler() {
+            @Override
+            protected String urlPath() {
+                return "book/GetPageCurrent";
+            }
+        };
+        reload();
+    }
+
+    abstract class PageResponseHandler extends ApiClient.ApiResponseHandler {
+        @Override
+        protected String countFieldName() {
+            return null;
+        }
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            super.onSuccess(statusCode, headers, response);
+            try {
+                Log.d("Hello", response.getString("book_page_max") + "!");
+                bookProgress.setMax(Integer.parseInt(response.getString("book_page_max")));
+                bookProgress.setProgress(Integer.parseInt(response.getString("book_page_currently")));
+                bookProgress.setVisibility(View.VISIBLE);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        bookProgress = (NumberProgressBar) view.findViewById(R.id.number_progress_bar);
+    }
+
+    void reload() {
+        RequestParams params = new RequestParams();
+        params.put("bid", primary.id());
+        ApiClient.get(params, responseHandler);
+    }
+
+    void update(int current, int max) {
+        RequestParams params = new RequestParams();
+        params.put("bid", primary.id());
+        params.put("PageCurrently", current);
+        params.put("PageMax", max);
+        ApiClient.get(params, new PageResponseHandler() {
+            @Override
+            protected String urlPath() {
+                return "book/SetPageCurrent";
+            }
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+        menu.add(Menu.NONE, R.id.reload, Menu.NONE, R.string.reload)
+            .setIcon(android.R.drawable.ic_menu_preferences)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
         setHasOptionsMenu(true);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.reload) {
+            bookProgress.setVisibility(View.INVISIBLE);
+            reload();
+        } else if(item.getItemId()==R.id.option_update) {
+            View layout = getActivity().getLayoutInflater().inflate(R.layout.update_page, null);
+            final TextView current = (TextView) layout.findViewById(R.id.current_of_total),
+                           max = (TextView) layout.findViewById(R.id.count);
+            current.setText(Integer.toString(bookProgress.getProgress()));
+            max.setText(Integer.toString(bookProgress.getMax()));
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Update progress")
+                    //.setMessage(primary.getS("title"))
+                    .setView(layout)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            bookProgress.setVisibility(View.INVISIBLE);
+                            update(
+                                    Integer.parseInt(current.getText().toString()),
+                                    Integer.parseInt(max.getText().toString())
+                            );
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+        }
+        //TODO: Update page progress
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

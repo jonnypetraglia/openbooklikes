@@ -58,6 +58,7 @@
     <item type="id" name="publisher" />
     <item type="id" name="pages" />
     <item type="id" name="language" />
+    <item type="id" name="number_progress_bar" />
 
     <!-- User -->
     <item type="id" name="count" />
@@ -76,4 +77,5 @@
 
 
     <item type="id" name="ime_login" format="integer">1001</item>
+    <item type="id" name="option_update" />
 </resources>
