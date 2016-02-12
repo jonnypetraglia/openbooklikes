@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -100,6 +102,9 @@ public class LoginFragment extends FragmentBase {
             RequestParams urlParams = new RequestParams();
             urlParams.put("email", mEmailView.getText().toString());
             urlParams.put("password", mPasswordView.getText().toString());
+
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
             ApiClient.post(urlParams, loginHandler);
         }
