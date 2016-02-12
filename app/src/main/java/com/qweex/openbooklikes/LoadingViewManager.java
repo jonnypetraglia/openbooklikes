@@ -25,7 +25,8 @@ public class LoadingViewManager {
 
         public void loading(String text) {
             loadingView.setVisibility(View.VISIBLE);
-            ((TextView)loadingView.findViewById(R.id.progress_text)).setText(text);
+            if(text!=null)
+                ((TextView)loadingView.findViewById(R.id.progress_text)).setText(text);
             if(currentState==State.INITIAL) {
                 contentView.setVisibility(View.GONE);
                 emptyView.setVisibility(View.GONE);
@@ -86,14 +87,16 @@ public class LoadingViewManager {
     }
 
 
-    public void show() {
+    public void show(String loadingText) {
         Log.d("LoadingManager", "Showing loading " + (currentState==State.MORE ? "more" : "Init") );
         if(currentState==State.MORE)
             for(LoadingView v : mores)
-                v.loading();
+                v.loading(loadingText);
         else
-            initial.loading();
+            initial.loading(loadingText);
     }
+
+    public void show() { show(null); }
 
     public void content() {
         Log.d("LoadingManager", "Showing content "  + (currentState==State.MORE ? "more" : "Init") );
@@ -114,7 +117,6 @@ public class LoadingViewManager {
     }
 
     public void error(Throwable err) {
-        //TODO
         if(currentState==State.MORE)
             for(LoadingView v : mores)
                 v.error(err.getMessage());

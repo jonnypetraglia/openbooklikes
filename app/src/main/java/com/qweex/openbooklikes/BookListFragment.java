@@ -110,7 +110,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     }
 
     public void changeWidget(AbsListView choice) {
-        loadingManager.content();
         if(choice==listView) {
             adapter = new DetailsAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is ugly
             gridView.setVisibility(View.GONE);
