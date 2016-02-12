@@ -328,7 +328,8 @@ public class MainActivity extends AppCompatActivity
 
     public void setMainTitle() {
         String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle();
-        ((Toolbar) findViewById(R.id.toolbar)).setTitle(title);
+        //((Toolbar) findViewById(R.id.toolbar)).setTitle(title);
+        getSupportActionBar().setTitle(title);
     }
 
     public void setSideTitle() {
