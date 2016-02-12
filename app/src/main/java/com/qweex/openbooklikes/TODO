@@ -5,7 +5,10 @@
 
 
 NOW
-    - Shelves do not show after loading because ShelvesHandler inherits from ApiResponseHandler, not LoadingResponseHandler
+    - Login sceen flashes briefly when loading user
+      - startApp probably calls loadingView.content() when it should just stay loading
+    - Username is not displayed in actionbar or shelf
+    - Search is still FUBAR
 
 LATER
     - Update current page for book
