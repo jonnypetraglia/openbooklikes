@@ -75,4 +75,6 @@
     <string name="shelves">Shelves</string>
     <string name="blog">Blog</string>
     <string name="search_books">Search Books</string>
+    <string name="logout">Logout</string>
+    <string name="add_shelf">Add Shelf</string>
 </resources>

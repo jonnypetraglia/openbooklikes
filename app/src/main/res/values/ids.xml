@@ -91,4 +91,13 @@
     <item name="app_bar_side" type="id" />
     <item name="barcode" type="id" />
     <item name="background" type="id" />
+
+    <item type="id" name="nav_group" />
+    <item type="id" name="nav_blog" />
+    <item type="id" name="nav_challenge" />
+    <item type="id" name="nav_search" />
+    <item type="id" name="nav_not_me" />
+    <item type="id" name="nav_shelves" />
+    <item type="id" name="nav_add_shelf" />
+    <item type="id" name="nav_logout" />
 </resources>
