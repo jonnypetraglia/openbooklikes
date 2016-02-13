@@ -23,7 +23,7 @@ import java.util.Map;
 import at.grabner.circleprogress.CircleProgressView;
 
 
-public class ReadingChallengeFragment extends FetchFragmentBase implements TabLayout.OnTabSelectedListener {
+public class ReadingChallengeFragment extends FragmentBase implements TabLayout.OnTabSelectedListener {
     User owner;
     String selectedYear = "";
 

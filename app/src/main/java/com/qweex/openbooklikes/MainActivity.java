@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity
         userFragment.setArguments(b);
         if(user instanceof Me) {
             blogNav.setChecked(true);
+            selectedNav = blogNav;
             notMeNav.setVisible(false);
         }
         loadMainFragment(userFragment, user);
@@ -288,6 +289,7 @@ public class MainActivity extends AppCompatActivity
         if(user instanceof Me) {
             loadMainFragment(challengeFragment, user);
             challengeNav.setChecked(true);
+            selectedNav = challengeNav;
             notMeNav.setVisible(false);
         } else
             loadSideFragment(challengeFragment);
