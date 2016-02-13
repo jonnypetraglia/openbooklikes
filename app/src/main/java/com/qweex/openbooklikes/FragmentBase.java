@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +26,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     ApiClient.ApiResponseHandler responseHandler;
     LoadingViewManager loadingManager = new LoadingViewManager();
 
-    abstract String getTitle();
+    abstract String getTitle(Resources resources);
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

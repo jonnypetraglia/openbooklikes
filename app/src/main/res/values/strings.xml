@@ -71,4 +71,8 @@
     <string name="currently_reading">Currently Reading</string>
     <string name="barcode">Scan Barcode</string>
     <string name="no_reading_challenges">User has no reading challenges</string>
+    <string name="reading_challenge">Reading Challenge</string>
+    <string name="shelves">Shelves</string>
+    <string name="blog">Blog</string>
+    <string name="search_books">Search Books</string>
 </resources>

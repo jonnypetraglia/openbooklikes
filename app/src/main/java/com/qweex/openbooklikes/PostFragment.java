@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +17,7 @@ public class PostFragment extends FragmentBase<Post> {
     User owner;
 
     @Override
-    String getTitle() {
+    String getTitle(Resources r) {
         return owner.getS("blog_title");
     }
 

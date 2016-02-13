@@ -3,6 +3,7 @@ package com.qweex.openbooklikes;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -47,7 +48,7 @@ public class BookFragment extends FragmentBase<Book> {
     MenuItem addToShelfMenuItem;
 
     @Override
-    public String getTitle() {
+    public String getTitle(Resources r) {
         return primary.getS("title");
     }
 

@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity
             notMeNav.setVisible(true);
             selectedNav = notMeNav;
             notMeNav.setChecked(true);
-            notMeNav.setTitle(fragment.getTitle());
+            notMeNav.setTitle(fragment.getTitle(getResources()));
             if(fragment.getClass().equals(UserFragment.class))
                 notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
             else
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity
         transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
         transaction.commit();
-        ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle());
+        ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle(getResources()));
     }
 
     public void loadSideFragment(FragmentBase fragment) {
@@ -320,19 +320,19 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.side_fragment, fragment, SIDE_FRAGMENT_TAG)
                 .commit();
         Toolbar sideToolbar = ((Toolbar) findViewById(R.id.side_toolbar));
-        sideToolbar.setTitle(fragment.getTitle());
+        sideToolbar.setTitle(fragment.getTitle(getResources()));
         fragment.onCreateOptionsMenu(sideToolbar.getMenu(), getMenuInflater());
         sideToolbar.setOnMenuItemClickListener(fragment);
     }
 
     public void setMainTitle() {
-        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle();
+        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle(getResources());
         //((Toolbar) findViewById(R.id.toolbar)).setTitle(title);
         getSupportActionBar().setTitle(title);
     }
 
     public void setSideTitle() {
-        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.side_fragment)).getTitle();
+        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.side_fragment)).getTitle(getResources());
         ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(title);
     }
 

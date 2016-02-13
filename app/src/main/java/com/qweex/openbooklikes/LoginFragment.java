@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -158,7 +159,7 @@ public class LoginFragment extends FragmentBase {
     }
 
     @Override
-    String getTitle() {
+    String getTitle(Resources r) {
         return null; // Not needed
     }
 }

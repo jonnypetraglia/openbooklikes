@@ -2,6 +2,7 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -63,11 +64,11 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     }
 
     @Override
-    String getTitle() {
+    String getTitle(Resources res) {
         if(primary==null)  //TODO: I don't like this;
             return null; // It's null when the fragment is first created because User is fetched asynchronously
         else if(primary instanceof Me)
-            return "Blog"; //TODO: string
+            return res.getString(R.string.blog);
         else
             return ((User)primary).properName();
     }

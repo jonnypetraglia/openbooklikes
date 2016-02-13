@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,8 +30,8 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
     }
 
     @Override
-    String getTitle() {
-        return "Shelves";
+    String getTitle(Resources res) {
+        return res.getString(R.string.shelves);
     }
 
 

@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +29,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     int relationCount = 0;
 
     @Override
-    String getTitle() {
+    String getTitle(Resources r) {
         return relation;
     }
 
