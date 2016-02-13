@@ -1,17 +1,23 @@
 package com.qweex.openbooklikes;
 
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qweex.openbooklikes.challenge.ReadingChallengeParser;
+import com.qweex.openbooklikes.model.Shareable;
 import com.qweex.openbooklikes.model.User;
 
 import java.io.IOException;
@@ -23,13 +29,14 @@ import java.util.Map;
 import at.grabner.circleprogress.CircleProgressView;
 
 
-public class ReadingChallengeFragment extends FragmentBase implements TabLayout.OnTabSelectedListener {
+public class ReadingChallengeFragment extends FragmentBase implements TabLayout.OnTabSelectedListener, Shareable {
     User owner;
     String selectedYear = "";
 
     Map<String, ReadingChallengeParser> parsers = new HashMap<>();
     TabLayout tabLayout;
     View content, errorView;
+    MenuItem share;
 
     @Override
     public void setArguments(Bundle args) {
@@ -55,6 +62,18 @@ public class ReadingChallengeFragment extends FragmentBase implements TabLayout.
     @Override
     String getTitle(Resources res) {
         return res.getString(R.string.reading_challenge);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        share = menu.findItem(R.id.option_share).setEnabled(false);
     }
 
     @Override
@@ -105,6 +124,7 @@ public class ReadingChallengeFragment extends FragmentBase implements TabLayout.
 
     @Override
     public void onTabSelected(Tab tab) {
+        share.setEnabled(true);
         selectedYear = tab.getText().toString();
         if(!parsers.containsKey(tab.getText().toString())) {
             loadingManager.show();
@@ -156,6 +176,19 @@ public class ReadingChallengeFragment extends FragmentBase implements TabLayout.
 
 
         loadingManager.content();
+    }
+
+    @Override
+    public Intent share() {
+        return new Intent(android.content.Intent.ACTION_SEND)
+                .setType("text/plain")
+                .putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.reading_challenge) + ": " + selectedYear)
+                .putExtra(Intent.EXTRA_TEXT, link().toString());
+    }
+
+    @Override
+    public Uri link() {
+        return Uri.parse(parsers.get(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getText().toString()).url());
     }
 
     private class FetchChallengeAsync extends AsyncTask<String, Void, Throwable> {

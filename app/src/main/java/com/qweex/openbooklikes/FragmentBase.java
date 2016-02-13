@@ -57,7 +57,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         //getActivity().onCreateOptionsMenu(menu);
-        if(primary instanceof  Shareable)
+        if(primary instanceof  Shareable || this instanceof Shareable)
             menu.add(Menu.NONE, R.id.option_share, Menu.NONE, R.string.option_share)
                     .setIcon(android.R.drawable.ic_menu_share)//TODO: Icon
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -66,7 +66,9 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.option_share) {
-            startActivity(Intent.createChooser(((Shareable) primary).share(), getResources().getString(R.string.option_share)));
+            startActivity(Intent.createChooser(
+                    ((Shareable) (primary instanceof Shareable ? primary : this))
+                            .share(), getResources().getString(R.string.option_share)));
             return true;
         }
         return super.onOptionsItemSelected(item);
