@@ -29,9 +29,9 @@ public class LoadingViewManager {
                 ((TextView)loadingView.findViewById(R.id.progress_text)).setText(text);
             if(currentState==State.INITIAL) {
                 contentView.setVisibility(View.GONE);
-                emptyView.setVisibility(View.GONE);
-                errorView.setVisibility(View.GONE);
             }
+            emptyView.setVisibility(View.GONE);
+            errorView.setVisibility(View.GONE);
         }
 
         public void content() {

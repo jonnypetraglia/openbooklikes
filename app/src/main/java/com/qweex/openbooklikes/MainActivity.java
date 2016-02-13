@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
-    private MenuItem selectedNav, notMeNav;
+    private MenuItem selectedNav, notMeNav, challengeNav, blogNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +97,12 @@ public class MainActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.email)).setText(me.getS("email"));
         imageLoader.displayImage(me.getS("photo"), (ImageView) findViewById(R.id.image_view));
 
-
-
         NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
 
-        // Set the "show when not me" menu item
+        // Locate the important nav items
         notMeNav = navView.getMenu().findItem(R.id.nav_not_me);
+        blogNav = navView.getMenu().findItem(R.id.nav_blog);
+        challengeNav = navView.getMenu().findItem(R.id.nav_challenge);
 
         // Add shelfMap to menu
         Menu shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
@@ -273,6 +273,10 @@ public class MainActivity extends AppCompatActivity
 
         UserFragment userFragment = new UserFragment();
         userFragment.setArguments(b);
+        if(user instanceof Me) {
+            blogNav.setChecked(true);
+            notMeNav.setVisible(false);
+        }
         loadMainFragment(userFragment, user);
     }
 
@@ -281,9 +285,11 @@ public class MainActivity extends AppCompatActivity
         Bundle b = new Bundle();
         user.wrapInBundle(b);
         challengeFragment.setArguments(b);
-        if(user instanceof Me)
+        if(user instanceof Me) {
             loadMainFragment(challengeFragment, user);
-        else
+            challengeNav.setChecked(true);
+            notMeNav.setVisible(false);
+        } else
             loadSideFragment(challengeFragment);
     }
 

@@ -167,7 +167,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         headerDatas.add(new HeaderData(R.id.books, R.string.books, "book_count", loadShelves));
         headerDatas.add(new HeaderData(R.id.followers, R.string.followers, "followed_count", loadFriends));
         headerDatas.add(new HeaderData(R.id.followings, R.string.followings, "following_count", loadFriends));
-        headerDatas.add(new HeaderData(R.id.challenge, R.string.challenge, Integer.toString(Calendar.getInstance().get(Calendar.YEAR)), loadChallenge));
+        headerDatas.add(new HeaderData(R.id.challenge, R.string.challenge, null, loadChallenge));
     }
 
     @Override
