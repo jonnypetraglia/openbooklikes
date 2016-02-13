@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity
                 loadMainFragment(new SearchFragment(), MainActivity.me);
                 break;
             case R.id.nav_challenge:
-                loadChallengeFragment(MainActivity.me, Calendar.getInstance().get(Calendar.YEAR));
+                loadChallengeFragment(MainActivity.me);
                 break;
             case R.id.nav_logout:
                 logout();
@@ -276,10 +276,9 @@ public class MainActivity extends AppCompatActivity
         loadMainFragment(userFragment, user);
     }
 
-    public void loadChallengeFragment(UserPartial user, int year) {
+    public void loadChallengeFragment(UserPartial user) {
         ReadingChallengeFragment challengeFragment = new ReadingChallengeFragment();
         Bundle b = new Bundle();
-        b.putInt("year", year);
         user.wrapInBundle(b);
         challengeFragment.setArguments(b);
         if(user instanceof Me)

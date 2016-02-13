@@ -242,8 +242,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     View.OnClickListener loadChallenge = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            int year = Integer.parseInt(((TextView) view.findViewById(R.id.count)).getText().toString());
-            getMainActivity().loadChallengeFragment(primary, year);
+            getMainActivity().loadChallengeFragment(primary);
         }
     };
 
