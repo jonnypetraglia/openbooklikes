@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity
         // Add shelfMap to menu
         Menu shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
+        shelfMenuItems.clear();
         for(Shelf s : shelves) {
             MenuItem mitem = shelfNav.add(R.id.nav_group,
                     s.isAllBooks() ? R.id.nav_all_shelf : R.id.nav_shelf,
