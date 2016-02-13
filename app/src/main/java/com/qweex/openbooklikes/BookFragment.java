@@ -157,9 +157,8 @@ public class BookFragment extends FragmentBase<Book> {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.d("You did it!", "Yay!");
                 progressDialog.dismiss();
-                Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), "Successfully updated!", Snackbar.LENGTH_LONG)
+                Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), getResources().getString(R.string.successfully_updated), Snackbar.LENGTH_LONG)
                         .show();
             }
 
@@ -167,7 +166,7 @@ public class BookFragment extends FragmentBase<Book> {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 progressDialog.dismiss();
-                Snackbar snack = Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), "Update failed!", Snackbar.LENGTH_LONG);
+                Snackbar snack = Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), getActivity().getResources().getString(R.string.update_failed), Snackbar.LENGTH_LONG);
                 snack.show();
                 ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(getActivity().getResources().getColor(android.R.color.holo_red_dark));
             }

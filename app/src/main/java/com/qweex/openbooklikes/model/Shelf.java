@@ -9,7 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Shelf extends BookListPartial implements Linkable {
+public class Shelf extends BookListPartial implements Linkable, Comparable<Shelf> {
     private final static String[]
             ID_FIELDS = new String[] {"user"},
             STRING_FIELDS = new String[] {"name"};
@@ -80,5 +80,10 @@ public class Shelf extends BookListPartial implements Linkable {
         if(!isAllBooks())
             builder.appendPath(id());
         return builder.build();
+    }
+
+    @Override
+    public int compareTo(Shelf shelf) {
+        return this.title().compareToIgnoreCase(shelf.title());
     }
 }
