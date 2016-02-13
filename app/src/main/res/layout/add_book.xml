@@ -52,7 +52,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/favorite"
+        android:text="@string/favourite"
         android:id="@id/filter_favourite"
         android:layout_toRightOf="@id/separator"
         android:layout_alignParentRight="true"

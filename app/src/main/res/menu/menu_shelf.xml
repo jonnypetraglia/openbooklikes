@@ -22,7 +22,7 @@
         <menu>
             <group android:checkableBehavior="all">
                 <item android:id="@id/filter_favourite"
-                    android:title="@string/favorite" />
+                    android:title="@string/favourite" />
                 <item android:id="@id/filter_wishlist"
                     android:title="@string/wishlist" />
                 <item android:id="@id/filter_reviewed"
