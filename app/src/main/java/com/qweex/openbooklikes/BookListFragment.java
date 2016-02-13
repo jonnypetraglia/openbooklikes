@@ -97,6 +97,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(this);
         gridView.addFooterView(gridFooter = (ViewGroup) inflater.inflate(R.layout.loading, gridView, false));
+        gridView.setHorizontalSpacing(0);
+        gridView.setVerticalSpacing(0);
 
 
         listView = (ListView) view.findViewById(R.id.list_view);
@@ -245,8 +247,11 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             title.setVisibility(View.GONE);
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
-            cover.setLayoutParams(new LinearLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
+            cover.setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
             MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
+
+            //TODO: Settings
+//            row.findViewById(R.id.background).setVisibility(View.GONE);
 
             return row;
         }
