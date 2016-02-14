@@ -74,14 +74,14 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        menu.add(Menu.NONE, R.id.reload, Menu.NONE, R.string.reload)
+        menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
                 .setIcon(android.R.drawable.ic_menu_preferences)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.reload)
+        if(item.getItemId()==R.id.option_reload)
             reload();
         return super.onOptionsItemSelected(item);
     }

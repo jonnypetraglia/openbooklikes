@@ -23,15 +23,12 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -121,7 +118,7 @@ public class MainActivity extends AppCompatActivity
                     case R.id.nav_challenge:
                         loadChallengeFragment(MainActivity.me);
                         break;
-                    case R.id.nav_add_shelf:
+                    case R.id.option_add_shelf:
                         showAddShelf();
                         return; //f
                     case R.id.nav_logout:
@@ -167,8 +164,8 @@ public class MainActivity extends AppCompatActivity
         imageLoader.init(config);
 
         // Load primary info
-        ((TextView) drawerList.findViewById(R.id.username)).setText(me.getS("username"));
-        ((TextView)drawerList.findViewById(R.id.email)).setText(me.getS("email"));
+        ((TextView) drawerList.findViewById(R.id.nav_title)).setText(me.getS("blog_title"));
+        ((TextView) drawerList.findViewById(R.id.nav_subtitle)).setText(me.getS("domain"));
         imageLoader.displayImage(me.getS("photo"), (ImageView) drawerList.findViewById(R.id.image_view));
 
 
@@ -283,7 +280,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_challenge:
                 loadChallengeFragment(MainActivity.me);
                 break;
-            case R.id.nav_add_shelf:
+            case R.id.option_add_shelf:
                 showAddShelf();
                 return false;
             case R.id.nav_logout:

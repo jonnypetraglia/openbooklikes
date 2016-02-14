@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -36,7 +35,6 @@ import com.qweex.openbooklikes.model.BookListPartial;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.notmine.Misc;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -311,7 +309,7 @@ public class BookFragment extends FragmentBase<Book> {
         menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
-        menu.add(Menu.NONE, R.id.reload, Menu.NONE, R.string.reload)
+        menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
             .setIcon(android.R.drawable.ic_menu_preferences)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
@@ -323,7 +321,7 @@ public class BookFragment extends FragmentBase<Book> {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.reload:
+            case R.id.option_reload:
                 bookProgress.setVisibility(View.INVISIBLE);
                 reload();
                 break;

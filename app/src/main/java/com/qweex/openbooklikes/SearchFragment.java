@@ -80,14 +80,14 @@ public class SearchFragment extends BookListFragment<Search> {
         menu.removeItem(R.id.filter_status);
         menu.removeItem(R.id.filter_special);
 
-        menu.add(Menu.NONE, R.id.barcode, Menu.NONE, R.string.barcode)
+        menu.add(Menu.NONE, R.id.option_barcode, Menu.NONE, R.string.barcode)
                 .setIcon(android.R.drawable.ic_menu_add)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId()==R.id.barcode) {
+        if(item.getItemId()==R.id.option_barcode) {
             Intent i = new Intent(SearchFragment.this.getActivity(), SimpleScannerActivity.class);
             SearchFragment.this.startActivityForResult(i, 1);
         }

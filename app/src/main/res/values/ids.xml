@@ -1,29 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Drawer Nav -->
+    <item type="id" name="nav_title" />
+    <item type="id" name="nav_subtitle" />
     <item type="id" name="nav_shelf" />
     <item type="id" name="nav_all_shelf" />
+    <item type="id" name="nav_group" />
+    <item type="id" name="nav_blog" />
+    <item type="id" name="nav_challenge" />
+    <item type="id" name="nav_search" />
+    <item type="id" name="nav_not_me" />
+    <item type="id" name="nav_shelves" />
+    <item type="id" name="nav_logout" />
+
+    <!-- Options Menu -->
     <item type="id" name="option_browser" />
     <item type="id" name="option_share" />
+    <item type="id" name="option_add_shelf" />
+    <item type="id" name="option_barcode"/>
+    <item type="id" name="option_update" />
+    <item type="id" name="option_add" />
+    <item type="id" name="option_reload" />
+
+    <!-- Filters -->
+    <item type="id" name="filter_favourite" />
+    <item type="id" name="filter_wishlist" />
+    <item type="id" name="filter_reviewed" />
+    <item type="id" name="filter_private" />
+    <item type="id" name="filter_all" />
+    <item type="id" name="filter_status" />
+    <item type="id" name="filter_special" />
+
 
 
     <item type="id" name="loading" />
     <item type="id" name="error" />
     <item type="id" name="empty" />
-    <item type="id" name="reload" />
-    <item type="id" name="filter_favourite" />
-    <item type="id" name="filter_wishlist" />
-    <item type="id" name="filter_reviewed" />
-    <item type="id" name="filter_private" />
-
-
 
     <item type="id" name="progress" />
+    <item type="id" name="background"/>
 
     <item type="id" name="fragment" />
     <item type="id" name="toolbar" />
     <item type="id" name="side_fragment" />
     <item type="id" name="side_toolbar" />
     <item type="id" name="table" />
+    <item type="id" name="app_bar_main"/>
+    <item type="id" name="app_bar_side"/>
 
     <item type="id" name="nav_view" />
     <item type="id" name="sidebar_content" />
@@ -33,10 +57,11 @@
     <item type="id" name="image_view" />
     <item type="id" name="edit_text" />
 
+    <!-- Login -->
     <item type="id" name="email_sign_in_button" />
-    <item type="id" name="username" />
     <item type="id" name="email" />
     <item type="id" name="password" />
+    <item type="id" name="ime_login" format="integer">1001</item>
 
     <!-- Generic -->
     <item type="id" name="title" />
@@ -79,25 +104,4 @@
     <item type="id" name="percent" />
     <item type="id" name="status" />
     <item type="id" name="per_day" />
-
-
-    <item type="id" name="ime_login" format="integer">1001</item>
-    <item type="id" name="option_update" />
-    <item type="id" name="option_add" />
-    <item type="id" name="filter_all" />
-    <item type="id" name="filter_status" />
-    <item type="id" name="filter_special" />
-    <item name="app_bar_main" type="id" />
-    <item name="app_bar_side" type="id" />
-    <item name="barcode" type="id" />
-    <item name="background" type="id" />
-
-    <item type="id" name="nav_group" />
-    <item type="id" name="nav_blog" />
-    <item type="id" name="nav_challenge" />
-    <item type="id" name="nav_search" />
-    <item type="id" name="nav_not_me" />
-    <item type="id" name="nav_shelves" />
-    <item type="id" name="nav_add_shelf" />
-    <item type="id" name="nav_logout" />
 </resources>
