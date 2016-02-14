@@ -84,6 +84,7 @@ public class Shelf extends BookListPartial implements Linkable, Comparable<Shelf
 
     @Override
     public int compareTo(Shelf shelf) {
+        if(this.isAllBooks()) return -1;
         return this.title().compareToIgnoreCase(shelf.title());
     }
 }
