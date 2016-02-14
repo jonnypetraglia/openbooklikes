@@ -15,15 +15,23 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.internal.view.SupportMenuInflater;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -55,6 +63,8 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private MenuItem selectedNav, notMeNav, challengeNav, blogNav;
 
+    MuhAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,8 +82,63 @@ public class MainActivity extends AppCompatActivity
         drawer.setFocusableInTouchMode(false);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+
+        final ListView drawerList = (ListView) findViewById(R.id.drawer_list);
+        View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
+        header.setClickable(true);
+        drawerList.addHeaderView(header);
+        drawerList.setBackgroundColor(0xfff2f2f2);
+        drawerList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+
+        PopupMenu p = new PopupMenu(this, null);
+        Menu navMenu = p.getMenu();
+        new SupportMenuInflater(this).inflate(R.menu.drawer_menu_main, navMenu);
+        adapter = new MuhAdapter(navMenu, this);
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MenuItem item = (MenuItem) adapter.getItem(i-drawerList.getHeaderViewsCount());
+                int id = item.getItemId();
+
+                if(item==selectedNav) {
+                    closeLeftDrawer();
+                    return; //f
+                }
+
+                switch(id) {
+                    case R.id.nav_all_shelf:
+                    case R.id.nav_shelf:
+                        Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
+                        Log.d("OBL:nav_shelf", shelf.getS("name"));
+                        loadShelf(shelf, me);
+                        break;
+                    case R.id.nav_blog:
+                        loadUser(me);
+                        break;
+                    case R.id.nav_search:
+                        loadMainFragment(new SearchFragment(), MainActivity.me);
+                        break;
+                    case R.id.nav_challenge:
+                        loadChallengeFragment(MainActivity.me);
+                        break;
+                    case R.id.nav_add_shelf:
+                        showAddShelf();
+                        return; //f
+                    case R.id.nav_logout:
+                        logout();
+                        return; //f
+                }
+
+                if(item.getGroupId()==R.id.nav_group)
+                    selectedNav = item;
+
+                adapterView.setSelection(i);
+
+                closeLeftDrawer();
+                return; //t
+            }
+        });
+
 
         ///////////////////////////////////////////////
 
@@ -102,18 +167,18 @@ public class MainActivity extends AppCompatActivity
         imageLoader.init(config);
 
         // Load primary info
-        ((TextView) findViewById(R.id.username)).setText(me.getS("username"));
-        ((TextView)findViewById(R.id.email)).setText(me.getS("email"));
-        imageLoader.displayImage(me.getS("photo"), (ImageView) findViewById(R.id.image_view));
+        ((TextView) drawerList.findViewById(R.id.username)).setText(me.getS("username"));
+        ((TextView)drawerList.findViewById(R.id.email)).setText(me.getS("email"));
+        imageLoader.displayImage(me.getS("photo"), (ImageView) drawerList.findViewById(R.id.image_view));
 
-        NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
 
         // Locate the important nav items
-        notMeNav = navView.getMenu().findItem(R.id.nav_not_me);
-        blogNav = navView.getMenu().findItem(R.id.nav_blog);
-        challengeNav = navView.getMenu().findItem(R.id.nav_challenge);
+        notMeNav = navMenu.findItem(R.id.nav_not_me);
+        blogNav = navMenu.findItem(R.id.nav_blog);
+        challengeNav = navMenu.findItem(R.id.nav_challenge);
 
         recreateShelvesNav();
+        drawerList.setAdapter(adapter);
 
 
         toolbar = (Toolbar) findViewById(R.id.side_toolbar);
@@ -128,9 +193,9 @@ public class MainActivity extends AppCompatActivity
 
         if(savedInstanceState==null) {
             // Select default fragment
-            MenuItem start = navView.getMenu().findItem(R.id.nav_blog); //TODO: settings
+            MenuItem start = navMenu.findItem(R.id.nav_blog); //TODO: settings
             onNavigationItemSelected(start);
-            navView.setCheckedItem(start.getItemId());
+            //navView.setCheckedItem(start.getItemId());
         } else {
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
@@ -152,18 +217,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void recreateShelvesNav() {
-        NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
         // Add shelfMap to menu
-        Menu shelfNav = navView.getMenu().findItem(R.id.nav_shelves).getSubMenu();
+        Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
         shelfMenuItems.clear();
         for(Shelf s : shelves) {
+            Intent i = new Intent();
+            i.putExtra("count", s.getI("book_count"));
             MenuItem mitem = shelfNav.add(R.id.nav_group,
                     s.isAllBooks() ? R.id.nav_all_shelf : R.id.nav_shelf,
                     0,
-                    s.getS("name") + " (" + s.getI("book_count") + ")")
+                    s.getS("name"))
                     .setCheckable(true)
-                    .setIcon(android.R.drawable.ic_menu_compass); //TODO: Icon
+                    .setIcon(android.R.drawable.ic_menu_compass)
+                    .setIntent(i);
             shelfMenuItems.add(mitem);
         }
     }
