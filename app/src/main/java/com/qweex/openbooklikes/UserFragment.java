@@ -29,7 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -127,25 +126,20 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         }
 
         ViewGroup listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false);
-        View error = inflater.inflate(R.layout.error, listView, false);
+        View footerError = inflater.inflate(R.layout.error, listView, false);
         listView.addFooterView(listViewFooter);
-        listView.addFooterView(error);
+        listView.addFooterView(footerError);
         View dummy = new View(getContext());
 
-        error.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reload();
-            }
-        });
+        loadingManager.setInitial((ViewGroup) inflater.inflate(R.layout.empty, null),
+                v,
+                inflater.inflate(R.layout.empty, null),
+                inflater.inflate(R.layout.error, null));
+        loadingManager.addMore(listViewFooter, dummy, dummy, footerError); //FIXME: emptyView
 
-        loadingManager.addMore(listViewFooter, dummy, dummy, error); //FIXME: emptyView
-        loadingManager.changeState(LoadingViewManager.State.MORE);
-
-        adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);
         this.listView = listView;
-        return createProgressView(inflater, container, v);
+        return createProgressView(inflater, container, loadingManager.wrapInitialInLayout(getActivity()));
     }
 
     @Override
@@ -153,12 +147,15 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         responseHandler = userHandler;
+        adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
 
         Log.d("OBL:userFragment", "!" + primary.id());
         if(primary.equals(MainActivity.me)) {
             // no need to fetch, MainActivity.me has all the info already
             Log.d("OBL:user is me", "woah");
             primary = MainActivity.me;
+            loadingManager.changeState(LoadingViewManager.State.MORE);
+
             // UI will be filled in onViewCreated
         } else {
             reload();
@@ -405,6 +402,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
 
     @Override
     protected void reload() {
+        adapter.clear();
         RequestParams params = new RequestParams();
         params.put("username", primary.getS("username"));
         Log.d("Fetching User", primary.getS("username") + "!");

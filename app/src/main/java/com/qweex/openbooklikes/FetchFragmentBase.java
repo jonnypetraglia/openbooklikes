@@ -40,6 +40,7 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
         v.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadingManager.show();
                 reload();
             }
         });
