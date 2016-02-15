@@ -3,6 +3,7 @@ package com.qweex.openbooklikes;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -12,7 +13,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
@@ -33,7 +36,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class ManageShelvesActivity extends AppCompatActivity {
     DragNDropListView listView;
-    DragNDropSimpleAdapter adapter;
+    Adapter adapter;
     boolean autoSorting = false;
     ProgressDialog progressDialog;
 
@@ -52,6 +55,17 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
         listView = (DragNDropListView) content.findViewById(R.id.list_view);
         listView.setDraggingEnabled(!autoSorting);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String itemId = ((Map<String, String>) adapter.getItem(i)).get("id");
+                if(SettingsManager.hiddenShelvesIds.contains(itemId))
+                    SettingsManager.hiddenShelvesIds.remove(itemId);
+                else
+                    SettingsManager.hiddenShelvesIds.add(itemId);
+                adapter.colorEye(itemId, (ImageView) view.findViewById(R.id.image_view));
+            }
+        });
         content.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +134,6 @@ public class ManageShelvesActivity extends AppCompatActivity {
             for(Shelf s : shelvesInProgress)
                 if(s.id().equals(itemId)) {
                     shelves.add(s);
-                    Log.d("getShelves", s.title());
                     break;
                 }
         }
@@ -178,6 +191,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
             Collections.sort(shelves);
         List<Map<String, String>> muhData = new ArrayList<>();
         for(Shelf s : shelves) {
+            if(s.isAllBooks()) continue;
             Log.d("reloadAdapter", s.title());
             Map<String, String> derp = new HashMap<>();
             derp.put("title", s.title());
@@ -187,22 +201,37 @@ public class ManageShelvesActivity extends AppCompatActivity {
         adapter = new Adapter(this, muhData, R.layout.list_shelf,
                 new String[]{"title"},
                 new int[]{R.id.title},
-                R.id.image_view);
+                R.id.special);
         listView.setDragNDropAdapter(adapter);
     }
 
     class Adapter extends DragNDropSimpleAdapter {
+        int eyeUnhiddenColor, eyHiddenColor;
 
         public Adapter(Context context, List<Map<String, String>> data, int resource, String[] from, int[] to, int handler) {
             super(context, data, resource, from, to, handler);
+            eyeUnhiddenColor = getResources().getColor(R.color.shelf_unhidden);
+            eyHiddenColor = getResources().getColor(R.color.shelf_hidden);
         }
 
         @Override
         public View getView(int position, View view, ViewGroup group) {
             view = super.getView(position, view, group);
-            boolean isAll = ((Map<String, String>)getItem(position)).get("id").equals(Shelf.NO_SHELF_ID);
-            view.findViewById(R.id.image_view).setVisibility(autoSorting || isAll ? View.GONE : View.VISIBLE);
+            String itemId = ((Map<String, String>)getItem(position)).get("id");
+            boolean isAll = itemId.equals(Shelf.NO_SHELF_ID);
+            view.findViewById(getDragHandler()).setVisibility(autoSorting || isAll ? View.GONE : View.VISIBLE);
+            ImageView eye = (ImageView) view.findViewById(R.id.image_view);
+            eye.setVisibility(View.VISIBLE);
+            colorEye(itemId, eye);
             return view;
+        }
+
+        public void colorEye(String itemId, ImageView eye) {
+            eye.setColorFilter(null);
+            eye.setColorFilter(
+                    SettingsManager.hiddenShelvesIds.contains(itemId)
+                            ? eyHiddenColor : eyeUnhiddenColor
+                    , PorterDuff.Mode.SRC_IN);
         }
     }
 

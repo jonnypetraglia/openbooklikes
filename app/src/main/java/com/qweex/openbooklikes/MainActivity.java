@@ -168,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
         for(Shelf s : shelves) {
+            if(SettingsManager.hiddenShelvesIds.contains(s.id()))
+                continue;
             Log.d("recreateShelvesNav", s.title());
             Intent i = new Intent();
             i.putExtra("count", s.getI("book_count"));

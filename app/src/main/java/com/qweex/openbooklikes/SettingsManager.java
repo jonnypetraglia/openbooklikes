@@ -13,11 +13,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashSet;
 
 public class SettingsManager {
     public static boolean autoSort = false;
+    public static HashSet<String> hiddenShelvesIds = new HashSet<>();
+
+    static void init(Context context) {
+        if(hiddenShelvesIds.size()>0)
+            return;
+        SharedPreferences prefs = context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
+        hiddenShelvesIds.addAll(Arrays.asList(prefs.getString("shelves_hidden", "").split(",")));
+    }
 
 
     public static ArrayList<Shelf> mergeShelves(ArrayList<Shelf> shelves, ArrayList<Shelf> newShelves) throws JSONException {
@@ -43,6 +53,7 @@ public class SettingsManager {
 
     public static void saveShelves(ArrayList<Shelf> shelves, Context context) throws JSONException {
         JSONArray array = new JSONArray();
+        HashSet<String> hiddenIds = new HashSet<String>();
         for(Shelf s : shelves)
             if(!s.isAllBooks()) {
                 JSONObject j = new JSONObject();
@@ -52,11 +63,14 @@ public class SettingsManager {
                 j.put(s.apiName() + "_book_count", s.getI("book_count"));
                 Log.d("saveShelves", j.toString());
                 array.put(j);
+                if(hiddenShelvesIds.contains(s.id()))
+                    hiddenIds.add(s.id());
             }
 
-        SharedPreferences.Editor prefs = context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE).edit();
-        prefs.putLong("shelves_timestamp", Calendar.getInstance().getTimeInMillis());
-        prefs.putString("shelves", array.toString())
+        context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE).edit()
+                .putLong("shelves_timestamp", Calendar.getInstance().getTimeInMillis())
+                .putString("shelves", array.toString())
+                .putString("shelves_hidden", hiddenIds.toString().replaceAll("\\[|\\]", ""))
                 .commit();
     }
 
@@ -68,7 +82,7 @@ public class SettingsManager {
         return elapsedHours >= 24
 
 
-                && false;
+                && false; //TODO: Settings
     }
 
     public static ArrayList<Shelf> loadShelves(Context context) throws JSONException {

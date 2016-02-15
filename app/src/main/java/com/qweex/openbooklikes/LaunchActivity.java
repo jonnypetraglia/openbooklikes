@@ -81,6 +81,7 @@ public class LaunchActivity extends AppCompatActivity {
         Log.d("OBL", "startApp");
         loadingManager.show();
         try {
+            SettingsManager.init(this);
             MainActivity.shelves = SettingsManager.loadShelves(this);
         } catch (JSONException e) {
             e.printStackTrace();

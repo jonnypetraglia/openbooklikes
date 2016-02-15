@@ -63,6 +63,8 @@ public class URLImageParser implements Html.ImageGetter {
 
         @Override
         protected void onPostExecute(Drawable result) {
+            if(result==null)
+                return;
             Log.i("OBL", "Got drawable for " + urlDrawable);
             // set the correct bound according to the result from HTTP call
             urlDrawable.setBounds(0, 0, result.getIntrinsicWidth() * 2, result.getIntrinsicHeight() * 2);

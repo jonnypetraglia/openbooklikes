@@ -127,23 +127,24 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         }
 
         ViewGroup listViewFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false);
+        View error = inflater.inflate(R.layout.error, listView, false);
         listView.addFooterView(listViewFooter);
-        loadingManager.addMore(listViewFooter, listView, listViewFooter, listViewFooter); //FIXME: emptyView
+        listView.addFooterView(error);
+        View dummy = new View(getContext());
+
+        error.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reload();
+            }
+        });
+
+        loadingManager.addMore(listViewFooter, dummy, dummy, error); //FIXME: emptyView
+        loadingManager.changeState(LoadingViewManager.State.MORE);
 
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
         listView.setAdapter(adapter);
         this.listView = listView;
-
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void listener(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-         */
         return createProgressView(inflater, container, v);
     }
 

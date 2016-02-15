@@ -10,4 +10,7 @@
 
     <color name="nav_unselected_text">#1f1f1f</color>
     <color name="nav_unselected_icon">#a1a1a1</color>
+
+    <color name="shelf_hidden" type="id">#999</color>
+    <color name="shelf_unhidden" type="id">#333</color>
 </resources>
