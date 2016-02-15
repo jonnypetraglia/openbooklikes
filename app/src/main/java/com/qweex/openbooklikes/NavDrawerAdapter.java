@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-class MuhAdapter extends BaseAdapter {
+class NavDrawerAdapter extends BaseAdapter {
     Menu menu;
     int lastCount = -1;
     Context context;
@@ -31,7 +31,7 @@ class MuhAdapter extends BaseAdapter {
         return menu;
     }
 
-    public MuhAdapter(Menu m, Context c) {
+    public NavDrawerAdapter(Menu m, Context c) {
         menu = m;
         context = c;
     }
@@ -42,6 +42,10 @@ class MuhAdapter extends BaseAdapter {
 
     public boolean isSelected(MenuItem item) {
         return selected == item;
+    }
+
+    public int indexOf(MenuItem item) {
+        return flatList.indexOf(item);
     }
 
     @Override

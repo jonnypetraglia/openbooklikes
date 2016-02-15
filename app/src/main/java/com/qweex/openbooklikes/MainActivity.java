@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +22,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -55,11 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     static final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT", SIDE_FRAGMENT_TAG = "SIDE_FRAGMENT";
 
-    private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
     private MenuItem notMeNav, challengeNav, blogNav;
 
-    MuhAdapter adapter;
+    NavDrawerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,13 +80,11 @@ public class MainActivity extends AppCompatActivity {
         View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
         header.setClickable(true);
         drawerList.addHeaderView(header);
-        drawerList.setBackgroundColor(0xffeeeeee);
-        drawerList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
         PopupMenu p = new PopupMenu(this, null);
         Menu navMenu = p.getMenu();
         new SupportMenuInflater(this).inflate(R.menu.drawer_menu_main, navMenu);
-        adapter = new MuhAdapter(navMenu, this);
+        adapter = new NavDrawerAdapter(navMenu, this);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -178,18 +173,16 @@ public class MainActivity extends AppCompatActivity {
         // Add shelfMap to menu
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
-        shelfMenuItems.clear();
         for(Shelf s : shelves) {
             Intent i = new Intent();
             i.putExtra("count", s.getI("book_count"));
-            MenuItem mitem = shelfNav.add(R.id.nav_group,
+            shelfNav.add(R.id.nav_group,
                     s.isAllBooks() ? R.id.nav_all_shelf : R.id.nav_shelf,
                     0,
                     s.getS("name"))
                     .setCheckable(true)
                     .setIcon(android.R.drawable.ic_menu_compass)
                     .setIntent(i);
-            shelfMenuItems.add(mitem);
         }
     }
 
@@ -218,13 +211,13 @@ public class MainActivity extends AppCompatActivity {
 
         if(adapter.isSelected(item)) {
             closeLeftDrawer();
-            return; //f
+            return;
         }
 
         switch(item.getItemId()) {
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
-                Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
+                Shelf shelf = shelves.get(adapter.indexOf(item));
                 Log.d("OBL:nav_shelf", shelf.getS("name"));
                 loadShelf(shelf, me);
                 break;
@@ -239,10 +232,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.option_add_shelf:
                 showAddShelf();
-                return; //f
+                return;
             case R.id.nav_logout:
                 logout();
-                return; //f
+                return;
         }
 
         if(item.getGroupId()==R.id.nav_group) {
@@ -251,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         closeLeftDrawer();
-        return; //t
     }
 
     public void logout() {
