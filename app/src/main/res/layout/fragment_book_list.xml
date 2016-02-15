@@ -1,11 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/activity_main"
     tools:context="com.qweex.openbooklikes.BookListFragment"
     android:background="#fff"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"> <!-- tools:showIn="@layout/activity_main" -->
 
     <jp.co.recruit_mp.android.widget.HeaderFooterGridView
         android:layout_width="match_parent"
@@ -14,7 +13,6 @@
         android:background="#aaa"
         android:paddingBottom="0dp"
         android:drawSelectorOnTop="true"
-        android:gravity="center"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp"
@@ -32,5 +30,6 @@
         android:focusable="true"
         android:clickable="true"
         />
+
 
 </LinearLayout>

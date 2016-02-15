@@ -13,10 +13,9 @@ import java.util.ArrayList;
 public class LoadingViewManager {
 
     private class LoadingView {
-        ViewGroup loadingView;
-        View contentView, emptyView, errorView;
+        View loadingView, contentView, emptyView, errorView;
 
-        public LoadingView(ViewGroup l, View c, View e, View x) {
+        public LoadingView(View l, View c, View e, View x) {
             loadingView = l;
             contentView = c;
             emptyView = e;
@@ -40,7 +39,7 @@ public class LoadingViewManager {
             Log.d("showing", "content");
             contentView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
-            if(currentState==State.INITIAL)
+//            if(currentState==State.INITIAL)
                 loadingView.setVisibility(View.GONE);
             errorView.setVisibility(View.GONE);
         }
@@ -92,7 +91,7 @@ public class LoadingViewManager {
         currentState = State.INITIAL;
     }
 
-    public void setInitial(ViewGroup loadingView, View contentView, View emptyView, View errorView) {
+    public void setInitial(View loadingView, View contentView, View emptyView, View errorView) {
         initial = new LoadingView(loadingView, contentView, emptyView, errorView);
     }
 
@@ -103,7 +102,7 @@ public class LoadingViewManager {
         //content();
     }
 
-    public void addMore(ViewGroup loadingView, View contentView, View emptyView, View errorView) {
+    public void addMore(View loadingView, View contentView, View emptyView, View errorView) {
         mores.add(new LoadingView(loadingView, contentView, emptyView, errorView));
     }
 

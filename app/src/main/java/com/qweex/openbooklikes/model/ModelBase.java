@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.notmine.MyTagHandler;
 import com.qweex.openbooklikes.notmine.URLImageParser;
 
 import org.json.JSONException;
@@ -120,7 +121,8 @@ abstract public class ModelBase implements Parcelable {
         } else {
             if(tv.getTag()!=null && tv.getTag().toString().contains("unhtml")) {
                 URLImageParser p = new URLImageParser(tv);
-                tv.setText(android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, null));
+                MyTagHandler t = new MyTagHandler();
+                tv.setText(android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, t));
                 tv.setMovementMethod(LinkMovementMethod.getInstance());
             } else
                 tv.setText(android.text.Html.fromHtml(str.replaceAll("<p> *&nbsp; *</p>", "")));

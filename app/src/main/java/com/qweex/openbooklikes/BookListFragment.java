@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -90,24 +91,36 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_list, container, false);
 
-        ViewGroup listFooter, gridFooter;
+        View loadingGrid = inflater.inflate(R.layout.loading_horz, null),
+             loadingList = inflater.inflate(R.layout.loading_horz, null),
+             emptyGrid = inflater.inflate(R.layout.empty, null),
+             emptyList = inflater.inflate(R.layout.empty, null),
+             errorGrid = inflater.inflate(R.layout.error, null),
+             errorList = inflater.inflate(R.layout.error, null);
+
+
 
         gridView = (HeaderFooterGridView) view.findViewById(R.id.grid_view);
         gridView.setColumnWidth((int) getResources().getDimension(R.dimen.list_book_size));
         gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(this);
-        gridView.addFooterView(gridFooter = (ViewGroup) inflater.inflate(R.layout.loading, gridView, false));
         gridView.setHorizontalSpacing(0);
         gridView.setVerticalSpacing(0);
+        gridView.addFooterView(loadingGrid);
+        gridView.addFooterView(emptyGrid);
+        gridView.addFooterView(errorGrid);
 
 
         listView = (ListView) view.findViewById(R.id.list_view);
         listView.setOnScrollListener(scrollMuch);
         listView.setOnItemClickListener(this);
-        listView.addFooterView(listFooter = (ViewGroup) inflater.inflate(R.layout.loading, listView, false));
+        listView.addFooterView(loadingList);
+        listView.addFooterView(emptyList);
+        listView.addFooterView(errorList);
 
-        loadingManager.addMore(gridFooter, gridView, gridFooter, gridFooter); //FIXME: empty view, error view
-        loadingManager.addMore(listFooter, listView, listFooter, gridFooter); //FIXME: empty view, error view
+
+        loadingManager.addMore(loadingGrid, gridView, emptyGrid, errorGrid);
+        loadingManager.addMore(loadingList, listView, emptyList, errorList);
 
         return super.createProgressView(inflater, container, view);
     }
@@ -236,19 +249,31 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         }
 
         @Override
+        public int getCount() {
+            // fill in any extras with a blank
+            int n = super.getCount(), x = gridView.getNumColumns();
+            return (n+x-1) / x * x;
+        }
+
+        @Override
         public View getView(int position, View row, ViewGroup parent) {
             if(row == null || row.findViewById(R.id.title)==null) { //FIXME: cause bug in HeaderFooterGridView, apparently
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 row = inflater.inflate(R.layout.list_book_cover, parent, false);
             }
-
             TextView title = ((TextView) row.findViewById(R.id.title));
-            title.setText(getItem(position).getS("title"));
-            title.setVisibility(View.GONE);
-
             ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
             cover.setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
-            MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
+
+            try {
+                title.setText(getItem(position).getS("title"));
+                title.setVisibility(View.GONE);
+
+                MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
+            } catch(IndexOutOfBoundsException e) {
+                title.setText("");
+                cover.setImageDrawable(null);
+            }
 
             //TODO: Settings
 //            row.findViewById(R.id.background).setVisibility(View.GONE);
@@ -267,7 +292,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
         @Override
         public boolean noMore() {
-            return getCount() == primary.getI("book_count") || responseHandler.wasLastFetchNull();
+            return super.getCount() == primary.getI("book_count") || responseHandler.wasLastFetchNull();
         }
 
         @Override
@@ -314,6 +339,12 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 Log.e("OBL:Book!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
                 this.loadingManager.error(e);
+            }
+            if(adapter.noMore()) {
+                if (adapter.getCount() == 0)
+                    this.loadingManager.empty();
+                else
+                    this.loadingManager.content();
             }
         }
 
@@ -362,7 +393,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
         @Override
         public boolean noMore() {
-            return adapter.getCount() == primary.getI("book_count");
+            return super.getCount() == primary.getI("book_count");
         }
 
         @Override
