@@ -26,7 +26,10 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
-        <activity android:name=".notmine.SimpleScannerActivity" />
+        <activity android:name=".notmine.SimpleScannerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".ManageShelvesActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

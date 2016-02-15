@@ -17,7 +17,7 @@
     <!-- Options Menu -->
     <item type="id" name="option_browser" />
     <item type="id" name="option_share" />
-    <item type="id" name="option_add_shelf" />
+    <item type="id" name="option_manage_shelves" />
     <item type="id" name="option_barcode"/>
     <item type="id" name="option_update" />
     <item type="id" name="option_add" />
@@ -104,4 +104,5 @@
     <item type="id" name="percent" />
     <item type="id" name="status" />
     <item type="id" name="per_day" />
+    <item name="fab" type="id" />
 </resources>

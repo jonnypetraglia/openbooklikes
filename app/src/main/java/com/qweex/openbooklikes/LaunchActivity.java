@@ -11,9 +11,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qweex.openbooklikes.model.Me;
+import com.qweex.openbooklikes.model.Shelf;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -77,23 +80,42 @@ public class LaunchActivity extends AppCompatActivity {
     public void startApp() {
         Log.d("OBL", "startApp");
         loadingManager.show();
-        ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves, MainActivity.me){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
+        try {
+            MainActivity.shelves = SettingsManager.loadShelves(this);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if(MainActivity.shelves.size()>1 && !SettingsManager.shelvesExpired(this)) {
+            LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+            LaunchActivity.this.finish();
+            Log.d("Starting activity", " " + MainActivity.shelves.size());
+        } else
+            ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves = new ArrayList<Shelf>(), MainActivity.me){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
 
-                // Parent class(es) show content because they assume it's what we want
-                //   in this case content is the login form, so it needs to stay hidden
-                loadingManager.changeState(LoadingViewManager.State.INITIAL);
-                loadingManager.show(); //FIXME: Probably don't need both of these
-                loadingManager.changeState(LoadingViewManager.State.INITIAL);
+                    try {
+                        SettingsManager.saveShelves(
+                            SettingsManager.mergeShelves(
+                                SettingsManager.loadShelves(LaunchActivity.this), shelves
+                            ), LaunchActivity.this
+                        );
 
-                Log.d("OBL", "Shelves " + shelves.size());
-                Intent i = new Intent(LaunchActivity.this, MainActivity.class);
-                LaunchActivity.this.startActivity(i);
-                LaunchActivity.this.finish();
-            }
-        });
+                        // Parent class(es) show content because they assume it's what we want
+                        //   in this case content is the login form, so it needs to stay hidden
+                        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+                        loadingManager.show(); //FIXME: Probably don't need both of these
+                        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+
+                        LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
+                        LaunchActivity.this.finish();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        loadingManager.error(e);
+                    }
+                }
+            });
     }
 }
 

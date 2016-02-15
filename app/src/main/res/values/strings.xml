@@ -76,8 +76,10 @@
     <string name="blog">Blog</string>
     <string name="search_books">Search Books</string>
     <string name="logout">Logout</string>
-    <string name="add_shelf">Add Shelf</string>
+    <string name="manage_shelves">Manage Shelves</string>
     <string name="shelf_added">Shelf added!</string>
     <string name="update_failed">Update failed!</string>
     <string name="successfully_updated">Successfully updated!</string>
+    <string name="new_shelf">New Shelf</string>
+    <string name="auto_sort">Auto sort</string>
 </resources>

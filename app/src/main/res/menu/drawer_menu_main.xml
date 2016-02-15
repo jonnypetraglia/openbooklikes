@@ -20,8 +20,8 @@
             android:title="Settings" />
             -->
     </group>
-    <item android:id="@id/option_add_shelf" android:icon="@android:drawable/ic_menu_edit"
-        android:title="@string/add_shelf" />
+    <item android:id="@id/option_manage_shelves" android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/manage_shelves" />
 
     <item android:id="@id/nav_logout" android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/logout" />

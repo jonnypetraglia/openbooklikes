@@ -1,9 +1,11 @@
 package com.qweex.openbooklikes;
 
 
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -64,6 +66,17 @@ public class LoadingViewManager {
             contentView.setVisibility(View.GONE);
             errorView.setVisibility(View.GONE);
         }
+
+        public LinearLayout wrapInLayout(Context c) {
+            LinearLayout layout = new LinearLayout(c);
+            ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layout.setLayoutParams(lparams);
+            layout.addView(contentView, lparams);
+            layout.addView(loadingView, lparams);
+            layout.addView(emptyView, lparams);
+            layout.addView(errorView, lparams);
+            return layout;
+        }
     }
 
 
@@ -107,7 +120,7 @@ public class LoadingViewManager {
     public void show() { show(null); }
 
     public void content() {
-        Log.d("LoadingManager", "Showing content "  + (currentState==State.MORE ? "more" : "Init") );
+        Log.d("LoadingManager", "Showing content " + (currentState == State.MORE ? "more" : "Init"));
         if(currentState==State.MORE)
             for(LoadingView v : mores)
                 v.content();
@@ -140,5 +153,9 @@ public class LoadingViewManager {
                 v.nothing();
         else
             initial.nothing();
+    }
+
+    public LinearLayout wrapInitialInLayout(Context c) {
+        return initial.wrapInLayout(c);
     }
 }

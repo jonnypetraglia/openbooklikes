@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,8 +56,7 @@ class NavDrawerAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d("WWW", lastCount + " -- " + menu.size());
-        return lastCount == -1 ? count(menu, 0) : lastCount;
+        return lastCount = lastCount == -1 ? count(menu, 0) : lastCount;
     }
 
     int count(Menu m, int sum) {
@@ -121,7 +119,6 @@ class NavDrawerAdapter extends BaseAdapter {
         title.setTextColor(res.getColor(colors[1]));
         if(item.getIcon()!=null && !item.hasSubMenu()) {
             Drawable icon = item.getIcon();
-            Log.d("Yup", icon + " | " + item.getTitle() + "=" + Integer.toHexString(res.getColor(colors[2])) + " vs " + Integer.toHexString(0xff7a86bc));
             ImageView imgV = ((ImageView) view.findViewById(R.id.image_view));
             imgV.setColorFilter(null);
             imgV.setColorFilter(res.getColor(colors[2]), PorterDuff.Mode.SRC_IN);

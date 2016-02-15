@@ -1,11 +1,9 @@
 package com.qweex.openbooklikes;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,12 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -38,12 +34,8 @@ import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
-import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -88,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MenuItem item = (MenuItem) adapter.getItem(i-drawerList.getHeaderViewsCount());
+                Log.d("Clicked", i + " ts real easy, man");
+                MenuItem item = (MenuItem) adapter.getItem(i - drawerList.getHeaderViewsCount());
+                Log.d("Dang ol'", item.getTitle() + "!" + item.getItemId());
                 selectNavDrawer(item);
             }
         });
@@ -174,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
         for(Shelf s : shelves) {
+            Log.d("recreateShelvesNav", s.title());
             Intent i = new Intent();
             i.putExtra("count", s.getI("book_count"));
             shelfNav.add(R.id.nav_group,
@@ -184,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_menu_compass)
                     .setIntent(i);
         }
+        adapter.notifyDataSetInvalidated();
     }
 
     /*
@@ -217,8 +213,7 @@ public class MainActivity extends AppCompatActivity {
         switch(item.getItemId()) {
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
-                Shelf shelf = shelves.get(adapter.indexOf(item));
-                Log.d("OBL:nav_shelf", shelf.getS("name"));
+                Shelf shelf = shelves.get(adapter.indexOf(item) - 4);
                 loadShelf(shelf, me);
                 break;
             case R.id.nav_blog:
@@ -230,8 +225,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_challenge:
                 loadChallengeFragment(MainActivity.me);
                 break;
-            case R.id.option_add_shelf:
-                showAddShelf();
+            case R.id.option_manage_shelves:
+                startActivityForResult(new Intent(MainActivity.this, ManageShelvesActivity.class), 0);
                 return;
             case R.id.nav_logout:
                 logout();
@@ -244,6 +239,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         closeLeftDrawer();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("onActivityResult", "Yup");
+        try {
+            shelves = SettingsManager.loadShelves(this);
+            recreateShelvesNav();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void logout() {
@@ -306,10 +313,6 @@ public class MainActivity extends AppCompatActivity {
 
         UserFragment userFragment = new UserFragment();
         userFragment.setArguments(b);
-        if(user instanceof Me) {
-            /***********************************/
-            // adapter.setSelected() ?
-        }
         loadMainFragment(userFragment, user);
     }
 
@@ -373,89 +376,6 @@ public class MainActivity extends AppCompatActivity {
     public void setSideTitle() {
         String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.side_fragment)).getTitle(getResources());
         ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(title);
-    }
-
-    public void showAddShelf() {
-        final EditText editText = new EditText(this);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.add_shelf)
-                .setView(editText)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        final String name = editText.getText().toString().trim();
-
-                        if (name.length() == 0)
-                            return;
-
-                        RequestParams params = new RequestParams();
-                        params.put("CatName", name);
-
-                        final ProgressDialog progressDialog = ProgressDialog.show(MainActivity.this, "Loading", null, true, false);
-
-                        ApiClient.get(params, new ApiClient.ApiResponseHandler() {
-
-                            @Override
-                            protected String urlPath() {
-                                return "user/AddUserCategory";
-                            }
-
-                            @Override
-                            protected String countFieldName() {
-                                return null;
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                progressDialog.dismiss();
-                                Log.e("Horrible failure", "?" + responseString);
-                                Snackbar.make(findViewById(R.id.fragment), "Uhhhhh problem", Snackbar.LENGTH_LONG)
-                                        .show();
-                            }
-
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                super.onSuccess(statusCode, headers, response);
-                                progressDialog.dismiss();
-
-                                // Create a new shelf for it
-                                Bundle b = new Bundle();
-                                try {
-                                    try {
-                                        b.putString("id", response.getString("id_category"));
-                                    } catch(Exception e) {
-                                        b.putString("id", Integer.toString(response.getInt("id_category")));
-                                    }
-                                    b.putString("name", response.getString("cat_name"));
-                                } catch(JSONException j) {
-
-                                }
-                                b.putString("user_id", me.id());
-                                b.putInt("book_count", 0);
-                                Bundle w = new Bundle();
-                                w.putBundle("category", b);
-                                Shelf s = new Shelf(w, me);
-
-                                shelves.add(s);
-
-                                //2. Sort
-                                Collections.sort(shelves);
-
-                                //3. Clear menu & re-add
-                                recreateShelvesNav();
-
-                                progressDialog.dismiss();
-
-                                Snackbar.make(findViewById(R.id.fragment), getResources().getString(R.string.shelf_added), Snackbar.LENGTH_LONG)
-                                    .show();
-                            }
-                        });
-                    }
-                }).setNegativeButton(android.R.string.cancel, null)
-
-                    .show();
-
     }
 
 
