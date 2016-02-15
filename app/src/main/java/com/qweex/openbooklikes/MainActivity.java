@@ -47,8 +47,7 @@ import java.util.Collections;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
     public static Me me;
     public static ImageLoader imageLoader;
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<MenuItem> shelfMenuItems = new ArrayList<>();
     private DrawerLayout drawer;
-    private MenuItem selectedNav, notMeNav, challengeNav, blogNav;
+    private MenuItem notMeNav, challengeNav, blogNav;
 
     MuhAdapter adapter;
 
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
         header.setClickable(true);
         drawerList.addHeaderView(header);
-        drawerList.setBackgroundColor(0xfff2f2f2);
+        drawerList.setBackgroundColor(0xffeeeeee);
         drawerList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
         PopupMenu p = new PopupMenu(this, null);
@@ -95,44 +94,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 MenuItem item = (MenuItem) adapter.getItem(i-drawerList.getHeaderViewsCount());
-                int id = item.getItemId();
-
-                if(item==selectedNav) {
-                    closeLeftDrawer();
-                    return; //f
-                }
-
-                switch(id) {
-                    case R.id.nav_all_shelf:
-                    case R.id.nav_shelf:
-                        Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
-                        Log.d("OBL:nav_shelf", shelf.getS("name"));
-                        loadShelf(shelf, me);
-                        break;
-                    case R.id.nav_blog:
-                        loadUser(me);
-                        break;
-                    case R.id.nav_search:
-                        loadMainFragment(new SearchFragment(), MainActivity.me);
-                        break;
-                    case R.id.nav_challenge:
-                        loadChallengeFragment(MainActivity.me);
-                        break;
-                    case R.id.option_add_shelf:
-                        showAddShelf();
-                        return; //f
-                    case R.id.nav_logout:
-                        logout();
-                        return; //f
-                }
-
-                if(item.getGroupId()==R.id.nav_group)
-                    selectedNav = item;
-
-                adapterView.setSelection(i);
-
-                closeLeftDrawer();
-                return; //t
+                selectNavDrawer(item);
             }
         });
 
@@ -190,9 +152,8 @@ public class MainActivity extends AppCompatActivity
 
         if(savedInstanceState==null) {
             // Select default fragment
-            MenuItem start = navMenu.findItem(R.id.nav_blog); //TODO: settings
-            onNavigationItemSelected(start);
-            //navView.setCheckedItem(start.getItemId());
+            MenuItem start = blogNav; //TODO: settings
+            selectNavDrawer(start);
         } else {
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
@@ -253,18 +214,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    void selectNavDrawer(MenuItem item) {
 
-        if(item==selectedNav) {
+        if(adapter.isSelected(item)) {
             closeLeftDrawer();
-            return true;
+            return; //f
         }
 
-        switch(id) {
+        switch(item.getItemId()) {
             case R.id.nav_all_shelf:
             case R.id.nav_shelf:
                 Shelf shelf = shelves.get(shelfMenuItems.indexOf(item));
@@ -282,17 +239,19 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.option_add_shelf:
                 showAddShelf();
-                return false;
+                return; //f
             case R.id.nav_logout:
                 logout();
-                return false;
+                return; //f
         }
 
-        if(item.getGroupId()==R.id.nav_group)
-            selectedNav = item;
+        if(item.getGroupId()==R.id.nav_group) {
+            adapter.setSelected(item);
+            adapter.notifyDataSetChanged();
+        }
 
         closeLeftDrawer();
-        return true;
+        return; //t
     }
 
     public void logout() {
@@ -356,9 +315,8 @@ public class MainActivity extends AppCompatActivity
         UserFragment userFragment = new UserFragment();
         userFragment.setArguments(b);
         if(user instanceof Me) {
-            blogNav.setChecked(true);
-            selectedNav = blogNav;
-            notMeNav.setVisible(false);
+            /***********************************/
+            // adapter.setSelected() ?
         }
         loadMainFragment(userFragment, user);
     }
@@ -370,9 +328,6 @@ public class MainActivity extends AppCompatActivity
         challengeFragment.setArguments(b);
         if(user instanceof Me) {
             loadMainFragment(challengeFragment, user);
-            challengeNav.setChecked(true);
-            selectedNav = challengeNav;
-            notMeNav.setVisible(false);
         } else
             loadSideFragment(challengeFragment);
     }
@@ -383,12 +338,12 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction();
 
+        boolean wasVisible = notMeNav.isVisible();
         if(owner!=null && me.equals(owner)) {
             notMeNav.setVisible(false);
         } else {
             notMeNav.setVisible(true);
-            selectedNav = notMeNav;
-            notMeNav.setChecked(true);
+            adapter.setSelected(notMeNav);
             notMeNav.setTitle(fragment.getTitle(getResources()));
             if(fragment.getClass().equals(UserFragment.class))
                 notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
@@ -396,6 +351,8 @@ public class MainActivity extends AppCompatActivity
                 notMeNav.setIcon(android.R.drawable.ic_menu_compass); //TODO: icon for shelf?
             //transaction.add(R.id.fragment, fragment, MAIN_FRAGMENT_TAG);
         }
+        if(wasVisible!= notMeNav.isVisible())
+            adapter.notifyDataSetInvalidated();
 
         transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
