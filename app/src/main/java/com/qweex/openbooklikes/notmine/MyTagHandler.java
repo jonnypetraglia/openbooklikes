@@ -7,6 +7,11 @@ import org.xml.sax.XMLReader;
 
 //http://stackoverflow.com/a/9546532/1526210
 
+// Allowed HTML tags: br, p, div, em, b, strong, cite, dfn, i, big, small, font, blockquote, tt, monospace, a, u, sup, sub
+// MyTagHandler: ul, ol, li
+
+// Possible others: hr
+
 public class MyTagHandler implements Html.TagHandler {
     boolean first= true;
     String parent=null;
