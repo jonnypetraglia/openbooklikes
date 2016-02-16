@@ -16,17 +16,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class SettingsManager {
     public static boolean autoSort = false;
     public static HashSet<String> hiddenShelvesIds = new HashSet<>();
+    public static Map<String, String> bookFormats = new HashMap<>();
 
     static void init(Context context) {
         if(hiddenShelvesIds.size()>0)
             return;
         SharedPreferences prefs = context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
         hiddenShelvesIds.addAll(Arrays.asList(prefs.getString("shelves_hidden", "").split(",")));
+
+
+        String[] array = context.getResources().getStringArray(R.array.book_formats);
+        for(int i=0; i<array.length; i++)
+            bookFormats.put(Integer.toString(i), array[i]);
     }
 
 

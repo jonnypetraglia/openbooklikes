@@ -358,7 +358,11 @@ public class BookFragment extends FragmentBase<Book> {
         //
         // IF I HAD ONE
 
-        setOrHide(view, R.id.format, primary.getS("format")); //TODO: Figure out what the numbers map to
+        String format = primary.getS("format");
+        setOrHide(view, R.id.format,
+                SettingsManager.bookFormats.containsKey(format)
+                ? SettingsManager.bookFormats.get(format) : format
+        );
         setOrHide(view, R.id.isbn_13, primary.getS("isbn_13"));
         setOrHide(view, R.id.isbn_10, primary.getS("isbn_10"));
         setOrHide(view, R.id.date, primary.getS("publish_date"));

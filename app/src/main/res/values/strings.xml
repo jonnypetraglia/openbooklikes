@@ -84,4 +84,19 @@
     <string name="auto_sort">Auto Sort</string>
     <string name="update_progress">Update Progress</string>
     <string name="add_to_shelf">Add to Shelf</string>
+
+
+    <string-array name="book_formats">
+        <item name="1">Paperback</item>
+        <item name="2">Hardbook</item>
+        <item name="3">Audiobook</item>
+        <item name="4">Ebook</item>
+        <item name="5">Mass Market Paperback</item>
+        <item name="6">Kindle</item>
+        <item name="7">MP3 CD</item>
+        <item name="8">Library Binding</item>
+        <item name="9">Board Book</item>
+        <item name="10">Leather Bound</item>
+        <item name="11">Online Only</item>
+    </string-array>
 </resources>
