@@ -2,6 +2,7 @@ package com.qweex.openbooklikes;
 
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -36,85 +37,53 @@ import java.util.Arrays;
 
 public class PreferenceFragment extends PreferenceFragmentCompat implements FragmentBaseTitleable {
     ListPreference initialFragment, shelfView;
-    EditTextPreference initialArg;
+    EditTextPreference initialArg, expirationHours;
     CheckBoxPreference shelfBackground;
     Preference shelfFilters;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.preferences);
+
+        findFragments();
+        setDefaultValues();
+
+
+        // Setup the complex preferences
+        setupInitialFragment();
+        setupShelfView();
+        setupShelfFilters();
+        setupTheRest();
+    }
+
+    void findFragments() {
         initialFragment = (ListPreference) getPreferenceScreen().findPreference("initial_fragment");
         initialArg = (EditTextPreference) getPreferenceScreen().findPreference("initial_arg");
         shelfView = (ListPreference) getPreferenceScreen().findPreference("shelf_view");
         shelfBackground = (CheckBoxPreference) getPreferenceScreen().findPreference("shelf_background");
         shelfFilters = getPreferenceScreen().findPreference("shelf_filters");
+        expirationHours = (EditTextPreference) getPreferenceScreen().findPreference("expiration_hours");
+    }
 
-        initialFragment.setDefaultValue(Integer.toString(R.id.nav_blog));
+    void setDefaultValues() {
+        Resources res = getResources();
+        initialFragment.setDefaultValue(Integer.toString(
+                res.getIdentifier(res.getString(R.string.default_initial_fragment), "id", getActivity().getPackageName())
+        ));
         initialArg.setDefaultValue("");
-        shelfView.setDefaultValue(Integer.toString(R.id.grid_view));
-        shelfBackground.setDefaultValue(true);
+        shelfView.setDefaultValue(Integer.toString(
+                res.getIdentifier(res.getString(R.string.default_shelf_view), "id", getActivity().getPackageName())
+        ));
+        shelfBackground.setDefaultValue(res.getBoolean(R.bool.default_shelf_background));
+        expirationHours.setDefaultValue(res.getInteger(R.integer.default_expiration_hours));
         try {
             JSONObject j = new JSONObject();
-            j.put(Integer.toString(R.id.filter_all), getResources().getString(R.string.all));
+            int x = res.getIdentifier(res.getString(R.string.default_shelf_filter), "id", getActivity().getPackageName());
+            j.put(Integer.toString(x), getString(R.string.default_shelf_filter_label));
             shelfFilters.setDefaultValue("[" + j.toString() + "]");
         } catch(JSONException je) {
             je.printStackTrace();
         }
-
-        setupInitialFragment();
-        setupShelfView();
-        setupShelfFilters();
-        initialArg.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                preference.setSummary((CharSequence) o);
-                return true;
-            }
-        });
-        shelfBackground.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                boolean show = (boolean) o;
-                preference.setSummary(show ? "Show shelf image" : "No image");
-                return true;
-            }
-        });
-        shelfFilters.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                Log.d("WEEEEE", o.toString());
-                try {
-                    JSONArray array = new JSONArray((String)o);
-                    StringBuilder sb = new StringBuilder();
-                    for(int i=0; i<array.length(); i++) {
-                        if(i>0) sb.append(", ");
-                        JSONObject item = array.getJSONObject(i);
-                        String id = item.keys().next();
-                        sb.append(item.getString(id));
-                    }
-                    preference.setSummary(sb.toString());
-                    getPreferenceScreen().getSharedPreferences()
-                            .edit()
-                            .putString("shelf_filters", array.toString())
-                            .commit();
-                }catch(JSONException e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
-        });
-
-        initialFragment.getOnPreferenceChangeListener().onPreferenceChange(initialFragment,
-                getValueFor(initialFragment, (String) initialFragment.getEntry())
-        );
-        initialArg.getOnPreferenceChangeListener().onPreferenceChange(initialArg, initialArg.getText());
-        shelfView.getOnPreferenceChangeListener().onPreferenceChange(shelfView,
-                getValueFor(shelfView, (String) shelfView.getEntry())
-        );
-        shelfBackground.getOnPreferenceChangeListener().onPreferenceChange(shelfBackground, shelfBackground.isChecked());
-        shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters,
-                getPreferenceScreen().getSharedPreferences().getString(shelfFilters.getKey(), "{}")
-        );
     }
 
     void setupInitialFragment() {
@@ -146,6 +115,9 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         initialFragment.setEntries(l);
         initialFragment.setEntryValues(v);
         initialFragment.setOnPreferenceChangeListener(setupInitialArg);
+        setupInitialArg.onPreferenceChange(initialFragment,
+                getValueFor(initialFragment, (String) initialFragment.getEntry())
+        );
     }
 
     Preference.OnPreferenceChangeListener setupInitialArg = new Preference.OnPreferenceChangeListener() {
@@ -194,19 +166,10 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                 return true;
             }
         });
+        shelfView.getOnPreferenceChangeListener().onPreferenceChange(shelfView,
+                getValueFor(shelfView, (String) shelfView.getEntry())
+        );
     }
-
-    String getEntryFor(Preference pref, String s) {
-        return (String) ((ListPreference) pref).getEntries()[
-                Arrays.asList(((ListPreference) pref).getEntryValues()).indexOf(s)
-                ];
-    }
-    String getValueFor(Preference pref, String s) {
-        return (String) ((ListPreference) pref).getEntryValues()[
-                Arrays.asList(((ListPreference) pref).getEntries()).indexOf(s)
-                ];
-    }
-
 
     void setupShelfFilters() {
         PopupMenu p = new PopupMenu(getActivity(), null);
@@ -319,19 +282,86 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                 String s = getPreferenceScreen().getSharedPreferences().getString(preference.getKey(), "[]");
                 try {
                     JSONArray a = new JSONArray(s);
-                    for(int i=0; i<a.length(); i++) {
+                    for (int i = 0; i < a.length(); i++) {
                         JSONObject item = a.getJSONObject(i);
                         int id = Integer.parseInt(item.keys().next());
-                        ((CheckedTextView)dialog.findViewById(id).findViewById(android.R.id.text1)).setChecked(true);
+                        ((CheckedTextView) dialog.findViewById(id).findViewById(android.R.id.text1)).setChecked(true);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d("Showing dialog", "yup");
                 dialog.show();
                 return true;
             }
         });
+        shelfFilters.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                try {
+                    JSONArray array = new JSONArray((String) o);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < array.length(); i++) {
+                        if (i > 0) sb.append(", ");
+                        JSONObject item = array.getJSONObject(i);
+                        String id = item.keys().next();
+                        sb.append(item.getString(id));
+                    }
+                    preference.setSummary(sb.toString());
+                    getPreferenceScreen().getSharedPreferences()
+                            .edit()
+                            .putString("shelf_filters", array.toString())
+                            .commit();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        });
+        shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters,
+                getPreferenceScreen().getSharedPreferences().getString(shelfFilters.getKey(), "{}")
+        );
+    }
+
+    void setupTheRest() {
+
+        initialArg.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                preference.setSummary((CharSequence) o);
+                return true;
+            }
+        });
+        initialArg.getOnPreferenceChangeListener().onPreferenceChange(initialArg, initialArg.getText());
+
+        expirationHours.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                preference.setSummary("Every " + o + " hours");
+                return true;
+            }
+        });
+        expirationHours.getOnPreferenceChangeListener().onPreferenceChange(expirationHours, expirationHours.getText());
+
+        shelfBackground.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                boolean show = (boolean) o;
+                preference.setSummary(show ? "Show shelf image" : "No image"); //TODO: String
+                return true;
+            }
+        });
+        shelfBackground.getOnPreferenceChangeListener().onPreferenceChange(shelfBackground, shelfBackground.isChecked());
+    }
+
+    String getEntryFor(Preference pref, String s) {
+        return (String) ((ListPreference) pref).getEntries()[
+                Arrays.asList(((ListPreference) pref).getEntryValues()).indexOf(s)
+                ];
+    }
+    String getValueFor(Preference pref, String s) {
+        return (String) ((ListPreference) pref).getEntryValues()[
+                Arrays.asList(((ListPreference) pref).getEntries()).indexOf(s)
+                ];
     }
 
     @Override

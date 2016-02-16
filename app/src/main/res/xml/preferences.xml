@@ -27,4 +27,12 @@
         android:title="Shelf Background"
         android:dialogTitle="Show shelf background image?"/>
 
+
+    <EditTextPreference
+        android:key="expiration_hours"
+        android:title="Reload personal info"
+        android:visibility="gone"
+        android:inputType="number"
+        />
+
 </PreferenceScreen>

@@ -86,7 +86,7 @@ public class LaunchActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(MainActivity.shelves.size()>1 && !SettingsManager.shelvesExpired(this)) {
+        if(MainActivity.shelves.size()>1 && !SettingsManager.userInfoExpired(this)) {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             LaunchActivity.this.finish();
             Log.d("Starting activity", " " + MainActivity.shelves.size());

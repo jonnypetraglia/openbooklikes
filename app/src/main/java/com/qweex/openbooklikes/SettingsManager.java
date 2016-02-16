@@ -82,8 +82,9 @@ public class SettingsManager {
                 .commit();
     }
 
-    public static boolean shelvesExpired(Context c) {
-        long then = c.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE).getLong("shelves_timestamp", 0),
+    public static boolean userInfoExpired(Context c) {
+        SharedPreferences prefs = c.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
+        long then = prefs.getLong("shelves_timestamp", 0),
              now = Calendar.getInstance().getTimeInMillis();
         ;
         long elapsedHours = (now - then) / 1000 / 60 / 60;
