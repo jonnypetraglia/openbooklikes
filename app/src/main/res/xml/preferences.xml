@@ -11,11 +11,10 @@
         android:visibility="gone"
         />
 
-    <!-- Default filters for (my) shelves -->
     <Preference
         android:key="shelf_filters"
-        android:title="Default Shelf Filters"
- /> <!--         android:layout="@layout/pref" -->
+        android:title="Shelf filters"
+        android:dialogTitle="Choose default filters" />
 
 
     <ListPreference
