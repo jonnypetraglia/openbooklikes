@@ -17,7 +17,7 @@ public class PostFragment extends FragmentBase<Post> {
     User owner;
 
     @Override
-    String getTitle(Resources r) {
+    public String getTitle(Resources r) {
         return owner.getS("blog_title");
     }
 

@@ -159,7 +159,7 @@ public class LoginFragment extends FragmentBase {
     }
 
     @Override
-    String getTitle(Resources r) {
+    public String getTitle(Resources r) {
         return null; // Not needed
     }
 }

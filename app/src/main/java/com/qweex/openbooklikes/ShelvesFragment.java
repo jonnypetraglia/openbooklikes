@@ -30,7 +30,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
     }
 
     @Override
-    String getTitle(Resources res) {
+    public String getTitle(Resources res) {
         return res.getString(R.string.shelves);
     }
 

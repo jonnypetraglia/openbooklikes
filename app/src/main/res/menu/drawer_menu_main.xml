@@ -15,14 +15,11 @@
             android:title="@string/shelves">
             <menu></menu>
         </item>
-        <!--
-        <item android:id="@+id/nav_settings" android:icon="@android:drawable/ic_menu_edit"
-            android:title="Settings" />
-            -->
     </group>
-    <item android:id="@id/option_manage_shelves" android:icon="@android:drawable/ic_menu_edit"
+    <item android:id="@id/nav_manage_shelves" android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/manage_shelves" />
-
+    <item android:id="@+id/nav_settings" android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/settings" />
     <item android:id="@id/nav_logout" android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/logout" />
 

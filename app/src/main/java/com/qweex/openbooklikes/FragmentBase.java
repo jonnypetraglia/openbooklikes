@@ -21,12 +21,10 @@ import com.qweex.openbooklikes.model.Shareable;
 
 
 
-abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener {
+abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, FragmentBaseTitleable {
     Primary primary;
     ApiClient.ApiResponseHandler responseHandler;
     LoadingViewManager loadingManager = new LoadingViewManager();
-
-    abstract String getTitle(Resources resources);
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

@@ -29,7 +29,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     int relationCount = 0;
 
     @Override
-    String getTitle(Resources r) {
+    public String getTitle(Resources r) {
         return relation;
     }
 

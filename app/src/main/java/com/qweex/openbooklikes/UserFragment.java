@@ -63,7 +63,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     }
 
     @Override
-    String getTitle(Resources res) {
+    public String getTitle(Resources res) {
         if(primary==null)  //TODO: I don't like this;
             return null; // It's null when the fragment is first created because User is fetched asynchronously
         else if(primary instanceof Me)

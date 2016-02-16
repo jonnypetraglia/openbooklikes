@@ -53,7 +53,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     }
 
     @Override
-    String getTitle(Resources r) {
+    public String getTitle(Resources r) {
         return primary.title();
     }
 

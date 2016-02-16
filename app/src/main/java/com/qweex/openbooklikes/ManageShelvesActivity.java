@@ -163,7 +163,6 @@ public class ManageShelvesActivity extends AppCompatActivity {
                 autoSorting = !item.isChecked();
                 break;
             case R.id.option_reload:
-                //TODO: Fetch shelves again
                 loadingManager.show();
                 ApiClient.get(new ShelvesHandler(loadingManager, new ArrayList<Shelf>(), MainActivity.me) {
                     @Override

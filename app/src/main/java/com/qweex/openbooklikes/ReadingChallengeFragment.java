@@ -60,7 +60,7 @@ public class ReadingChallengeFragment extends FragmentBase implements TabLayout.
 
 
     @Override
-    String getTitle(Resources res) {
+    public String getTitle(Resources res) {
         return res.getString(R.string.reading_challenge);
     }
 

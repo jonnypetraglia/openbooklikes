@@ -28,7 +28,7 @@ public class SearchFragment extends BookListFragment<Search> {
     EditText editText;
 
     @Override
-    String getTitle(Resources res) {
+    public String getTitle(Resources res) {
         if(primary==null)
             return res.getString(R.string.search_books);
         else

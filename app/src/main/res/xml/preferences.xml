@@ -1,0 +1,31 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="initial_fragment"
+        android:title="Initial View"
+        android:dialogTitle="Choose Initial View" />
+
+    <EditTextPreference
+        android:key="initial_arg"
+        android:visibility="gone"
+        />
+
+    <!-- Default filters for (my) shelves -->
+    <Preference
+        android:key="shelf_filters"
+        android:title="Default Shelf Filters"
+ /> <!--         android:layout="@layout/pref" -->
+
+
+    <ListPreference
+        android:key="shelf_view"
+        android:title="Default Shelf View"
+        android:dialogTitle="Choose Default Shelf View" />
+
+    <CheckBoxPreference
+        android:key="shelf_background"
+        android:title="Shelf Background"
+        android:dialogTitle="Show shelf background image?"/>
+
+</PreferenceScreen>

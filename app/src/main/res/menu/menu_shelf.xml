@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@id/filter_status"
-        android:title="Status">
+        android:title="@string/status">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@id/filter_all"
@@ -18,7 +18,7 @@
     </item>
 
     <item android:id="@id/filter_special"
-        android:title="Special">
+        android:title="@string/special">
         <menu>
             <group android:checkableBehavior="all">
                 <item android:id="@id/filter_favourite"

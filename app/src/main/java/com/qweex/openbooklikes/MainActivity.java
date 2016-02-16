@@ -12,7 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.internal.view.SupportMenuInflater;
+import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -227,18 +227,19 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_challenge:
                 loadChallengeFragment(MainActivity.me);
                 break;
-            case R.id.option_manage_shelves:
+            case R.id.nav_manage_shelves:
                 startActivityForResult(new Intent(MainActivity.this, ManageShelvesActivity.class), 0);
                 return;
+            case R.id.nav_settings:
+                loadMainFragment(new PreferenceFragment(), MainActivity.me);
+                break;
             case R.id.nav_logout:
                 logout();
                 return;
         }
 
-        if(item.getGroupId()==R.id.nav_group) {
-            adapter.setSelected(item);
-            adapter.notifyDataSetChanged();
-        }
+        adapter.setSelected(item);
+        adapter.notifyDataSetChanged();
 
         closeLeftDrawer();
     }
@@ -329,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
             loadSideFragment(challengeFragment);
     }
 
-    private void loadMainFragment(FragmentBase fragment, UserPartial owner) {
+    private void loadMainFragment(Fragment fragment, UserPartial owner) {
         closeRightDrawer();
 
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -341,7 +342,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             notMeNav.setVisible(true);
             adapter.setSelected(notMeNav);
-            notMeNav.setTitle(fragment.getTitle(getResources()));
+            if(fragment instanceof FragmentBaseTitleable)
+                notMeNav.setTitle(((FragmentBaseTitleable)fragment).getTitle(getResources()));
             if(fragment.getClass().equals(UserFragment.class))
                 notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
             else
@@ -351,10 +353,11 @@ public class MainActivity extends AppCompatActivity {
         if(wasVisible!= notMeNav.isVisible())
             adapter.notifyDataSetInvalidated();
 
-        transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
+        transaction.replace(R.id.fragment, (Fragment) fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
         transaction.commit();
-        ((Toolbar) findViewById(R.id.toolbar)).setTitle(fragment.getTitle(getResources()));
+        if(fragment instanceof FragmentBaseTitleable)
+            ((Toolbar) findViewById(R.id.toolbar)).setTitle(((FragmentBaseTitleable) fragment).getTitle(getResources()));
     }
 
     public void loadSideFragment(FragmentBase fragment) {
