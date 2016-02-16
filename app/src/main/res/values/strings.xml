@@ -81,5 +81,7 @@
     <string name="update_failed">Update failed!</string>
     <string name="successfully_updated">Successfully updated!</string>
     <string name="new_shelf">New Shelf</string>
-    <string name="auto_sort">Auto sort</string>
+    <string name="auto_sort">Auto Sort</string>
+    <string name="update_progress">Update Progress</string>
+    <string name="add_to_shelf">Add to Shelf</string>
 </resources>

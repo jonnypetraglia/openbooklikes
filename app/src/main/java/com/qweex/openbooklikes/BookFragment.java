@@ -169,8 +169,6 @@ public class BookFragment extends FragmentBase<Book> {
                 ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(getActivity().getResources().getColor(android.R.color.holo_red_dark));
             }
         });
-
-        //TODO: Popup bottom of screen thingy; think "Error loading image" in Opengur
     }
 
     void showUpdateDialog() {
@@ -180,7 +178,7 @@ public class BookFragment extends FragmentBase<Book> {
         current.setText(Integer.toString(bookProgress.getProgress()));
         max.setText(Integer.toString(bookProgress.getMax()));
         new AlertDialog.Builder(getActivity())
-                .setTitle("Update progress") // TODO: String
+                .setTitle(R.string.update_progress)
                         //.setMessage(primary.getS("title"))
                 .setView(layout)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -248,7 +246,7 @@ public class BookFragment extends FragmentBase<Book> {
 
 
         AlertDialog alert = new AlertDialog.Builder(getActivity())
-                .setTitle("Add to Shelf") //TODO: String
+                .setTitle(R.string.add_to_shelf)
                         .setView(listView)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
