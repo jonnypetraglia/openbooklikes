@@ -105,4 +105,6 @@
     <item type="id" name="status" />
     <item type="id" name="per_day" />
     <item name="fab" type="id" />
+
+    <item name="drawer_list" type="id" />
 </resources>

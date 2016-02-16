@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nav_drawer_width">400dp</dimen>
+
+    <!-- "You can basically always use 304dp on -sw360dp and 320dp on -sw384dp, and roll with it" -->
+</resources>
