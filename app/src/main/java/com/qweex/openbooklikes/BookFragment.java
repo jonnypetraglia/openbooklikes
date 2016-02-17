@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -140,8 +139,12 @@ public class BookFragment extends FragmentBase<Book> {
         Log.d("Test", choices.toString());
 
         final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Loading", null, false, false);
+        final LoadingViewManagerDialog loadingManager = new LoadingViewManagerDialog(
+                getMainActivity().findViewById(R.id.side_fragment),
+                R.string.successfully_updated
+        );
 
-        ApiClient.get(params, new ApiClient.ApiResponseHandler() {
+        ApiClient.get(params, new LoadingResponseHandler(loadingManager) {
             @Override
             protected String urlPath() {
                 return "book/AddBookToShelfASDF";
@@ -150,23 +153,6 @@ public class BookFragment extends FragmentBase<Book> {
             @Override
             protected String countFieldName() {
                 return null;
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                progressDialog.dismiss();
-                Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), getResources().getString(R.string.successfully_updated), Snackbar.LENGTH_LONG)
-                        .show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                progressDialog.dismiss();
-                Snackbar snack = Snackbar.make(getMainActivity().findViewById(R.id.side_fragment), getActivity().getResources().getString(R.string.update_failed), Snackbar.LENGTH_LONG);
-                snack.show();
-                ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(getActivity().getResources().getColor(android.R.color.holo_red_dark));
             }
         });
     }

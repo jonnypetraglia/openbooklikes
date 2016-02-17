@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/OpenBookLikes.iml" filepath="$PROJECT_DIR$/OpenBookLikes.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openbooklikes.iml" filepath="$PROJECT_DIR$/openbooklikes.iml" />
       <module fileurl="file://$PROJECT_DIR$/readingchallengeparser/readingchallengeparser.iml" filepath="$PROJECT_DIR$/readingchallengeparser/readingchallengeparser.iml" />
     </modules>
   </component>

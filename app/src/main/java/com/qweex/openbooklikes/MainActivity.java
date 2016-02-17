@@ -49,8 +49,9 @@ public class MainActivity extends AppCompatActivity {
     static final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT", SIDE_FRAGMENT_TAG = "SIDE_FRAGMENT";
 
     private DrawerLayout drawer;
-    private MenuItem notMeNav, challengeNav, blogNav;
+    private MenuItem notMeNav;
 
+    ListView drawerList;
     NavDrawerAdapter adapter;
 
     @Override
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
 
-        final ListView drawerList = (ListView) findViewById(R.id.drawer_list);
+        drawerList = (ListView) findViewById(R.id.drawer_list);
         View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
         header.setClickable(true);
         drawerList.addHeaderView(header);
@@ -117,16 +118,8 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         imageLoader.init(config);
 
-        // Load primary info
-        ((TextView) drawerList.findViewById(R.id.nav_title)).setText(me.getS("blog_title"));
-        ((TextView) drawerList.findViewById(R.id.nav_subtitle)).setText(me.getS("domain"));
-        imageLoader.displayImage(me.getS("photo"), (ImageView) drawerList.findViewById(R.id.image_view));
 
-
-        // Locate the important nav items
         notMeNav = navMenu.findItem(R.id.nav_not_me);
-        blogNav = navMenu.findItem(R.id.nav_blog);
-        challengeNav = navMenu.findItem(R.id.nav_challenge);
 
         recreateShelvesNav();
         drawerList.setAdapter(adapter);
@@ -188,9 +181,6 @@ public class MainActivity extends AppCompatActivity {
             MenuItem mi = navMenu.findItem(id);
             adapter.setSelected(mi);
             adapter.notifyDataSetChanged();
-
-//            MenuItem start = blogNav;
-//            selectNavDrawer(start);
         } else {
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
@@ -211,7 +201,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void recreateShelvesNav() {
+    public void recreateShelvesNav() {
+        ((TextView) drawerList.findViewById(R.id.nav_title)).setText(me.getS("blog_title"));
+        ((TextView) drawerList.findViewById(R.id.nav_subtitle)).setText(me.getS("domain"));
+        imageLoader.displayImage(me.getS("photo"), (ImageView) drawerList.findViewById(R.id.image_view));
+
         // Add shelfMap to menu
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
         shelfNav.clear();
@@ -295,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("onActivityResult", "Yup");
         try {
             shelves = SettingsManager.loadShelves(this);
             recreateShelvesNav();

@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes;
 
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -32,6 +33,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import cz.msebera.android.httpclient.Header;
 
 public class PreferenceFragment extends PreferenceFragmentCompat implements FragmentBaseTitleable {
     ListPreference initialFragment, shelfView;
@@ -332,10 +335,10 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         expirationHours.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                if(o==null)
+                if (o == null)
                     o = Integer.toString(getActivity().getResources().getInteger(R.integer.default_expiration_hours));
 
-                if(o.equals("0"))
+                if (o.equals("0"))
                     preference.setSummary("Every time the app launches");
                 else
                     preference.setSummary("Every " + o + " hours");
@@ -354,11 +357,37 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         });
         shelfBackground.getOnPreferenceChangeListener().onPreferenceChange(shelfBackground, shelfBackground.isChecked());
 
+
+        getPreferenceScreen().findPreference("reload_user_data").setSummary("Signed in as " + MainActivity.me.getS("email"));
+        getPreferenceScreen().findPreference("reload_user_data").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                ApiClient.get(new UserHandler(new LoadingViewManagerDialog(
+                        getActivity().findViewById(R.id.fragment),
+                        R.string.app_name //TODO: String
+                ), getActivity()) {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        //TODO: actually use a LoadingViewManager
+                        super.onSuccess(statusCode, headers, response);
+                        ((MainActivity)getActivity()).recreateShelvesNav();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
+                        //TODO: actually use a LoadingViewManager
+                        super.onFailure(statusCode, headers, error, responseBody);
+                    }
+                });
+                return true;
+            }
+        });
+
         getPreferenceScreen().findPreference("clear_cache").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 new AlertDialog.Builder(getActivity())
-                        .setTitle("Clear app cache")
+                        .setTitle("Clear app cache") //TODO: Strings
                         .setMessage("Are you sure you want to proceed?")
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
@@ -376,7 +405,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 new AlertDialog.Builder(getActivity())
-                        .setTitle("Clear all app data")
+                        .setTitle("Clear all app data") //TODO: Strings
                         .setMessage("This will clear your settings and cache in addition to logging you out. Are you sure you want to do this?")
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override

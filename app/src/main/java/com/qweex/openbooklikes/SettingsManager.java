@@ -102,7 +102,7 @@ public class SettingsManager {
         long elapsedHours = (now - then) / 1000 / 60;
         long expiredHours = getInt(c, "expiration_hours", R.integer.default_expiration_hours);
         Log.d("elapsed", now + " - " + then + " = " + elapsedHours + " >= " + expiredHours);
-        return elapsedHours >= expiredHours;
+        return expiredHours>=0 && elapsedHours >= expiredHours;
     }
 
     public static ArrayList<Shelf> loadShelves(Context context) throws JSONException {

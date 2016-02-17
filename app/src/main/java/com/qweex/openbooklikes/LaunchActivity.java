@@ -104,25 +104,21 @@ public class LaunchActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("fetching shelves", "WEEEEEE " + force);
         if(MainActivity.shelves.size()>1 && !force) {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             LaunchActivity.this.finish();
-            Log.d("Starting activity", " " + MainActivity.shelves.size());
         } else
-            ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves = new ArrayList<Shelf>(), MainActivity.me){
+            ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves = new ArrayList<>(), MainActivity.me){
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     super.onSuccess(statusCode, headers, response);
 
                     try {
                         SettingsManager.saveShelves(
-                                SettingsManager.mergeShelves(
+                                MainActivity.shelves = SettingsManager.mergeShelves(
                                         SettingsManager.loadShelves(LaunchActivity.this), shelves
                                 ), LaunchActivity.this
                         );
-
-                        Log.d("WEEEE Got shelves", response.toString());
 
                         // Parent class(es) show content because they assume it's what we want
                         //   in this case content is the login form, so it needs to stay hidden

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Shelf;
@@ -43,6 +41,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
     EditText newShelfName;
     AlertDialog alertDialog;
     LoadingViewManager loadingManager;
+    LoadingViewManagerDialog loadingDialogManager;
 
     ArrayList<Shelf> shelvesInProgress;
 
@@ -59,7 +58,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String itemId = ((Map<String, String>) adapter.getItem(i)).get("id");
-                if(SettingsManager.hiddenShelvesIds.contains(itemId))
+                if (SettingsManager.hiddenShelvesIds.contains(itemId))
                     SettingsManager.hiddenShelvesIds.remove(itemId);
                 else
                     SettingsManager.hiddenShelvesIds.add(itemId);
@@ -86,6 +85,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
                 getLayoutInflater().inflate(R.layout.error, null)
         );
         loadingManager.content();
+        loadingDialogManager = new LoadingViewManagerDialog(findViewById(R.id.fragment), R.string.shelf_added);
 
         setContentView(loadingManager.wrapInitialInLayout(this));
 
@@ -234,7 +234,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
         }
     }
 
-    ApiClient.ApiResponseHandler responseHandler = new ApiClient.ApiResponseHandler() {
+    ApiClient.ApiResponseHandler responseHandler = new LoadingResponseHandler(loadingDialogManager) {
 
         @Override
         protected String urlPath() {
@@ -247,45 +247,25 @@ public class ManageShelvesActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-            progressDialog.dismiss();
-            Log.e("Horrible failure", "?" + responseString);
-            Snackbar.make(findViewById(R.id.fragment), "Uhhhhh problem", Snackbar.LENGTH_LONG)
-                    .show();
-        }
-
-        @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            super.onSuccess(statusCode, headers, response);
-            progressDialog.dismiss();
-
             // Create a new shelf for it
             Bundle b = new Bundle();
             try {
                 b.putString("id", response.getString("id_category"));
                 b.putString("name", response.getString("cat_name"));
-            } catch (JSONException j) {
+                b.putString("user_id", MainActivity.me.id());
+                b.putInt("book_count", 0);
+                Bundle w = new Bundle();
+                w.putBundle("category", b);
+                Shelf s = new Shelf(w, MainActivity.me);
 
-            }
-            b.putString("user_id", MainActivity.me.id());
-            b.putInt("book_count", 0);
-            Bundle w = new Bundle();
-            w.putBundle("category", b);
-            Shelf s = new Shelf(w, MainActivity.me);
+                shelvesInProgress.add(s);
 
-            progressDialog.dismiss();
-
-            shelvesInProgress.add(s);
-            try {
                 SettingsManager.saveShelves(shelvesInProgress, ManageShelvesActivity.this);
                 reloadAdapter();
-                Snackbar.make(findViewById(R.id.fragment), getResources().getString(R.string.shelf_added), Snackbar.LENGTH_LONG)
-                        .show();
+                super.onSuccess(statusCode, headers, response);
             } catch (JSONException e) {
-                e.printStackTrace();
-                Snackbar snack = Snackbar.make(findViewById(R.id.fragment), e.getMessage(), Snackbar.LENGTH_LONG);
-                ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text)).setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                snack.show();
+                super.onFailure(statusCode, headers, e, response);
             }
         }
     };

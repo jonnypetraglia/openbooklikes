@@ -192,7 +192,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         View v = getView();
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
-        Log.d("OBL:fillUi", ((User) primary).photoSize(IMG_SIZE));
         ImageView pic = (ImageView) v.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(((User)primary).photoSize(IMG_SIZE), pic);
         ((TextView) v.findViewById(R.id.title)).setText(((User) primary).properName());
@@ -207,6 +206,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         getMainActivity().setMainTitle(); //FIXME: UGGGGH I HATE THIS
         loadingManager.content();
         loadingManager.changeState(LoadingViewManager.State.MORE);
+        getMainActivity().recreateShelvesNav();
         fetchMore(0); // FIXME: Will EndlessScrollView call this once adapter is cleared?
     }
 
@@ -271,8 +271,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
                     throw new JSONException(response.getString("message"));
                 JSONArray posts = response.getJSONArray("posts");
 
-                Log.d("Posts", posts.toString());
-
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i), (UserPartial)primary);
                     adapter.add(p);
@@ -319,7 +317,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             int MAX_HEIGHT = getResources().getDimensionPixelSize(R.dimen.max_post_height);
 
 
-            Log.d("OBL:blogadapter", post.getS("title") + " ");
             setOrHide(row, R.id.type, post.getS("type"));
             setOrHide(row, R.id.date, post.getS("date"));
             setOrHide(row, R.id.title, post.getS("title"));
@@ -385,7 +382,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             primary = this.user;
-            Log.d("WEEEEEEEEEEEE", "Weeeeeeee");
             if(wasLastFetchNull())
                 return;
             fillUi();

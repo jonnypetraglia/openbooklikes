@@ -157,4 +157,11 @@ public class LoadingViewManager {
     public LinearLayout wrapInitialInLayout(Context c) {
         return initial.wrapInLayout(c);
     }
+
+    public static LoadingViewManager dummy(Context c) {
+        View v = new View(c);
+        LoadingViewManager x = new LoadingViewManager();
+        x.setInitial(v, v, v, v);
+        return x;
+    }
 }
