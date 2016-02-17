@@ -10,9 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 // Returned by GetUserFollowers
-public class UserPartial extends ModelBase implements Linkable {
+public class UserPartial extends Username implements Linkable {
     private final static String[]
-            STRING_FIELDS = new String[] {"username", "domain", "photo"};
+            STRING_FIELDS = new String[] {"domain", "photo"};
 
     public UserPartial(Bundle b) {
         super(b);
@@ -23,33 +23,13 @@ public class UserPartial extends ModelBase implements Linkable {
     }
 
     @Override
-    protected String[] idFields() {
-        return new String[0];
-    }
-
-    @Override
     protected String[] stringFields() {
-        return STRING_FIELDS;
+        return mergeArrays(STRING_FIELDS, super.stringFields());
     }
 
     @Override
     protected String[] intFields() {
         return new String[0];
-    }
-
-    @Override
-    public String apiPrefix() {
-        return "usr";
-    }
-
-    @Override
-    public String apiName() {
-        return "user";
-    }
-
-    @Override
-    public String apiNamePlural() {
-        return "users";
     }
 
     @Override

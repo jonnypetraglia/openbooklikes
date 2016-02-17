@@ -22,10 +22,12 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:design:23.0.1'
-    compile 'com.android.support:cardview-v7:23.0.+'
-    compile 'com.android.support:recyclerview-v7:23.0.+'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:preference-v7:23.1.1'
+    compile 'com.android.support:preference-v14:23.1.1'
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.github.johnkil.android-progressfragment:progressfragment:1.4.+'
     compile files('libs/android-async-http-1.4.9.jar')
@@ -36,7 +38,5 @@ dependencies {
     compile 'com.daimajia.numberprogressbar:library:1.2@aar'
     compile 'me.dm7.barcodescanner:zbar:1.8.4'
 
-    compile 'com.android.support:preference-v7:23.1.1'
-    compile 'com.android.support:preference-v14:23.1.1'
     compile project(':readingchallengeparser')
 }

@@ -30,9 +30,11 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qweex.openbooklikes.model.Me;
+import com.qweex.openbooklikes.model.Search;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
+import com.qweex.openbooklikes.model.Username;
 
 import org.json.JSONException;
 
@@ -142,8 +144,59 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState==null) {
             // Select default fragment
-            MenuItem start = blogNav; //TODO: settings
-            selectNavDrawer(start);
+            int defaultId = getResources().getIdentifier("default_initial_fragment", "id", getPackageName());
+            int id = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(
+                    "initial_fragment",
+                    Integer.toString(defaultId)
+            ));
+            Log.d("id=", id + "!");
+            String arg = PreferenceManager.getDefaultSharedPreferences(this).getString("initial_arg", "");
+            FragmentBase fragment;
+            Username user = me;
+            Bundle b = new Bundle();
+            switch(id) {
+                case R.id.nav_challenge:
+                    loadChallengeFragment(me);
+                    return;
+                case R.id.nav_search:
+                    fragment = new SearchFragment();
+                    if(arg.length()>0)
+                        ((SearchFragment)fragment).setSearchTerm(arg);
+                    //TODO: Make SearchFragment create with q
+                    break;
+                case R.id.nav_blog:
+                    fragment = new UserFragment();
+                    if(arg.length() == 0) {
+                        b = me.wrapInBundle(new Bundle());
+                    } else {
+                        Bundle usr = new Bundle();
+                        usr.putString("username", arg);
+                        usr.putString("id", "");
+                        Bundle usr2 = new Bundle();
+                        usr2.putBundle("user", usr);
+                        user = new Username(usr2);
+                        b = user.wrapInBundle(new Bundle());
+
+                        Log.d("WEEEEE", b.toString());
+                        id = notMeNav.getItemId();
+                    }
+                    fragment.setArguments(b);
+                    //TODO: Make BlogFragment create with username
+                    break;
+                default: // i.e. a shelf
+                    fragment = new BookListFragment();
+                    fragment.setArguments(b);
+            }
+
+
+            loadMainFragment(fragment, user);
+
+            MenuItem mi = navMenu.findItem(id);
+            adapter.setSelected(mi);
+            adapter.notifyDataSetChanged();
+
+//            MenuItem start = blogNav;
+//            selectNavDrawer(start);
         } else {
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
@@ -329,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
             loadSideFragment(challengeFragment);
     }
 
-    private void loadMainFragment(Fragment fragment, UserPartial owner) {
+    private void loadMainFragment(Fragment fragment, Username owner) {
         closeRightDrawer();
 
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -373,7 +426,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void setMainTitle() {
         String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle(getResources());
-        //((Toolbar) findViewById(R.id.toolbar)).setTitle(title);
         getSupportActionBar().setTitle(title);
     }
 

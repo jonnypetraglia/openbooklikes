@@ -23,6 +23,7 @@ import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
+import com.qweex.openbooklikes.model.Username;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class UserFragment extends FetchFragmentBase<UserPartial, Post> implements AdapterView.OnItemClickListener {
+public class UserFragment extends FetchFragmentBase<Username, Post> implements AdapterView.OnItemClickListener {
 
     ArrayList<HeaderData> headerDatas = new ArrayList<>();
 
@@ -64,8 +65,8 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
 
     @Override
     public String getTitle(Resources res) {
-        if(primary==null)  //TODO: I don't like this;
-            return null; // It's null when the fragment is first created because User is fetched asynchronously
+        if(primary.getClass().equals(Username.class))
+            return primary.getS("username");
         else if(primary instanceof Me)
             return res.getString(R.string.blog);
         else
@@ -74,8 +75,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
 
     @Override
     public void setArguments(Bundle a) {
-        primary = new User(a);
-        Log.d("SET ARGUMENTS", a.getBundle("user").getString("followed_count") + "?" + primary.getS("followed_count"));
+        primary = new Username(a);
         super.setArguments(a);
     }
 
@@ -87,7 +87,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.option_browser) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, primary.link());
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, ((UserPartial)primary).link());
             startActivity(browserIntent);
             return true;
         }
@@ -149,7 +149,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
         responseHandler = userHandler;
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
 
-        Log.d("OBL:userFragment", "!" + primary.id());
+        Log.d("OBL:userFragment", "!" + primary.getS("username"));
         if(primary.equals(MainActivity.me)) {
             // no need to fetch, MainActivity.me has all the info already
             Log.d("OBL:user is me", "woah");
@@ -171,7 +171,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(primary != null && primary.getS("following_count")!=null) {
+        if(primary instanceof User && primary.getS("following_count")!=null) {
             Log.d("OBL:user", "Filling UI from onViewCreated");
             fillUi();
         }
@@ -179,7 +179,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
 
     @Override
     public boolean fetchMore(int page) {
-        if(!super.fetchMore(page))
+        if(!super.fetchMore(page) || primary.getClass().equals(Username.class))
             return false;
         Log.d("OBL:fetchMore", "Fetching more posts, page " + page);
         RequestParams params = new ApiClient.PagedParams(page, adapter);
@@ -241,7 +241,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
     View.OnClickListener loadChallenge = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            getMainActivity().loadChallengeFragment(primary);
+            getMainActivity().loadChallengeFragment(((UserPartial)primary));
         }
     };
 
@@ -266,7 +266,7 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
                 return;
             try {
                 primary = new User(response);
-                Log.d("OBL:user", "Filling UI from userHandler");
+                Log.d("OBL:user", "Filling UI from userHandler " + primary.id());
                 fillUi();
             } catch (JSONException e) {
                 Log.e("OBL:user!", "Failed cause " + e.getMessage());
@@ -308,8 +308,10 @@ public class UserFragment extends FetchFragmentBase<UserPartial, Post> implement
                     throw new JSONException(response.getString("message"));
                 JSONArray posts = response.getJSONArray("posts");
 
+                Log.d("Posts", posts.toString());
+
                 for(int i=0; i<posts.length(); i++) {
-                    Post p = new Post(posts.getJSONObject(i), primary);
+                    Post p = new Post(posts.getJSONObject(i), (UserPartial)primary);
                     Log.d("OBL:blog", "Post: " + (p.getS("tag")==null));
                     adapter.add(p);
                 }

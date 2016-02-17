@@ -2,7 +2,6 @@ package com.qweex.openbooklikes;
 
 
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -15,7 +14,6 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,7 +113,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         initialFragment.setEntries(l);
         initialFragment.setEntryValues(v);
         initialFragment.setOnPreferenceChangeListener(setupInitialArg);
-        setupInitialArg.onPreferenceChange(initialFragment,
+        initialFragment.getOnPreferenceChangeListener().onPreferenceChange(initialFragment,
                 getValueFor(initialFragment, (String) initialFragment.getEntry())
         );
     }
@@ -146,7 +144,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                     break;
 
             }
-            initialArg.setText("");
+//            initialArg.setText("");
             return true;
         }
     };

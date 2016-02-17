@@ -4,6 +4,7 @@ package com.qweex.openbooklikes.model;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +57,7 @@ public class Post extends ModelBase implements Shareable {
             if(json.has(s))
                 bundle.putString(s, json.getString(s));
         owner = o;
+        Log.d("New Post", json.toString());
         if(!o.id().equals(getS("user_id")))
             throw new RuntimeException("User id does not match from owner's id:" + o.id() + " vs " + getS("user_id"));
     }

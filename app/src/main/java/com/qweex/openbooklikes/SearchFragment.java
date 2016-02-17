@@ -26,6 +26,7 @@ import com.qweex.openbooklikes.notmine.SimpleScannerActivity;
 public class SearchFragment extends BookListFragment<Search> {
 
     EditText editText;
+    protected Search searchTerm;
 
     @Override
     public String getTitle(Resources res) {
@@ -38,9 +39,15 @@ public class SearchFragment extends BookListFragment<Search> {
     @Override
     public void setArguments(Bundle a) {
         // Silence is golden
-        primary = new Search(a);
+        searchTerm = new Search(a);
         Log.d("setArguments", primary.id());
+
         super.setArguments(a);
+    }
+
+    public void setSearchTerm(String q) {
+        searchTerm = Search.create(q);
+        primary = searchTerm;
     }
 
     @Override
@@ -48,6 +55,8 @@ public class SearchFragment extends BookListFragment<Search> {
         super.onCreate(savedInstanceState);
         responseHandler = new SearchHandler(this);
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,10 +68,17 @@ public class SearchFragment extends BookListFragment<Search> {
         layout.addView(shelfView);
 
         editText = ((EditText)layout.findViewById(R.id.edit_text));
-        editText.setOnEditorActionListener(performSearch);
+        editText.setOnEditorActionListener(imeListener);
 
         changeWidget(listView);
         return layout;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if(searchTerm!=null)
+            performSearch();
     }
 
     @Override
@@ -100,8 +116,8 @@ public class SearchFragment extends BookListFragment<Search> {
         if(resultCode != Activity.RESULT_OK)
             return;
         String ISBN = data.getStringExtra("barcode");
-        editText.setText(ISBN);
-        performSearch.onEditorAction(editText, EditorInfo.IME_ACTION_SEARCH, null);
+        searchTerm = Search.create(ISBN);
+        performSearch();
     }
 
     @Override
@@ -118,25 +134,29 @@ public class SearchFragment extends BookListFragment<Search> {
         return true;
     }
 
-    TextView.OnEditorActionListener performSearch = new TextView.OnEditorActionListener() {
+    TextView.OnEditorActionListener imeListener = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
             String s = textView.getText().toString().trim();
             if (i == EditorInfo.IME_ACTION_SEARCH && s.length() > 0) {
                 primary = Search.create(s);
-                getMainActivity().setMainTitle();
-                loadingManager.show();
-                textView.clearFocus();
-
                 InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 mIMEMgr.hideSoftInputFromWindow(textView.getWindowToken(), 0);
+                performSearch();
 
-                reload();
                 return true;
             }
             return false;
         }
     };
+
+    void performSearch() {
+        getMainActivity().setMainTitle();
+        loadingManager.show();
+        editText.clearFocus();
+        editText.setText(searchTerm.getS("q"));
+        reload();
+    }
 
     class SearchHandler extends BookHandler {
         public SearchHandler(FragmentBase f) {
