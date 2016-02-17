@@ -3,6 +3,7 @@ package com.qweex.openbooklikes;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,7 +46,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     static {
         statusTracker = new BookListFragment.CheckTracker();
         statusTracker.add(R.id.filter_all, R.id.filter_read, R.id.filter_planning, R.id.filter_reading);
-        statusTracker.checkEx(R.id.filter_all); //TODO: Settings
 
         specialTracker = new BookListFragment.CheckTracker();
         specialTracker.add(R.id.filter_favourite, R.id.filter_wishlist, R.id.filter_reviewed, R.id.filter_private);
@@ -84,6 +84,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         setHasOptionsMenu(true);
         responseHandler = new BookHandler(this);
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
+
+        SettingsManager.setFilters(getActivity(), statusTracker, specialTracker);
     }
 
     @Override
@@ -122,6 +124,15 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         loadingManager.addMore(loadingGrid, gridView, emptyGrid, errorGrid);
         loadingManager.addMore(loadingList, listView, emptyList, errorList);
 
+        Resources res = getResources();
+        String defaultVal = res.getString(R.string.default_shelf_view);
+        int id = res.getIdentifier(
+                PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getString("shelf_view", "")
+                , "id", getActivity().getPackageName()
+        );
+        changeWidget((AbsListView) view.findViewById(id));
+
         return super.createProgressView(inflater, container, view);
     }
 
@@ -156,9 +167,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             Log.d("OBL:checkedP", id + "!" + submenu.findItem(id).getTitle());
             submenu.findItem(id).setChecked(true);
         }
-
-        changeWidget(gridView); //TODO: Settings
-        //menu.findItem(R.id.change_view).setTitle(R.string.option_view_list);
     }
 
     @Override
@@ -275,8 +283,11 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 cover.setImageDrawable(null);
             }
 
-            //TODO: Settings
-//            row.findViewById(R.id.background).setVisibility(View.GONE);
+            boolean showBg = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getBoolean("shelf_background",
+                        getResources().getBoolean(R.bool.default_shelf_background));
+
+            row.findViewById(R.id.background).setVisibility(showBg ? View.VISIBLE : View.GONE);
 
             return row;
         }

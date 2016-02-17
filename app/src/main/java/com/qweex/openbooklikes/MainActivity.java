@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -267,9 +268,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     getSharedPreferences(Me.USER_DATA_PREFS, MODE_PRIVATE)
-                            .edit().clear().apply();
-                    imageLoader.clearDiskCache();
-                    imageLoader.clearMemoryCache();
+                            .edit().remove("usr_token").apply();
                     startActivity(new Intent(MainActivity.this, LaunchActivity.class));
                     MainActivity.this.finish();
                 }

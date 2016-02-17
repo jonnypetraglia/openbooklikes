@@ -35,4 +35,18 @@
         android:inputType="number"
         />
 
+    <PreferenceScreen
+        android:title="Advanced">
+        <Preference
+            android:key="clear_cache"
+            android:title="Clear Cache"
+            />
+
+        <Preference
+            android:key="clear_all"
+            android:title="Clear All Data"
+            android:summary="CANNOT BE UNDONE"
+            />
+    </PreferenceScreen>
+
 </PreferenceScreen>

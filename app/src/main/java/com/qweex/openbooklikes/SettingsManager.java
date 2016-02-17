@@ -1,8 +1,12 @@
 package com.qweex.openbooklikes;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.qweex.openbooklikes.model.Me;
@@ -88,10 +92,7 @@ public class SettingsManager {
              now = Calendar.getInstance().getTimeInMillis();
         ;
         long elapsedHours = (now - then) / 1000 / 60 / 60;
-        return elapsedHours >= 24
-
-
-                && false; //TODO: Settings
+        return elapsedHours >= prefs.getInt("expiration_hours", c.getResources().getInteger(R.integer.default_expiration_hours));
     }
 
     public static ArrayList<Shelf> loadShelves(Context context) throws JSONException {
@@ -108,5 +109,45 @@ public class SettingsManager {
         if(autoSort)
             Collections.sort(shelves);
         return shelves;
+    }
+
+    public static void setFilters(Context context, BookListFragment.CheckTracker status, BookListFragment.CheckTracker special) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        Resources res = context.getResources();
+
+        try {
+            JSONObject j = new JSONObject();
+            int defaultId = res.getIdentifier(res.getString(R.string.default_shelf_filter), "id", context.getPackageName());
+            j.put(Integer.toString(defaultId), res.getString(R.string.default_shelf_filter_label));
+
+            JSONArray jarray = new JSONArray(prefs.getString("shelf_filters", "["+j.toString()+"]"));
+            for(int i=0; i<jarray.length(); i++) {
+                int filterId = Integer.parseInt(jarray.getJSONObject(i).keys().next());
+                if(status.has(filterId))
+                    status.checkEx(filterId);
+                else if(special.has(filterId))
+                    special.checkEx(filterId);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //TODO: Add this to Settings somewhere
+    public static void clearEverything(Activity a) {
+        clearCache(a);
+        PreferenceManager.getDefaultSharedPreferences(a).edit().clear().apply();
+        a.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE).edit().clear().apply();
+        a.startActivity(new Intent(a, LaunchActivity.class));
+        a.finish();
+    }
+
+    public static void clearCache(Context c) {
+        SharedPreferences prefs = c.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE);
+        String usr_token = prefs.getString("usr_token", "");
+        prefs.edit().clear().putString("usr_token", usr_token).apply();
+        MainActivity.imageLoader.clearDiskCache();
+        MainActivity.imageLoader.clearMemoryCache();
     }
 }

@@ -309,7 +309,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                     preference.setSummary(sb.toString());
                     getPreferenceScreen().getSharedPreferences()
                             .edit()
-                            .putString("shelf_filters", array.toString())
+                            .putString(shelfFilters.getKey(), array.toString())
                             .commit();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -351,6 +351,42 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
             }
         });
         shelfBackground.getOnPreferenceChangeListener().onPreferenceChange(shelfBackground, shelfBackground.isChecked());
+
+        getPreferenceScreen().findPreference("clear_cache").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Clear app cache")
+                        .setMessage("Are you sure you want to proceed?")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SettingsManager.clearCache(getActivity());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            }
+        });
+
+        getPreferenceScreen().findPreference("clear_all").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Clear all app data")
+                        .setMessage("This will clear your settings and cache in addition to logging you out. Are you sure you want to do this?")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SettingsManager.clearEverything(getActivity());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            }
+        });
     }
 
     String getEntryFor(Preference pref, String s) {
