@@ -1,4 +1,8 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.handler;
+
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.fragment.FragmentBase;
 
 import org.json.JSONObject;
 
@@ -9,7 +13,7 @@ public abstract class LoadingResponseHandler extends ApiClient.ApiResponseHandle
     protected LoadingViewManager loadingManager;
 
     public LoadingResponseHandler(FragmentBase f) {
-        this(f.loadingManager);
+        this(f.getLoadingManager());
     }
     public LoadingResponseHandler(LoadingViewManager lvm) {
         super();

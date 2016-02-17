@@ -1,7 +1,6 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -15,6 +14,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +25,13 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.Titleable;
+import com.qweex.openbooklikes.LoadingViewManagerDialog;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.handler.UserHandler;
 import com.qweex.openbooklikes.model.Shelf;
 
 import org.json.JSONArray;
@@ -36,7 +43,7 @@ import java.util.Arrays;
 
 import cz.msebera.android.httpclient.Header;
 
-public class PreferenceFragment extends PreferenceFragmentCompat implements FragmentBaseTitleable {
+public class PreferenceFragment extends PreferenceFragmentCompat implements Titleable {
     ListPreference initialFragment, shelfView;
     EditTextPreference initialArg, expirationHours;
     CheckBoxPreference shelfBackground;
@@ -96,7 +103,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
             MenuItem item = navMenu.getItem(i);
             if(item.getItemId()==R.id.nav_shelves) {
                 for(Shelf shelf : MainActivity.shelves) {
-                    labels.add(shelf.title());
+                    labels.add(shelf.getTitle(null));
                     values.add(shelf.id());
                 }
                 break;
@@ -124,7 +131,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         public boolean onPreferenceChange(Preference preference, Object o) {
             Integer choice = Integer.parseInt((String) o);
             String itemName = getEntryFor(preference, (String) o);
-            preference.setSummary("Show " + itemName + " on launch");
+            preference.setSummary("Show " + itemName + " on launch"); //TODO: String
             switch(choice) {
                 default: //i.e. a shelf ID
                 case R.id.nav_challenge:
@@ -134,14 +141,14 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                 case R.id.nav_search:
                     if(!initialArg.isVisible())
                         initialArg.setVisible(true);
-                    initialArg.setTitle("Search term");
-                    initialArg.setDialogTitle("Enter search term");
+                    initialArg.setTitle("Search term"); //TODO: String
+                    initialArg.setDialogTitle("Enter search term"); //TODO: String
                     break;
                 case R.id.nav_blog:
                     if(!initialArg.isVisible())
                         initialArg.setVisible(true);
-                    initialArg.setTitle("Show User");
-                    initialArg.setDialogTitle("User's username, if other than you");
+                    initialArg.setTitle("Show User"); //TODO: String
+                    initialArg.setDialogTitle("User's username, if other than you"); //TODO: String
                     break;
 
             }
@@ -339,9 +346,9 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                     o = Integer.toString(getActivity().getResources().getInteger(R.integer.default_expiration_hours));
 
                 if (o.equals("0"))
-                    preference.setSummary("Every time the app launches");
+                    preference.setSummary("Every time the app launches"); //TODO: String
                 else
-                    preference.setSummary("Every " + o + " hours");
+                    preference.setSummary("Every " + o + " hours"); //TODO: String
                 return true;
             }
         });
@@ -358,7 +365,8 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         shelfBackground.getOnPreferenceChangeListener().onPreferenceChange(shelfBackground, shelfBackground.isChecked());
 
 
-        getPreferenceScreen().findPreference("reload_user_data").setSummary("Signed in as " + MainActivity.me.getS("email"));
+        getPreferenceScreen().findPreference("reload_user_data")
+                .setSummary("Signed in as " + MainActivity.me.getS("email")); //TODO: String
         getPreferenceScreen().findPreference("reload_user_data").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -368,14 +376,12 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
                 ), getActivity()) {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        //TODO: actually use a LoadingViewManager
                         super.onSuccess(statusCode, headers, response);
-                        ((MainActivity)getActivity()).recreateShelvesNav();
+                        ((MainActivity) getActivity()).recreateShelvesNav();
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-                        //TODO: actually use a LoadingViewManager
                         super.onFailure(statusCode, headers, error, responseBody);
                     }
                 });

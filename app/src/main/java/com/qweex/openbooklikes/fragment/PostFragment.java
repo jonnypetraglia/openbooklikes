@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
 

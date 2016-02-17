@@ -1,9 +1,8 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,13 +13,17 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.AdapterBase;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.BookListPartial;
 import com.qweex.openbooklikes.model.Shelf;
@@ -54,7 +57,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     @Override
     public String getTitle(Resources r) {
-        return primary.title();
+        return primary.getTitle(r);
     }
 
     @Override

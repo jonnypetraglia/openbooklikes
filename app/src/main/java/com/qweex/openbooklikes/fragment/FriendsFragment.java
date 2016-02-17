@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -13,6 +13,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.AdapterBase;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 

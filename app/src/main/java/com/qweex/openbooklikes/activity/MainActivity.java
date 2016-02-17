@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +12,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -29,8 +28,17 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.qweex.openbooklikes.Titleable;
+import com.qweex.openbooklikes.NavDrawerAdapter;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.fragment.BookListFragment;
+import com.qweex.openbooklikes.fragment.FragmentBase;
+import com.qweex.openbooklikes.fragment.PreferenceFragment;
+import com.qweex.openbooklikes.fragment.ReadingChallengeFragment;
+import com.qweex.openbooklikes.fragment.SearchFragment;
+import com.qweex.openbooklikes.fragment.UserFragment;
 import com.qweex.openbooklikes.model.Me;
-import com.qweex.openbooklikes.model.Search;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
@@ -212,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         for(Shelf s : shelves) {
             if(SettingsManager.hiddenShelvesIds.contains(s.id()))
                 continue;
-            Log.d("recreateShelvesNav", s.title());
+            Log.d("recreateShelvesNav", s.getTitle(getResources()));
             Intent i = new Intent();
             i.putExtra("count", s.getI("book_count"));
             shelfNav.add(R.id.nav_group,
@@ -308,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     getSharedPreferences(Me.USER_DATA_PREFS, MODE_PRIVATE)
-                            .edit().remove("usr_token").apply();
+                            .edit().clear().apply();
                     startActivity(new Intent(MainActivity.this, LaunchActivity.class));
                     MainActivity.this.finish();
                 }
@@ -381,8 +389,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             notMeNav.setVisible(true);
             adapter.setSelected(notMeNav);
-            if(fragment instanceof FragmentBaseTitleable)
-                notMeNav.setTitle(((FragmentBaseTitleable)fragment).getTitle(getResources()));
+            if(fragment instanceof Titleable)
+                notMeNav.setTitle(((Titleable)fragment).getTitle(getResources()));
             if(fragment.getClass().equals(UserFragment.class))
                 notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
             else
@@ -395,8 +403,8 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.fragment, (Fragment) fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
         transaction.commit();
-        if(fragment instanceof FragmentBaseTitleable)
-            ((Toolbar) findViewById(R.id.toolbar)).setTitle(((FragmentBaseTitleable) fragment).getTitle(getResources()));
+        if(fragment instanceof Titleable)
+            ((Toolbar) findViewById(R.id.toolbar)).setTitle(((Titleable) fragment).getTitle(getResources()));
     }
 
     public void loadSideFragment(FragmentBase fragment) {

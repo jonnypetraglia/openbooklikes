@@ -7,7 +7,7 @@ import com.qweex.openbooklikes.model.Book;
 
 import java.util.ArrayList;
 
-abstract class AdapterBase<T> extends ArrayAdapter<T> {
+abstract public class AdapterBase<T> extends ArrayAdapter<T> {
     ArrayList<T> data; //TODO: Find a different way to do this
 
     public AdapterBase(Context context, int i, ArrayList<T> objects) {

@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -17,6 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.activity.LaunchActivity;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.Me;
 
 import org.json.JSONException;

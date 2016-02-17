@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.AdapterBase;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Post;
@@ -216,7 +223,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             if(MainActivity.me.id().equals(primary.id()))
                 getMainActivity().openLeftDrawer();
             else {
-                ShelvesFragment shelvesFragment = new ShelvesFragment();
+                BookFragment.ShelvesFragment shelvesFragment = new BookFragment.ShelvesFragment();
                 shelvesFragment.setArguments(primary.wrapInBundle(new Bundle()));
                 getMainActivity().loadSideFragment(shelvesFragment);
             }
@@ -372,7 +379,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         ApiClient.get(params, new UserHandler(this));
     }
 
-    class UserHandler extends com.qweex.openbooklikes.UserHandler {
+    class UserHandler extends com.qweex.openbooklikes.handler.UserHandler {
 
         public UserHandler(FragmentBase f) {
             super(f);

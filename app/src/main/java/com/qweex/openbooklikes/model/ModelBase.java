@@ -162,4 +162,9 @@ abstract public class ModelBase implements Parcelable {
     public ModelBase(Parcel p) {
         this(p.readBundle());
     }
+
+    @Override
+    public String toString() {
+        return bundle.toString();
+    }
 }

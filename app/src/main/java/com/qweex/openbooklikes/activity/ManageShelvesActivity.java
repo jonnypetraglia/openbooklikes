@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,6 +17,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.LoadingViewManagerDialog;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.handler.ShelvesHandler;
 import com.qweex.openbooklikes.model.Shelf;
 import com.terlici.dragndroplist.DragNDropListView;
 import com.terlici.dragndroplist.DragNDropSimpleAdapter;
@@ -191,9 +198,9 @@ public class ManageShelvesActivity extends AppCompatActivity {
         List<Map<String, String>> muhData = new ArrayList<>();
         for(Shelf s : shelves) {
             if(s.isAllBooks()) continue;
-            Log.d("reloadAdapter", s.title());
+            Log.d("reloadAdapter", s.getTitle(getResources()));
             Map<String, String> derp = new HashMap<>();
-            derp.put("title", s.title());
+            derp.put("title", s.getTitle(getResources()));
             derp.put("id", s.id());
             muhData.add(derp);
         }
@@ -205,12 +212,12 @@ public class ManageShelvesActivity extends AppCompatActivity {
     }
 
     class Adapter extends DragNDropSimpleAdapter {
-        int eyeUnhiddenColor, eyHiddenColor;
+        int eyeUnhiddenColor, eyeHiddenColor;
 
         public Adapter(Context context, List<Map<String, String>> data, int resource, String[] from, int[] to, int handler) {
             super(context, data, resource, from, to, handler);
             eyeUnhiddenColor = getResources().getColor(R.color.shelf_unhidden);
-            eyHiddenColor = getResources().getColor(R.color.shelf_hidden);
+            eyeHiddenColor = getResources().getColor(R.color.shelf_hidden);
         }
 
         @Override
@@ -229,7 +236,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
             eye.setColorFilter(null);
             eye.setColorFilter(
                     SettingsManager.hiddenShelvesIds.contains(itemId)
-                            ? eyHiddenColor : eyeUnhiddenColor
+                            ? eyeHiddenColor : eyeUnhiddenColor
                     , PorterDuff.Mode.SRC_IN);
         }
     }

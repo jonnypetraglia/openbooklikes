@@ -6,6 +6,7 @@ import android.util.Log;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.activity.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

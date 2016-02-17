@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes.model;
 
 
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +18,7 @@ public class Shelf extends BookListPartial implements Linkable, Comparable<Shelf
     User owner;
 
     @Override
-    public String title() {
+    public String getTitle(Resources r) {
         return getS("name");
     }
 
@@ -85,6 +86,6 @@ public class Shelf extends BookListPartial implements Linkable, Comparable<Shelf
     @Override
     public int compareTo(Shelf shelf) {
         if(this.isAllBooks()) return -1;
-        return this.title().compareToIgnoreCase(shelf.title());
+        return this.getTitle(null).compareToIgnoreCase(shelf.getTitle(null));
     }
 }

@@ -1,9 +1,11 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.handler;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.fragment.FragmentBase;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.User;
 

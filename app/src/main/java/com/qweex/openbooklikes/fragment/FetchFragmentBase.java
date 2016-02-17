@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.qweex.openbooklikes.AdapterBase;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.fragment.FragmentBase;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
 

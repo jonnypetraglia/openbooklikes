@@ -9,6 +9,9 @@ import android.content.res.Resources;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
+import com.qweex.openbooklikes.activity.LaunchActivity;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.fragment.BookListFragment;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 
@@ -31,7 +34,7 @@ public class SettingsManager {
 
     public static Map<Integer, Object> defaultPrefs = new HashMap<>();
 
-    static void init(Context context) {
+    public static void init(Context context) {
         if(hiddenShelvesIds.size()>0)
             return;
         SharedPreferences prefs = context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
@@ -56,7 +59,7 @@ public class SettingsManager {
         for (int i = 0; i < shelves.size(); ) {
             boolean found = false;
             for (Shelf n : newShelves) {
-                Log.d("Comparing", shelves.get(i).title() + "=" + n.title() + " ? " + shelves.get(i).equals(n));
+                Log.d("Comparing", shelves.get(i).getTitle(null) + "=" + n.getTitle(null) + " ? " + shelves.get(i).equals(n));
                 if (found = shelves.get(i).equals(n)) {
                     shelves.set(i++, n);
                     newShelves.remove(n);
@@ -67,8 +70,6 @@ public class SettingsManager {
                 shelves.remove(i);
         }
         shelves.addAll(newShelves);
-        for(Shelf s : shelves)
-            Log.d("-result", s.title());
         return shelves;
     }
 
@@ -80,7 +81,7 @@ public class SettingsManager {
                 JSONObject j = new JSONObject();
                 j.put("id_" + s.apiName(), s.id());
                 j.put("id_user", MainActivity.me.id());
-                j.put(s.apiName() + "_name", s.title());
+                j.put(s.apiName() + "_name", s.getTitle(null));
                 j.put(s.apiName() + "_book_count", s.getI("book_count"));
                 Log.d("saveShelves", j.toString());
                 array.put(j);
@@ -110,10 +111,9 @@ public class SettingsManager {
         JSONArray array = new JSONArray(prefs.getString("shelves", "[]"));
         ArrayList<Shelf> shelves = new ArrayList<>();
         shelves.add(Shelf.allBooksOfUser(MainActivity.me));
-        Log.d("Cocaine Hurricane", array.toString() + "!");
         for(int i=0; i<array.length(); i++) {
             Shelf s = new Shelf(array.getJSONObject(i), MainActivity.me);
-            Log.d("loadShelves", s.title());
+            Log.d("loadShelves", s.getTitle(null));
             shelves.add(s);
         }
         if(autoSort)

@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes.model;
 
 
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import org.json.JSONException;
@@ -61,7 +62,7 @@ public class Search extends BookListPartial {
     }
 
     @Override
-    public String title() {
-        return "Search: " + getS("q");
+    public String getTitle(Resources r) {
+        return "Search: " + getS("q"); //TODO: String
     }
 }

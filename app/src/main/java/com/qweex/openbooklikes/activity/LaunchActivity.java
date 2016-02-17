@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.handler.ShelvesHandler;
+import com.qweex.openbooklikes.handler.UserHandler;
+import com.qweex.openbooklikes.fragment.LoginFragment;
 import com.qweex.openbooklikes.model.Me;
-import com.qweex.openbooklikes.model.Shelf;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,7 +95,6 @@ public class LaunchActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     super.onSuccess(statusCode, headers, response);
-                    Log.d("WEEEE", "WEEEEEEEEEeee");
                     fetchShelves(true);
                 }
             });

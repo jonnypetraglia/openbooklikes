@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-class NavDrawerAdapter extends BaseAdapter {
+public class NavDrawerAdapter extends BaseAdapter {
     Menu menu;
     int lastCount = -1;
     Context context;

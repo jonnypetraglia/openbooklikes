@@ -1,7 +1,6 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
@@ -16,12 +15,17 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.Titleable;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Shareable;
 
 
 
-abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, FragmentBaseTitleable {
+abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, Titleable {
     Primary primary;
     ApiClient.ApiResponseHandler responseHandler;
     LoadingViewManager loadingManager = new LoadingViewManager();
@@ -117,4 +121,6 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     final protected float dpToPx(float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
+
+    public LoadingViewManager getLoadingManager() { return loadingManager; }
 }

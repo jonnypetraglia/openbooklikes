@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.Search;
 import com.qweex.openbooklikes.notmine.SimpleScannerActivity;
 
@@ -33,7 +35,7 @@ public class SearchFragment extends BookListFragment<Search> {
         if(primary==null)
             return res.getString(R.string.search_books);
         else
-            return primary.title();
+            return primary.getTitle(res);
     }
 
     @Override

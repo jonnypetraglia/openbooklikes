@@ -1,7 +1,8 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.handler;
 
 import android.util.Log;
 
+import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
 

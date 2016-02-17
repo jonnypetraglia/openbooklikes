@@ -1,4 +1,4 @@
-package com.qweex.openbooklikes;
+package com.qweex.openbooklikes.fragment;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.challenge.ReadingChallengeParser;
 import com.qweex.openbooklikes.model.Shareable;
 import com.qweex.openbooklikes.model.User;
