@@ -65,13 +65,11 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
 
     void setDefaultValues() {
         Resources res = getResources();
-        initialFragment.setDefaultValue(Integer.toString(
-                res.getIdentifier(res.getString(R.string.default_initial_fragment), "id", getActivity().getPackageName())
-        ));
+        initialFragment.setDefaultValue(SettingsManager.defaultPrefs.get(R.string.default_initial_fragment));
         initialArg.setDefaultValue("");
-        shelfView.setDefaultValue(Integer.toString(
+        shelfView.setDefaultValue(
                 res.getIdentifier(res.getString(R.string.default_shelf_view), "id", getActivity().getPackageName())
-        ));
+        );
         shelfBackground.setDefaultValue(res.getBoolean(R.bool.default_shelf_background));
         expirationHours.setDefaultValue(res.getInteger(R.integer.default_expiration_hours));
         try {
@@ -151,7 +149,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
 
     void setupShelfView() {
         shelfView.setEntries(new String[]{
-                "Grid", "List"
+                "Grid", "List" //TODO: String
         });
         shelfView.setEntryValues(new String[]{
                 Integer.toString(R.id.grid_view),
@@ -160,7 +158,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         shelfView.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                preference.setSummary("Show " + getEntryFor(preference, (String) o) + " by default");
+                preference.setSummary("Show " + getEntryFor(preference, (String) o) + " by default"); // TODO STring
                 return true;
             }
         });
@@ -334,7 +332,13 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Frag
         expirationHours.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                preference.setSummary("Every " + o + " hours");
+                if(o==null)
+                    o = Integer.toString(getActivity().getResources().getInteger(R.integer.default_expiration_hours));
+
+                if(o.equals("0"))
+                    preference.setSummary("Every time the app launches");
+                else
+                    preference.setSummary("Every " + o + " hours");
                 return true;
             }
         });

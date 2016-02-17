@@ -35,8 +35,14 @@
         android:inputType="number"
         />
 
-    <PreferenceScreen
+    <PreferenceCategory
         android:title="Advanced">
+
+        <Preference
+            android:key="reload_user_data"
+            android:title="Refresh User data"
+            />
+
         <Preference
             android:key="clear_cache"
             android:title="Clear Cache"
@@ -47,6 +53,6 @@
             android:title="Clear All Data"
             android:summary="CANNOT BE UNDONE"
             />
-    </PreferenceScreen>
+    </PreferenceCategory>
 
 </PreferenceScreen>

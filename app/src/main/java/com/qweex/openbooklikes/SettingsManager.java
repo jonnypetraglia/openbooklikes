@@ -29,12 +29,21 @@ public class SettingsManager {
     public static HashSet<String> hiddenShelvesIds = new HashSet<>();
     public static Map<String, String> bookFormats = new HashMap<>();
 
+    public static Map<Integer, Object> defaultPrefs = new HashMap<>();
+
     static void init(Context context) {
         if(hiddenShelvesIds.size()>0)
             return;
         SharedPreferences prefs = context.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
         hiddenShelvesIds.addAll(Arrays.asList(prefs.getString("shelves_hidden", "").split(",")));
 
+        Resources res = context.getResources();
+        defaultPrefs.put(R.string.default_initial_fragment,
+                res.getIdentifier(res.getString(R.string.default_initial_fragment), "id", context.getPackageName())
+        );
+        defaultPrefs.put(R.string.default_shelf_view,
+                res.getIdentifier(res.getString(R.string.default_shelf_view), "id", context.getPackageName())
+        );
 
         String[] array = context.getResources().getStringArray(R.array.book_formats);
         for(int i=0; i<array.length; i++)
@@ -87,12 +96,13 @@ public class SettingsManager {
     }
 
     public static boolean userInfoExpired(Context c) {
-        SharedPreferences prefs = c.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE);
-        long then = prefs.getLong("shelves_timestamp", 0),
+        long then = c.getSharedPreferences(Me.USER_DATA_PREFS, Context.MODE_PRIVATE).getLong("shelves_timestamp", 0),
              now = Calendar.getInstance().getTimeInMillis();
         ;
-        long elapsedHours = (now - then) / 1000 / 60 / 60;
-        return elapsedHours >= prefs.getInt("expiration_hours", c.getResources().getInteger(R.integer.default_expiration_hours));
+        long elapsedHours = (now - then) / 1000 / 60;
+        long expiredHours = getInt(c, "expiration_hours", R.integer.default_expiration_hours);
+        Log.d("elapsed", now + " - " + then + " = " + elapsedHours + " >= " + expiredHours);
+        return elapsedHours >= expiredHours;
     }
 
     public static ArrayList<Shelf> loadShelves(Context context) throws JSONException {
@@ -149,5 +159,30 @@ public class SettingsManager {
         prefs.edit().clear().putString("usr_token", usr_token).apply();
         MainActivity.imageLoader.clearDiskCache();
         MainActivity.imageLoader.clearMemoryCache();
+    }
+
+    public static int getInt(Context c, String name, int defaultId) {
+        String s = PreferenceManager.getDefaultSharedPreferences(c).getString(name, Integer.toString(c.getResources().getInteger(defaultId)));
+        return Integer.parseInt(s);
+    }
+
+    public static String getString(Context c, String name, int defaultId) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getString(name,
+                defaultId > 0 ? c.getResources().getString(defaultId) : "");
+    }
+
+    public static int getId(Context c, String name, int defaultId) {
+        return c.getResources().getIdentifier(
+                getString(c, name, defaultId), "id", c.getPackageName()
+        );
+    }
+
+    public static int getId(Context c, String name, String defaultIdName) {
+        int defaultId = c.getResources().getIdentifier(defaultIdName, "id", c.getPackageName());
+        return getId(c, name, defaultId);
+    }
+
+    public static boolean getBool(Context c, String name, int defaultId) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(name, c.getResources().getBoolean(defaultId));
     }
 }

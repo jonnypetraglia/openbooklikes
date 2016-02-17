@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.qweex.openbooklikes.MainActivity;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,6 +24,13 @@ public class Me extends User {
 
     public Me(JSONObject json) throws JSONException {
         super(json);
+    }
+
+    public Me(JSONObject json, Activity a, Me old) throws JSONException {
+        this(json);
+        for(String s : STRING_FIELDS)
+            bundle.putString(s, old.getS(s));
+        save(a);
     }
 
     public String token() {

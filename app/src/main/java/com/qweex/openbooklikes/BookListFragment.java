@@ -124,13 +124,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         loadingManager.addMore(loadingGrid, gridView, emptyGrid, errorGrid);
         loadingManager.addMore(loadingList, listView, emptyList, errorList);
 
-        Resources res = getResources();
-        String defaultVal = res.getString(R.string.default_shelf_view);
-        int id = res.getIdentifier(
-                PreferenceManager.getDefaultSharedPreferences(getActivity())
-                    .getString("shelf_view", "")
-                , "id", getActivity().getPackageName()
-        );
+        int id = SettingsManager.getId(getActivity(), "shelf_view", R.string.default_shelf_view);
         changeWidget((AbsListView) view.findViewById(id));
 
         return super.createProgressView(inflater, container, view);
@@ -283,10 +277,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 cover.setImageDrawable(null);
             }
 
-            boolean showBg = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                    .getBoolean("shelf_background",
-                        getResources().getBoolean(R.bool.default_shelf_background));
-
+            boolean showBg = SettingsManager.getBool(getActivity(), "shelf_background", R.bool.default_shelf_background);
             row.findViewById(R.id.background).setVisibility(showBg ? View.VISIBLE : View.GONE);
 
             return row;

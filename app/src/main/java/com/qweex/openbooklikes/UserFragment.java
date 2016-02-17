@@ -146,20 +146,17 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        responseHandler = userHandler;
         adapter = new BlogAdapter(getActivity(), new ArrayList<Post>());
 
+        boolean forceFetch = SettingsManager.userInfoExpired(getActivity());
         Log.d("OBL:userFragment", "!" + primary.getS("username"));
-        if(primary.equals(MainActivity.me)) {
+        if(primary.equals(MainActivity.me) && !forceFetch) {
             // no need to fetch, MainActivity.me has all the info already
             Log.d("OBL:user is me", "woah");
             primary = MainActivity.me;
             loadingManager.changeState(LoadingViewManager.State.MORE);
 
             // UI will be filled in onViewCreated
-        } else {
-            reload();
-            // UI will be filled in userHandler
         }
 
         headerDatas.add(new HeaderData(R.id.books, R.string.books, "book_count", loadShelves));
@@ -171,7 +168,9 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(primary instanceof User && primary.getS("following_count")!=null) {
+        if(primary.getClass().equals(Username.class)) {
+            reload();
+        } else if(primary instanceof User && primary.getS("following_count")!=null) {
             Log.d("OBL:user", "Filling UI from onViewCreated");
             fillUi();
         }
@@ -245,42 +244,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         }
     };
 
-    LoadingResponseHandler userHandler = new LoadingResponseHandler(this) {
-
-        @Override
-        protected String urlPath() {
-            return "user/GetUserInfo";
-        }
-
-        @Override
-        protected String countFieldName() {
-            return null; //No count
-        }
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            super.onSuccess(statusCode, headers, response);
-            Log.d("OBL:user.", "Success " + response.length());
-
-            if(wasLastFetchNull())
-                return;
-            try {
-                primary = new User(response);
-                Log.d("OBL:user", "Filling UI from userHandler " + primary.id());
-                fillUi();
-            } catch (JSONException e) {
-                Log.e("OBL:user!", "Failed cause " + e.getMessage());
-                e.printStackTrace();
-                loadingManager.error(e);
-            }
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            super.onFailure(statusCode, headers, error, responseBody);
-            Log.e("OBL:user", "Failed cause " + error.getMessage());
-        }
-    };
 
     LoadingResponseHandler blogHandler = new LoadingResponseHandler(this) {
 
@@ -312,7 +275,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
                 for(int i=0; i<posts.length(); i++) {
                     Post p = new Post(posts.getJSONObject(i), (UserPartial)primary);
-                    Log.d("OBL:blog", "Post: " + (p.getS("tag")==null));
                     adapter.add(p);
                 }
             } catch (JSONException e) {
@@ -405,9 +367,28 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
     @Override
     protected void reload() {
         adapter.clear();
+        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+        loadingManager.show();
         RequestParams params = new RequestParams();
         params.put("username", primary.getS("username"));
         Log.d("Fetching User", primary.getS("username") + "!");
-        ApiClient.get(params, responseHandler);
+        ApiClient.get(params, new UserHandler(this));
+    }
+
+    class UserHandler extends com.qweex.openbooklikes.UserHandler {
+
+        public UserHandler(FragmentBase f) {
+            super(f);
+        }
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            super.onSuccess(statusCode, headers, response);
+            primary = this.user;
+            Log.d("WEEEEEEEEEEEE", "Weeeeeeee");
+            if(wasLastFetchNull())
+                return;
+            fillUi();
+        }
     }
 }

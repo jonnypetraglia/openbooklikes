@@ -144,13 +144,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState==null) {
             // Select default fragment
-            int defaultId = getResources().getIdentifier("default_initial_fragment", "id", getPackageName());
-            int id = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(
-                    "initial_fragment",
-                    Integer.toString(defaultId)
-            ));
+            int id = SettingsManager.getId(this, "initial_fragment", "default_initial_fragment");
             Log.d("id=", id + "!");
-            String arg = PreferenceManager.getDefaultSharedPreferences(this).getString("initial_arg", "");
+            String arg = SettingsManager.getString(this, "initial_arg", 0);
             FragmentBase fragment;
             Username user = me;
             Bundle b = new Bundle();
@@ -162,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
                     fragment = new SearchFragment();
                     if(arg.length()>0)
                         ((SearchFragment)fragment).setSearchTerm(arg);
-                    //TODO: Make SearchFragment create with q
                     break;
                 case R.id.nav_blog:
                     fragment = new UserFragment();
@@ -177,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
                         user = new Username(usr2);
                         b = user.wrapInBundle(new Bundle());
 
-                        Log.d("WEEEEE", b.toString());
                         id = notMeNav.getItemId();
                     }
                     fragment.setArguments(b);

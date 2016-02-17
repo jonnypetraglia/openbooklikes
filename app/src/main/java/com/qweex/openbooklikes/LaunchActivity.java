@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 
@@ -79,14 +80,32 @@ public class LaunchActivity extends AppCompatActivity {
 
     public void startApp() {
         Log.d("OBL", "startApp");
-        loadingManager.show();
+        loadingManager.show("Fetching user data");
+        boolean forceFetch = SettingsManager.userInfoExpired(this);
+        if(forceFetch) {
+            RequestParams params = new RequestParams();
+            ApiClient.get(params, new UserHandler(loadingManager, LaunchActivity.this) {
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
+                    Log.d("WEEEE", "WEEEEEEEEEeee");
+                    fetchShelves(true);
+                }
+            });
+        } else
+            fetchShelves(false);
+    }
+
+    private void fetchShelves(boolean force) {
         try {
             SettingsManager.init(this);
             MainActivity.shelves = SettingsManager.loadShelves(this);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(MainActivity.shelves.size()>1 && !SettingsManager.userInfoExpired(this)) {
+        Log.d("fetching shelves", "WEEEEEE " + force);
+        if(MainActivity.shelves.size()>1 && !force) {
             LaunchActivity.this.startActivity(new Intent(LaunchActivity.this, MainActivity.class));
             LaunchActivity.this.finish();
             Log.d("Starting activity", " " + MainActivity.shelves.size());
@@ -98,10 +117,12 @@ public class LaunchActivity extends AppCompatActivity {
 
                     try {
                         SettingsManager.saveShelves(
-                            SettingsManager.mergeShelves(
-                                SettingsManager.loadShelves(LaunchActivity.this), shelves
-                            ), LaunchActivity.this
+                                SettingsManager.mergeShelves(
+                                        SettingsManager.loadShelves(LaunchActivity.this), shelves
+                                ), LaunchActivity.this
                         );
+
+                        Log.d("WEEEE Got shelves", response.toString());
 
                         // Parent class(es) show content because they assume it's what we want
                         //   in this case content is the login form, so it needs to stay hidden
