@@ -2,6 +2,8 @@ package com.qweex.openbooklikes.fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.LoadingViewManager;
@@ -276,9 +279,29 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
             try {
                 title.setText(getItem(position).getS("title"));
-                title.setVisibility(View.GONE);
+                if(getItem(position).getS("cover").endsWith("upload/books/book.jpg"))
+                    title.setVisibility(View.VISIBLE);
+                else
+                    title.setVisibility(View.GONE);
 
-                MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
+                Drawable loading = getResources().getDrawable(R.drawable.spin_loading_io),
+                        empty = getResources().getDrawable(R.drawable.book_np26681),
+                        fail = getResources().getDrawable(R.drawable.cover_fail_np347201);
+                loading.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+                empty.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+                fail.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+
+                MainActivity.imageLoader.displayImage(
+                        getItem(position).getS("cover"),
+                        cover,
+                        new DisplayImageOptions.Builder()
+                                .showImageOnLoading(loading)
+                                .showImageForEmptyUri(empty)
+                                .showImageOnFail(fail)
+                                .cacheInMemory(true)
+                                .cacheOnDisk(true)
+                                .build()
+                );
             } catch(IndexOutOfBoundsException e) {
                 title.setText("");
                 cover.setImageDrawable(null);

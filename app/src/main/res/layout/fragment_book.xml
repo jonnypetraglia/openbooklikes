@@ -37,7 +37,7 @@
         android:gravity="start"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/img_desc_book"
-        android:src="@android:drawable/ic_menu_compass"
+        android:src="@drawable/book_np26681"
         android:scaleType="fitCenter"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/number_progress_bar" />

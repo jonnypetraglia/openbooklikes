@@ -39,6 +39,48 @@ The image used as the shelf background (app/src/main/res/drawable/shelf.png) is 
 so....uh....thanks, someone? Obviously I only used a part of the image, but thanks to the original
 author, whomever that is.
 
+Following is a list of icons from [The Noun Project](http://thenounproject.com); the list is sorted
+by author and all icons are released under the Creative Commons license: CC-BY-3.0-US.
+
+  - [Ainsley Wagoner](https://thenounproject.com/ainsleywagon)
+    - R.drawable.profile_np76855
+  - [Andrew Koszkalda](https://thenounproject.com/andrew.koszkalda)
+    - R.drawable.shelf_np147205
+  - [Creative Stall](https://thenounproject.com/creativestall)
+      - R.drawable.likes_np131693
+  - [Edward Boatman](https://thenounproject.com/edward)
+    - R.drawable.hide_np421
+  - [Evgeniy Kozachenko](https://thenounproject.com/ekwo)
+    - R.drawable.17208
+  - [Golden Roof](https://thenounproject.com/goldenroof)
+      - R.drawable.barcode_np134554
+  - [Johannes Hirsekorn](https://thenounproject.com/mrheinz)
+    - R.drawable.reorder_np203471
+  - [lastspark](https://thenounproject.com/lastspark)
+      - R.drawable.challenge_np337224
+      - R.drawable.reblogs_np346281
+  - [Mike Ashley](https://thenounproject.com/mikeashley)
+    - R.drawable.app_np17900
+  - [Oliver Kittler](https://thenounproject.com/kittler)
+    - R.drawable.x_np337402
+  - [Pascual Bilotta](https://thenounproject.com/pascual.bilotta)
+      - R.drawable.search_np9509
+  - [Shawn Erdely](https://thenounproject.com/shawn4)
+    - R.drawable.settings_np113122
+  - [Simple Icons](https://thenounproject.com/SimpleIcons)
+    - R.drawable.dash_np32144
+  - [useiconic.com](https://thenounproject.com/useiconic.com)
+    - R.drawable.reload_np45438
+    
+  
+Browser
+Cover fail & load
+!!Share
+Star*
+    
+   
+
+
 
 ## License ##
 

@@ -155,32 +155,44 @@ public class SettingsManager {
 
     public static void clearCache(Context c) {
         SharedPreferences prefs = c.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE);
-        String usr_token = prefs.getString("usr_token", "");
-        prefs.edit().clear().putString("usr_token", usr_token).apply();
+        String usr_token = prefs.getString("usr_token", ""),
+                usr_email = prefs.getString("usr_email", ""),
+                id_user = prefs.getString("id_user", "");
+        prefs.edit()
+                .clear()
+                .putString("usr_token", usr_token)
+                .putString("usr_email", usr_email)
+                .putString("id_user", id_user)
+                .apply();
         MainActivity.imageLoader.clearDiskCache();
         MainActivity.imageLoader.clearMemoryCache();
     }
 
     public static int getInt(Context c, String name, int defaultId) {
-        String s = PreferenceManager.getDefaultSharedPreferences(c).getString(name, Integer.toString(c.getResources().getInteger(defaultId)));
-        return Integer.parseInt(s);
+        return Integer.parseInt(getIntAsStr(c, name, defaultId));
+    }
+
+    public static String getIntAsStr(Context c, String name, int defaultId) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getString(name, Integer.toString(c.getResources().getInteger(defaultId)));
     }
 
     public static String getString(Context c, String name, int defaultId) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getString(name,
-                defaultId > 0 ? c.getResources().getString(defaultId) : "");
+        return getString(c, name, defaultId > 0 ? c.getResources().getString(defaultId) : "");
     }
 
-    public static int getId(Context c, String name, int defaultId) {
-        return c.getResources().getIdentifier(
-                getString(c, name, defaultId), "id", c.getPackageName()
-        );
+    public static String getString(Context c, String name, String defaultStr) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getString(name, defaultStr);
     }
 
-    public static int getId(Context c, String name, String defaultIdName) {
-        int defaultId = c.getResources().getIdentifier(defaultIdName, "id", c.getPackageName());
-        return getId(c, name, defaultId);
+    public static int getId(Context c, String name, int idOfDefaultString) {
+        name = getString(c, name, idOfDefaultString);
+        return c.getResources().getIdentifier(name, "id", c.getPackageName());
     }
+
+//    public static int getId(Context c, String name, String defaultIdName) {
+//        int defaultId = c.getResources().getIdentifier(defaultIdName, "id", c.getPackageName());
+//        return getId(c, name, defaultId);
+//    }
 
     public static boolean getBool(Context c, String name, int defaultId) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(name, c.getResources().getBoolean(defaultId));

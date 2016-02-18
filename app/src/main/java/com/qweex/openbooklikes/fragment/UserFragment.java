@@ -3,6 +3,8 @@ package com.qweex.openbooklikes.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -18,13 +20,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.LoadingViewManager;
-import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Post;
@@ -72,12 +75,10 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
     @Override
     public String getTitle(Resources res) {
-        if(primary.getClass().equals(Username.class))
-            return primary.getS("username");
-        else if(primary instanceof Me)
+        if(primary instanceof Me)
             return res.getString(R.string.blog);
         else
-            return ((User)primary).properName();
+            return primary.getS("username");
     }
 
     @Override
@@ -206,9 +207,25 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
         ImageView pic = (ImageView) v.findViewById(R.id.image_view);
-        MainActivity.imageLoader.displayImage(((User)primary).photoSize(IMG_SIZE), pic);
-        ((TextView) v.findViewById(R.id.title)).setText(((User) primary).properName());
-        TextView desc = (TextView) v.findViewById(R.id.desc);
+
+        Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
+        placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
+
+        MainActivity.imageLoader.displayImage(
+                ((User) primary).photoSize(IMG_SIZE),
+                pic,
+                new DisplayImageOptions.Builder()
+                        .showImageOnLoading(placeholder)
+                        .showImageForEmptyUri(placeholder)
+                        .showImageOnFail(placeholder)
+                        .cacheInMemory(true)
+                        .cacheOnDisk(true)
+                        .build()
+
+        );
+
+        ((TextView) listView.findViewById(R.id.title)).setText(((User) primary).properName());
+        TextView desc = (TextView) listView.findViewById(R.id.desc);
         ModelBase.unHTML(desc, primary.getS("blog_desc"));
         desc.setMovementMethod(LinkMovementMethod.getInstance());
 

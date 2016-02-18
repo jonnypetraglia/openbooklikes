@@ -15,9 +15,11 @@ public class LoadingViewManagerDialog extends LoadingViewManager {
     }
 
     public LoadingViewManagerDialog(View f, String s) {
-        dialog = ProgressDialog.show(f.getContext(), "Reloading", null, true, false);
         this.fragment = f;
         this.successMsg = s;
+        dialog = new ProgressDialog(fragment.getContext());
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
     }
 
 

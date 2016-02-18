@@ -1,6 +1,7 @@
 package com.qweex.openbooklikes.fragment;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
@@ -58,11 +59,14 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
+        MenuItem mi;
         //getActivity().onCreateOptionsMenu(menu);
-        if(primary instanceof  Shareable || this instanceof Shareable)
-            menu.add(Menu.NONE, R.id.option_share, Menu.NONE, R.string.option_share)
-                    .setIcon(android.R.drawable.ic_menu_share)//TODO: Icon
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if(primary instanceof  Shareable || this instanceof Shareable) {
+            mi = menu.add(Menu.NONE, R.id.option_share, Menu.NONE, R.string.option_share)
+                    .setIcon(R.drawable.share_np341334);
+            MainActivity.optionIcon(mi);
+            mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
     }
 
     @Override

@@ -13,4 +13,10 @@
 
     <color name="shelf_hidden" type="id">#999</color>
     <color name="shelf_unhidden" type="id">#333</color>
+
+    <color name="booklikes_bottom">#046a41</color>
+    <color name="booklikes_menu">#038050</color>
+    <color name="booklikes_top">#0f9a60</color>
+    <color name="booklikes_bottom2">#582f15</color>
+    <color name="booklikes_top2">#80451f</color>
 </resources>

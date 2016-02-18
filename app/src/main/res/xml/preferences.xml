@@ -4,7 +4,8 @@
     <ListPreference
         android:key="initial_fragment"
         android:title="Initial View"
-        android:dialogTitle="Choose Initial View" />
+        android:dialogTitle="Choose Initial View"
+        />
 
     <EditTextPreference
         android:key="initial_arg"

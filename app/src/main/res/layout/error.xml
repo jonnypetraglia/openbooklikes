@@ -28,7 +28,7 @@
         android:id="@+id/imageView"
         android:layout_toLeftOf="@id/title"
         android:layout_alignTop="@id/title"
-        android:src="@android:drawable/ic_dialog_alert" />
+        android:src="@drawable/warning_np17208" />
 
     <Button
         android:layout_width="wrap_content"

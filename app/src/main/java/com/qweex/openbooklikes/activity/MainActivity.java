@@ -3,6 +3,8 @@ package com.qweex.openbooklikes.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,10 +30,10 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.NavDrawerAdapter;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.fragment.BookListFragment;
 import com.qweex.openbooklikes.fragment.FragmentBase;
 import com.qweex.openbooklikes.fragment.PreferenceFragment;
@@ -115,14 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Init imageLoader
         imageLoader = ImageLoader.getInstance();
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(android.R.drawable.ic_menu_compass)
-                .showImageForEmptyUri(android.R.drawable.ic_menu_gallery)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .defaultDisplayImageOptions(options)
                 .build();
         imageLoader.init(config);
 
@@ -132,9 +127,9 @@ public class MainActivity extends AppCompatActivity {
         recreateShelvesNav();
         drawerList.setAdapter(adapter);
 
-
         toolbar = (Toolbar) findViewById(R.id.side_toolbar);
-        toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        toolbar.setNavigationIcon(R.drawable.x_np337402);
+        toolbar.getNavigationIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,21 +140,39 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState==null) {
             // Select default fragment
-            int id = SettingsManager.getId(this, "initial_fragment", "default_initial_fragment");
-            Log.d("id=", id + "!");
-            String arg = SettingsManager.getString(this, "initial_arg", 0);
+            String idStr = SettingsManager.getString(this, "initial_fragment", R.string.default_initial_fragment);
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch(Exception e) {
+                id = getResources().getIdentifier(idStr, "id", getPackageName());
+            }
+            Log.d("Loading id=", id + "!");
+            String arg = SettingsManager.getString(this, "initial_arg", "");
+
+            MenuItem mi = navMenu.findItem(id);
+            Log.d("mi", mi + " !");
+            adapter.setSelected(id);
+            adapter.notifyDataSetChanged();
+
+
             FragmentBase fragment;
             Username user = me;
-            Bundle b = new Bundle();
+            Bundle b;
             switch(id) {
                 case R.id.nav_challenge:
                     loadChallengeFragment(me);
                     return;
-                case R.id.nav_search:
-                    fragment = new SearchFragment();
-                    if(arg.length()>0)
-                        ((SearchFragment)fragment).setSearchTerm(arg);
-                    break;
+                default: // TODO: i.e. a shelf
+                    for(String want : new String[] {idStr, Shelf.NO_SHELF_ID})
+                        for(Shelf s : shelves) {
+                            Log.d("Vs", want + " v " + s.id());
+                            if (want.equals(s.id())) {
+                                loadShelf(s, me);
+                                return;
+                            }
+                        }
+                    // Falls through to Blog if (for some ungodly reason) even "All Books" isn't found
                 case R.id.nav_blog:
                     fragment = new UserFragment();
                     if(arg.length() == 0) {
@@ -178,17 +191,14 @@ public class MainActivity extends AppCompatActivity {
                     fragment.setArguments(b);
                     //TODO: Make BlogFragment create with username
                     break;
-                default: // i.e. a shelf
-                    fragment = new BookListFragment();
-                    fragment.setArguments(b);
+                case R.id.nav_search:
+                    fragment = new SearchFragment();
+                    if(arg.length()>0)
+                        ((SearchFragment)fragment).setSearchTerm(arg);
+                    break;
             }
 
-
             loadMainFragment(fragment, user);
-
-            MenuItem mi = navMenu.findItem(id);
-            adapter.setSelected(mi);
-            adapter.notifyDataSetChanged();
         } else {
             //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
             Fragment myFragment = (Fragment) getSupportFragmentManager()
@@ -212,7 +222,20 @@ public class MainActivity extends AppCompatActivity {
     public void recreateShelvesNav() {
         ((TextView) drawerList.findViewById(R.id.nav_title)).setText(me.getS("blog_title"));
         ((TextView) drawerList.findViewById(R.id.nav_subtitle)).setText(me.getS("domain"));
-        imageLoader.displayImage(me.getS("photo"), (ImageView) drawerList.findViewById(R.id.image_view));
+        Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
+        placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
+        imageLoader.displayImage(
+                me.getS("photo"),
+                (ImageView) drawerList.findViewById(R.id.image_view),
+                new DisplayImageOptions.Builder()
+                        .showImageOnLoading(placeholder)
+                        .showImageForEmptyUri(placeholder)
+                        .showImageOnFail(placeholder)
+                        .cacheInMemory(true)
+                        .cacheOnDisk(true)
+                        .build()
+        );
+
 
         // Add shelfMap to menu
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
@@ -224,11 +247,11 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent();
             i.putExtra("count", s.getI("book_count"));
             shelfNav.add(R.id.nav_group,
-                    s.isAllBooks() ? R.id.nav_all_shelf : R.id.nav_shelf,
+                    s.isAllBooks() ? R.id.nav_all_shelf : Integer.parseInt(s.id()),
                     0,
                     s.getS("name"))
                     .setCheckable(true)
-                    .setIcon(android.R.drawable.ic_menu_compass)
+                    .setIcon(R.drawable.shelf_np147205)
                     .setIntent(i);
         }
         adapter.notifyDataSetInvalidated();
@@ -264,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch(item.getItemId()) {
             case R.id.nav_all_shelf:
-            case R.id.nav_shelf:
-                Shelf shelf = shelves.get(adapter.indexOf(item) - 4);
+            default:
+                Shelf shelf = shelves.get(adapter.indexOf(item) - 4); //FIXME: Super ugly
                 loadShelf(shelf, me);
                 break;
             case R.id.nav_blog:
@@ -308,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
     public void logout() {
         //Ask the primary if they want to quit
         new AlertDialog.Builder(this)
-            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setIcon(R.drawable.warning_np17208)
             .setTitle(R.string.menu_logout)
             .setMessage(R.string.confirm_logout)
             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -392,19 +415,20 @@ public class MainActivity extends AppCompatActivity {
             if(fragment instanceof Titleable)
                 notMeNav.setTitle(((Titleable)fragment).getTitle(getResources()));
             if(fragment.getClass().equals(UserFragment.class))
-                notMeNav.setIcon(android.R.drawable.ic_menu_edit); //TODO: icon for blog
+                notMeNav.setIcon(R.drawable.profile_np76855);
             else
-                notMeNav.setIcon(android.R.drawable.ic_menu_compass); //TODO: icon for shelf?
+                notMeNav.setIcon(R.drawable.shelf_np147205);
             //transaction.add(R.id.fragment, fragment, MAIN_FRAGMENT_TAG);
         }
         if(wasVisible!= notMeNav.isVisible())
             adapter.notifyDataSetInvalidated();
 
-        transaction.replace(R.id.fragment, (Fragment) fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
+        transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
         transaction.commit();
+
         if(fragment instanceof Titleable)
-            ((Toolbar) findViewById(R.id.toolbar)).setTitle(((Titleable) fragment).getTitle(getResources()));
+            getSupportActionBar().setTitle(((Titleable)fragment).getTitle(getResources()));
     }
 
     public void loadSideFragment(FragmentBase fragment) {
@@ -449,5 +473,9 @@ public class MainActivity extends AppCompatActivity {
             result = getResources().getDimensionPixelSize(tv.resourceId);
         }
         return result;
+    }
+
+    public static void optionIcon(MenuItem mi) {
+        mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
     }
 }

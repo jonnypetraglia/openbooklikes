@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
@@ -57,10 +58,20 @@ public class ManageShelvesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         newShelfName = new EditText(this);
 
-        View content = getLayoutInflater().inflate(R.layout.manage_shelves, null);
-
-        listView = (DragNDropListView) content.findViewById(R.id.list_view);
+        listView = new DragNDropListView(this);
+        listView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         listView.setDraggingEnabled(!autoSorting);
+        listView.setOnItemDragNDropListener(new DragNDropListView.OnItemDragNDropListener() {
+            @Override
+            public void onItemDrag(DragNDropListView parent, View view, int position, long id) {
+                view.setBackgroundColor(0xffffffff);
+            }
+
+            @Override
+            public void onItemDrop(DragNDropListView parent, View view, int startPosition, int endPosition, long id) {
+                view.setBackgroundColor(0x00000000);
+            }
+        });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -72,13 +83,6 @@ public class ManageShelvesActivity extends AppCompatActivity {
                 adapter.colorEye(itemId, (ImageView) view.findViewById(R.id.image_view));
             }
         });
-        content.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                newShelfName.setText("");
-                alertDialog.show();
-            }
-        });
 
         shelvesInProgress = new ArrayList<Shelf>(MainActivity.shelves);
         shelvesInProgress.remove(0);
@@ -86,13 +90,13 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
         loadingManager = new LoadingViewManager();
         loadingManager.setInitial(
-                (ViewGroup) getLayoutInflater().inflate(R.layout.loading, null),
-                content,
+                getLayoutInflater().inflate(R.layout.loading, null),
+                listView,
                 getLayoutInflater().inflate(R.layout.empty, null),
                 getLayoutInflater().inflate(R.layout.error, null)
         );
         loadingManager.content();
-        loadingDialogManager = new LoadingViewManagerDialog(findViewById(R.id.fragment), R.string.shelf_added);
+        loadingDialogManager = new LoadingViewManagerDialog(listView, R.string.shelf_added);
 
         setContentView(loadingManager.wrapInitialInLayout(this));
 
@@ -150,14 +154,25 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.auto_sort)
+        MenuItem mi;
+
+        mi = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.auto_sort)
+//                .setIcon(android.R.drawable.ic_menu_agenda) //TODO: Icon for autosort?
+                .setCheckable(true)
+                .setChecked(autoSorting);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+        mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
+                .setIcon(R.drawable.reload_np45438);
+        MainActivity.optionIcon(mi);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
+        mi = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.create_shelf)
                 .setIcon(android.R.drawable.ic_menu_agenda)
                 .setCheckable(true)
-                .setChecked(autoSorting)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
-                .setIcon(android.R.drawable.ic_menu_revert)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                .setChecked(autoSorting);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -166,6 +181,10 @@ public class ManageShelvesActivity extends AppCompatActivity {
         if(!autoSorting)
             shelvesInProgress = getShelves();
         switch(item.getItemId()) {
+            case R.id.option_add:
+                newShelfName.setText("");
+                alertDialog.show();
+                break;
             case R.id.option_browser:
                 autoSorting = !item.isChecked();
                 break;

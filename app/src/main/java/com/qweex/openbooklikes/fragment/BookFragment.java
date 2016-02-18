@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -301,13 +302,17 @@ public class BookFragment extends FragmentBase<Book> {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem mi;
 
-        menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        mi = menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        mi.setIcon(R.drawable.edit_np330037);
+        MainActivity.optionIcon(mi);
 
-        menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
-            .setIcon(android.R.drawable.ic_menu_preferences)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
+            .setIcon(R.drawable.reload_np45438);
+        MainActivity.optionIcon(mi);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         addToShelfMenuItem = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.option_add);
         addToShelfMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);

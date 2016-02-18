@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.model.Search;
 import com.qweex.openbooklikes.notmine.SimpleScannerActivity;
 
@@ -97,10 +99,12 @@ public class SearchFragment extends BookListFragment<Search> {
         super.onCreateOptionsMenu(menu, inflater);
         menu.removeItem(R.id.filter_status);
         menu.removeItem(R.id.filter_special);
+        MenuItem mi;
 
-        menu.add(Menu.NONE, R.id.option_barcode, Menu.NONE, R.string.barcode)
-                .setIcon(android.R.drawable.ic_menu_add)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        mi = menu.add(Menu.NONE, R.id.option_barcode, Menu.NONE, R.string.barcode)
+                .setIcon(R.drawable.barcode_np134554);
+        MainActivity.optionIcon(mi);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
     @Override
@@ -108,6 +112,8 @@ public class SearchFragment extends BookListFragment<Search> {
         if(item.getItemId()==R.id.option_barcode) {
             Intent i = new Intent(SearchFragment.this.getActivity(), SimpleScannerActivity.class);
             SearchFragment.this.startActivityForResult(i, 1);
+            InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            mIMEMgr.hideSoftInputFromWindow(item.getActionView().getWindowToken(), 0);
         }
         return super.onOptionsItemSelected(item);
     }

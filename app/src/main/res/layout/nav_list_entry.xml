@@ -20,7 +20,6 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:id="@id/image_view"
-        android:src="@android:drawable/ic_menu_compass"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="false"
         android:layout_centerVertical="true"

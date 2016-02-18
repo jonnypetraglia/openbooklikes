@@ -89,23 +89,32 @@
         android:layout_toLeftOf="@id/reblogs" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:background="@android:drawable/ic_input_add"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="@drawable/likes_np131693"
+        android:backgroundTint="@color/colorAccent"
         android:id="@id/likes"
         android:gravity="center"
         android:layout_below="@id/separator"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:background="@android:drawable/ic_menu_revert"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="2dp"
+        android:background="@drawable/reblogs_np346281"
+        android:backgroundTint="@color/colorAccent"
         android:id="@id/reblogs"
         android:gravity="center"
         android:layout_below="@id/separator"
+        android:layout_toStartOf="@id/likes"
         android:layout_toLeftOf="@id/likes" />
 
 </RelativeLayout>
