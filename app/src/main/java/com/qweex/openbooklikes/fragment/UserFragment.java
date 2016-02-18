@@ -136,13 +136,19 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         View footerError = inflater.inflate(R.layout.error, listView, false);
         listView.addFooterView(listViewFooter);
         listView.addFooterView(footerError);
-        View dummy = new View(getContext());
+        View dummy = new View(getContext()),
+                moreEmpty = inflater.inflate(R.layout.empty, null);
+        ((TextView)moreEmpty.findViewById(R.id.title)).setText("No posts to show"); //TODO: String
 
-        loadingManager.setInitial((ViewGroup) inflater.inflate(R.layout.empty, null),
-                v,
+
+        loadingManager.setInitial(
                 inflater.inflate(R.layout.empty, null),
+                v,
+                dummy,
                 inflater.inflate(R.layout.error, null));
-        loadingManager.addMore(listViewFooter, dummy, dummy, footerError); //FIXME: emptyView
+        loadingManager.addMore(listViewFooter, moreEmpty, dummy, footerError); //FIXME: emptyView
+        footerError.findViewById(R.id.retry).setOnClickListener(retryLoad);
+        footerError.findViewById(R.id.retry).setOnClickListener(retryLoad);
 
         listView.setAdapter(adapter);
         this.listView = listView;
@@ -191,7 +197,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         RequestParams params = new ApiClient.PagedParams(page, adapter);
         params.put("uid", primary.id());
 
-        ApiClient.get(params, blogHandler);
+        ApiClient.get(params, responseHandler = blogHandler);
         return true;
     }
 

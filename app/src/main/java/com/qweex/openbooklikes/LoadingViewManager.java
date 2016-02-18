@@ -3,6 +3,7 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -39,16 +40,17 @@ public class LoadingViewManager {
             Log.d("showing", "content");
             contentView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
-//            if(currentState==State.INITIAL)
-                loadingView.setVisibility(View.GONE);
+            loadingView.setVisibility(View.GONE);
             errorView.setVisibility(View.GONE);
         }
 
         public void empty() {
             emptyView.setVisibility(View.VISIBLE);
             loadingView.setVisibility(View.GONE);
-            contentView.setVisibility(View.GONE);
             errorView.setVisibility(View.GONE);
+            if(currentState==State.INITIAL) {
+                contentView.setVisibility(View.GONE);
+            }
         }
 
         public void error(String error) {
@@ -56,7 +58,9 @@ public class LoadingViewManager {
             ((TextView)errorView.findViewById(R.id.title)).setText(error);
             emptyView.setVisibility(View.GONE);
             loadingView.setVisibility(View.GONE);
-            contentView.setVisibility(View.GONE);
+            if(currentState==State.INITIAL) {
+                contentView.setVisibility(View.GONE);
+            }
         }
 
         public void nothing() {
@@ -100,6 +104,10 @@ public class LoadingViewManager {
         //content();
         currentState = s;
         //content();
+    }
+
+    public boolean isInitial() {
+        return currentState==State.INITIAL;
     }
 
     public void addMore(View loadingView, View contentView, View emptyView, View errorView) {
@@ -156,12 +164,5 @@ public class LoadingViewManager {
 
     public LinearLayout wrapInitialInLayout(Context c) {
         return initial.wrapInLayout(c);
-    }
-
-    public static LoadingViewManager dummy(Context c) {
-        View v = new View(c);
-        LoadingViewManager x = new LoadingViewManager();
-        x.setInitial(v, v, v, v);
-        return x;
     }
 }

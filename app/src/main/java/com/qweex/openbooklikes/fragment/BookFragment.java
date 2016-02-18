@@ -529,7 +529,6 @@ public class BookFragment extends FragmentBase<Book> {
                     row = inflater.inflate(R.layout.list_shelf, parent, false);
                 }
 
-                Log.d("gettingview", "?" + position + " " + getItem(position));
 
                 ((TextView)row.findViewById(R.id.title)).setText(getItem(position).getS("name"));
                 ((TextView)row.findViewById(R.id.count)).setText(Integer.toString(getItem(position).getI("book_count")));

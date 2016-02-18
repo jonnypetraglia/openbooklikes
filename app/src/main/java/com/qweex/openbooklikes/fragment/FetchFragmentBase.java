@@ -23,6 +23,7 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
 
     protected ListView listView;
     protected AdapterBase<T> adapter;
+    protected int lastPageFetched;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
     }
 
     protected boolean fetchMore(int page) {
+        lastPageFetched = page;
         if(primary==null || adapter.noMore())
             return false;
         loadingManager.show();
@@ -94,6 +96,15 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
         Log.d("OBL", "Reloading " + getClass().getSimpleName());
         responseHandler.reset();
         adapter.clear();
-        fetchMore(0);
+        fetchMore(lastPageFetched);
     }
+
+    protected View.OnClickListener retryLoad = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+            responseHandler.reset();
+            fetchMore(lastPageFetched);
+        }
+    };
 }

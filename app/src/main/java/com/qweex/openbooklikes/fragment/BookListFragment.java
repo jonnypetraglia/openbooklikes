@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
@@ -122,6 +123,9 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         listView.addFooterView(loadingList);
         listView.addFooterView(emptyList);
         listView.addFooterView(errorList);
+
+        errorGrid.findViewById(R.id.retry).setOnClickListener(retryLoad);
+        errorList.findViewById(R.id.retry).setOnClickListener(retryLoad);
 
 
         loadingManager.addMore(loadingGrid, gridView, emptyGrid, errorGrid);
@@ -324,11 +328,12 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:book.", "Success " + response.length());
+            loadingManager.content();
+            loadingManager.changeState(LoadingViewManager.State.MORE);
+
             if(wasLastFetchNull()) {
                 if(adapter.getCount()==0)
                     this.loadingManager.empty();
-                else
-                    this.loadingManager.content();
                 return;
             }
             try {
@@ -345,12 +350,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 e.printStackTrace();
                 this.loadingManager.error(e);
             }
-            if(adapter.noMore()) {
-                if (adapter.getCount() == 0)
-                    this.loadingManager.empty();
-                else
-                    this.loadingManager.content();
-            }
+            if(adapter.noMore() && adapter.getCount() == 0)
+                this.loadingManager.empty();
         }
 
         @Override

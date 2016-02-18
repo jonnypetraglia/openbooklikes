@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
@@ -92,11 +93,22 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
 
+        View loadingView = inflater.inflate(R.layout.loading_horz, null),
+                emptyView = inflater.inflate(R.layout.empty, null),
+                errorView = inflater.inflate(R.layout.error, null);
+
         listView = new ListView(getActivity());
         listView.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.MATCH_PARENT));
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(scrollMuch);
         listView.setDivider(null);
+        listView.addFooterView(loadingView);
+        listView.addFooterView(emptyView);
+        listView.addFooterView(errorView);
+
+        errorView.findViewById(R.id.retry).setOnClickListener(retryLoad);
+
+        loadingManager.addMore(loadingView, listView, emptyView, errorView);
 
         listView.setAdapter(adapter);
         return super.createProgressView(inflater, container, listView);
@@ -123,11 +135,12 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:friends.", "Success " + response.length());
+            loadingManager.content();
+            loadingManager.changeState(LoadingViewManager.State.MORE);
+
             if(wasLastFetchNull()) {
                 if(adapter.getCount()==0)
                     loadingManager.empty();
-                else
-                    loadingManager.content();
                 return;
             }
             try {
@@ -140,7 +153,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
                     Log.d("OBL:friends", "User: " + f.id() + " | " + adapter.getCount());
                 }
             } catch (JSONException e) {
-                Log.e("OBL:friends!", "Failed cause " + e.getMessage());
+                Log.e("OBL:friends!", "Failed cause " + e.getMessage() + " " + loadingManager.isInitial());
                 e.printStackTrace();
                 loadingManager.error(e);
             }
