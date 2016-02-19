@@ -246,7 +246,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             if(MainActivity.me.id().equals(primary.id()))
                 getMainActivity().openLeftDrawer();
             else {
-                BookFragment.ShelvesFragment shelvesFragment = new BookFragment.ShelvesFragment();
+                ShelvesFragment shelvesFragment = new ShelvesFragment();
                 shelvesFragment.setArguments(primary.wrapInBundle(new Bundle()));
                 getMainActivity().loadSideFragment(shelvesFragment);
             }
