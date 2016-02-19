@@ -48,4 +48,15 @@ public class Username extends ModelBase {
     public String apiNamePlural() {
         return "users";
     }
+
+
+
+    public static Username create(String username) {
+        Bundle usr = new Bundle();
+        usr.putString("username", username);
+        usr.putString("id", "");
+        Bundle wrap = new Bundle();
+        wrap.putBundle("user", usr);
+        return new Username(wrap);
+    }
 }

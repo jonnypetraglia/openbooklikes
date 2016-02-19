@@ -37,10 +37,12 @@ public class NavDrawerAdapter extends BaseAdapter {
 
     public void setSelected(MenuItem item) {
         selected = item;
+        notifyDataSetInvalidated();
     }
 
     public void setSelected(int id) {
         selected = menu.findItem(id);
+        notifyDataSetInvalidated();
     }
 
     public boolean isSelected(MenuItem item) {

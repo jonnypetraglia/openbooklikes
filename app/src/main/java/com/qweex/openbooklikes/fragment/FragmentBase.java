@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,6 +41,10 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     ApiClient.ApiResponseHandler responseHandler;
     LoadingViewManager loadingManager = new LoadingViewManager();
 
+    public static void optionIcon(MenuItem mi) {
+        mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if(primary!=null)
@@ -73,7 +78,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         if(primary instanceof  Shareable || this instanceof Shareable) {
             mi = menu.add(Menu.NONE, R.id.option_share, Menu.NONE, R.string.option_share)
                     .setIcon(R.drawable.share_np341334);
-            MainActivity.optionIcon(mi);
+            optionIcon(mi);
             mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
     }

@@ -300,11 +300,11 @@ public class BookFragment extends FragmentBase<Book> {
         mi = menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         mi.setIcon(R.drawable.edit_np330037);
-        MainActivity.optionIcon(mi);
+        optionIcon(mi);
 
         mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
             .setIcon(R.drawable.reload_np45438);
-        MainActivity.optionIcon(mi);
+        optionIcon(mi);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         addToShelfMenuItem = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.option_add);
@@ -384,8 +384,8 @@ public class BookFragment extends FragmentBase<Book> {
         if(android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN)
             ALIGN_START = RelativeLayout.ALIGN_START;
 
-        int mar = MainActivity.dpToPx(20);
-        int lHeight = MainActivity.dpToPx(config.screenHeightDp)
+        int mar = Misc.convertDpToPixel(20, v.getContext());
+        int lHeight = Misc.convertDpToPixel(config.screenHeightDp, v.getContext())
                 - ((MainActivity)getActivity()).getStatusBarHeight()
                 - ((MainActivity)getActivity()).getActionBarHeight();
 

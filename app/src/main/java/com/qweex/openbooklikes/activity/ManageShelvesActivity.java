@@ -15,10 +15,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.fragment.FragmentBase;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.LoadingViewManagerDialog;
@@ -164,7 +164,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
         mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
                 .setIcon(R.drawable.reload_np45438);
-        MainActivity.optionIcon(mi);
+        FragmentBase.optionIcon(mi);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         mi = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.create_shelf)

@@ -3,15 +3,17 @@ package com.qweex.openbooklikes;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
-import com.qweex.openbooklikes.activity.LaunchActivity;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.fragment.BookListFragment;
+import com.qweex.openbooklikes.fragment.LoginFragment;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 
@@ -51,6 +53,13 @@ public class SettingsManager {
         String[] array = context.getResources().getStringArray(R.array.book_formats);
         for(int i=0; i<array.length; i++)
             bookFormats.put(Integer.toString(i), array[i]);
+
+        try {
+            MainActivity.shelves = SettingsManager.loadShelves(context);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //FIXME: What do
+        }
     }
 
 
@@ -144,13 +153,18 @@ public class SettingsManager {
         }
     }
 
+
+    public static void logout(MainActivity a) {
+        a.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE)
+                .edit().clear().apply();
+        a.showLogin();
+    }
+
     //TODO: Add this to Settings somewhere
-    public static void clearEverything(Activity a) {
+    public static void clearEverything(MainActivity a) {
         clearCache(a);
         PreferenceManager.getDefaultSharedPreferences(a).edit().clear().apply();
-        a.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE).edit().clear().apply();
-        a.startActivity(new Intent(a, LaunchActivity.class));
-        a.finish();
+        logout(a);
     }
 
     public static void clearCache(Context c) {

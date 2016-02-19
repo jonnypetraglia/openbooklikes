@@ -14,7 +14,6 @@
     <item type="id" name="nav_shelves" />
     <item type="id" name="nav_manage_shelves" />
     <item type="id" name="nav_settings" />
-    <item type="id" name="nav_logout" />
 
     <!-- Options Menu -->
     <item type="id" name="option_browser" />

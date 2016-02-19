@@ -235,7 +235,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         for (HeaderData h : headerDatas)
             h.doView(v.findViewById(h.layoutId));
 
-        getMainActivity().setMainTitle(); //FIXME: UGGGGH I HATE THIS
         loadingManager.content();
         loadingManager.changeState(LoadingViewManager.State.MORE);
         getMainActivity().recreateShelvesNav();

@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +19,18 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.activity.LaunchActivity;
-import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.ShelvesHandler;
+import com.qweex.openbooklikes.handler.UserHandler;
 import com.qweex.openbooklikes.model.Me;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -32,7 +38,8 @@ public class LoginFragment extends FragmentBase {
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private LaunchActivity launchActivity;
+    private OnLoginListener onLoginListener;
+
 
     @Nullable
     @Override
@@ -54,6 +61,26 @@ public class LoginFragment extends FragmentBase {
             }
         });
 
+        ViewGroup loadingView = (ViewGroup) inflater.inflate(R.layout.loading, null);
+        View emptyView = inflater.inflate(R.layout.empty, null),
+                errorView = inflater.inflate(R.layout.error, null);
+        ((TextView)loadingView.findViewById(R.id.progress_text)).setText(R.string.signing_in);
+
+        loadingManager.setInitial(loadingView, v, emptyView, errorView);
+        loadingManager.changeState(LoadingViewManager.State.INITIAL);
+        loadingManager.content();
+
+
+        errorView.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MainActivity.me == null)
+                    attemptLogin();
+                else
+                    startApp();
+            }
+        });
+
         Button mEmailSignInButton = (Button) v.findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,13 +88,12 @@ public class LoginFragment extends FragmentBase {
                 attemptLogin();
             }
         });
-        return v;
+        return loadingManager.wrapInitialInLayout(getActivity());
     }
 
 
     public void attemptLogin() {
         // Reset errors.
-        this.launchActivity = (LaunchActivity) getActivity();
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
@@ -103,7 +129,7 @@ public class LoginFragment extends FragmentBase {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the primary login attempt.
-            launchActivity.loadingManager.show();
+            loadingManager.show();
             RequestParams urlParams = new RequestParams();
             urlParams.put("email", mEmailView.getText().toString());
             urlParams.put("password", mPasswordView.getText().toString());
@@ -129,7 +155,7 @@ public class LoginFragment extends FragmentBase {
 
         @Override
         public void onStart() {
-            launchActivity.loadingManager.show();
+            loadingManager.show();
         }
 
         @Override
@@ -141,18 +167,18 @@ public class LoginFragment extends FragmentBase {
 
                 mEmailView.setError(null);
                 mPasswordView.setError(null);
-                MainActivity.me = new Me(response, launchActivity);
-                launchActivity.startApp();
+                MainActivity.me = new Me(response, getActivity());
+                startApp();
             } catch (JSONException e) {
                 e.printStackTrace();
-                launchActivity.loadingManager.content();
+                loadingManager.content();
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
             }
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
-            launchActivity.loadingManager.error(error);
+            loadingManager.error(error);
             mPasswordView.setError("Error " + statusCode + " " + error.getMessage());
         }
     };
@@ -164,6 +190,75 @@ public class LoginFragment extends FragmentBase {
 
     @Override
     public String getTitle(Resources r) {
-        return null; // Not needed
+        return r.getString(R.string.app_name);
+    }
+
+
+
+
+
+    public void startApp() {
+        Log.d("OBL", "startApp");
+        loadingManager.show("Fetching user data");
+        boolean forceFetch = SettingsManager.userInfoExpired(getActivity());
+        if(forceFetch) {
+            RequestParams params = new RequestParams();
+            ApiClient.get(params, new UserHandler(loadingManager, getActivity()) {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
+                    // Parent class(es) show content because they assume it's what we want
+                    //   in this case content is the login form, so it needs to stay hidden
+                    //FIXME: Probably don't need both hide & show & two changeStates
+                    Log.d("Success login", "WEEEEEE");
+                    loadingManager.show();
+                    loadingManager.changeState(LoadingViewManager.State.INITIAL);
+                    loadingManager.show();
+                    loadingManager.changeState(LoadingViewManager.State.INITIAL);
+
+                    fetchShelves(true);
+                }
+            });
+        } else
+            fetchShelves(false);
+    }
+
+    private void fetchShelves(boolean force) {
+        if(MainActivity.shelves.size()>1 && !force) {
+            onLoginListener.onLogin();
+            return;
+        }
+        ApiClient.get(new ShelvesHandler(loadingManager, MainActivity.shelves = new ArrayList<>(), MainActivity.me){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+
+                loadingManager.show();
+                loadingManager.changeState(LoadingViewManager.State.INITIAL);
+                loadingManager.show();
+                loadingManager.changeState(LoadingViewManager.State.INITIAL);
+
+                try {
+                    SettingsManager.saveShelves(
+                            MainActivity.shelves = SettingsManager.mergeShelves(
+                                    SettingsManager.loadShelves(getActivity()), shelves
+                            ), getActivity()
+                    );
+                    Log.d("Saved shelves", "WEEEEEE");
+                    onLoginListener.onLogin();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    loadingManager.error(e);
+                }
+            }
+        });
+    }
+
+    public void setOnLoginListener(OnLoginListener onLoginListener) {
+        this.onLoginListener = onLoginListener;
+    }
+
+    public interface OnLoginListener {
+        void onLogin();
     }
 }

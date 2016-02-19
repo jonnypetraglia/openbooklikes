@@ -412,6 +412,24 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             }
         });
 
+        getPreferenceScreen().findPreference("logout").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.logout)
+                        .setMessage(R.string.confirm_logout)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SettingsManager.logout((MainActivity) getActivity());
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            }
+        });
+
         getPreferenceScreen().findPreference("clear_cache").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -439,7 +457,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                SettingsManager.clearEverything(getActivity());
+                                SettingsManager.clearEverything((MainActivity) getActivity());
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, null)

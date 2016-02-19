@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -103,7 +102,7 @@ public class SearchFragment extends BookListFragment<Search> {
 
         mi = menu.add(Menu.NONE, R.id.option_barcode, Menu.NONE, R.string.barcode)
                 .setIcon(R.drawable.barcode_np134554);
-        MainActivity.optionIcon(mi);
+        optionIcon(mi);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
@@ -159,7 +158,8 @@ public class SearchFragment extends BookListFragment<Search> {
     };
 
     void performSearch() {
-        getMainActivity().setMainTitle();
+        MainActivity m = getMainActivity();
+        m.getSupportActionBar().setTitle(getTitle(m.getResources()));
         loadingManager.show();
         editText.clearFocus();
         editText.setText(searchTerm.getS("q"));

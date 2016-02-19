@@ -1,8 +1,6 @@
 package com.qweex.openbooklikes.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.widget.PopupMenu;
@@ -30,12 +27,14 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.NavDrawerAdapter;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.fragment.BookListFragment;
 import com.qweex.openbooklikes.fragment.FragmentBase;
+import com.qweex.openbooklikes.fragment.LoginFragment;
 import com.qweex.openbooklikes.fragment.PreferenceFragment;
 import com.qweex.openbooklikes.fragment.ReadingChallengeFragment;
 import com.qweex.openbooklikes.fragment.SearchFragment;
@@ -50,7 +49,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginFragment.OnLoginListener {
 
     public static Me me;
     public static ImageLoader imageLoader;
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     static final String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT", SIDE_FRAGMENT_TAG = "SIDE_FRAGMENT";
 
     private DrawerLayout drawer;
-    private MenuItem notMeNav;
+    private MenuItem notMeNav, challengeNav;
 
     ListView drawerList;
     NavDrawerAdapter adapter;
@@ -67,42 +66,37 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("OBL:MASTER", "token: " + me.token());
+        ApiClient.setApiKey(getResources());
 
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        drawer.setFocusableInTouchMode(false);
-        toggle.syncState();
-
-
-        drawerList = (ListView) findViewById(R.id.drawer_list);
-        View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
-        header.setClickable(true);
-        drawerList.addHeaderView(header);
 
         PopupMenu p = new PopupMenu(this, null);
         Menu navMenu = p.getMenu();
         new SupportMenuInflater(this).inflate(R.menu.drawer_menu_main, navMenu);
         adapter = new NavDrawerAdapter(navMenu, this);
+        notMeNav = navMenu.findItem(R.id.nav_not_me);
+        challengeNav = navMenu.findItem(R.id.nav_challenge);
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerList = (ListView) findViewById(R.id.drawer_list);
+        // Init imageLoader
+        imageLoader = ImageLoader.getInstance();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
+        imageLoader.init(config);
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        View header = getLayoutInflater().inflate(R.layout.app_bar_main_header, null);
+        header.setClickable(true);
+        drawerList.addHeaderView(header);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("Clicked", i + " ts real easy, man");
                 MenuItem item = (MenuItem) adapter.getItem(i - drawerList.getHeaderViewsCount());
-                Log.d("Dang ol'", item.getTitle() + "!" + item.getItemId());
                 selectNavDrawer(item);
             }
         });
-
-
-        ///////////////////////////////////////////////
 
         drawer.setDrawerListener(new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
             @Override
@@ -113,18 +107,6 @@ public class MainActivity extends AppCompatActivity {
                     super.onDrawerSlide(drawerView, slideOffset);
             }
         });
-        closeRightDrawer();
-
-        // Init imageLoader
-        imageLoader = ImageLoader.getInstance();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .build();
-        imageLoader.init(config);
-
-
-        notMeNav = navMenu.findItem(R.id.nav_not_me);
-
-        recreateShelvesNav();
         drawerList.setAdapter(adapter);
 
         toolbar = (Toolbar) findViewById(R.id.side_toolbar);
@@ -137,77 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        if(savedInstanceState==null) {
-            // Select default fragment
-            String idStr = SettingsManager.getString(this, "initial_fragment", R.string.default_initial_fragment);
-            int id;
-            try {
-                id = Integer.parseInt(idStr);
-            } catch(Exception e) {
-                id = getResources().getIdentifier(idStr, "id", getPackageName());
-            }
-            Log.d("Loading id=", id + "!");
-            String arg = SettingsManager.getString(this, "initial_arg", "");
-
-            MenuItem mi = navMenu.findItem(id);
-            Log.d("mi", mi + " !");
-            adapter.setSelected(id);
-            adapter.notifyDataSetChanged();
-
-
-            FragmentBase fragment;
-            Username user = me;
-            Bundle b;
-            switch(id) {
-                case R.id.nav_challenge:
-                    loadChallengeFragment(me);
-                    return;
-                default: // TODO: i.e. a shelf
-                    for(String want : new String[] {idStr, Shelf.NO_SHELF_ID})
-                        for(Shelf s : shelves) {
-                            Log.d("Vs", want + " v " + s.id());
-                            if (want.equals(s.id())) {
-                                loadShelf(s, me);
-                                return;
-                            }
-                        }
-                    // Falls through to Blog if (for some ungodly reason) even "All Books" isn't found
-                case R.id.nav_blog:
-                    fragment = new UserFragment();
-                    if(arg.length() == 0) {
-                        b = me.wrapInBundle(new Bundle());
-                    } else {
-                        Bundle usr = new Bundle();
-                        usr.putString("username", arg);
-                        usr.putString("id", "");
-                        Bundle usr2 = new Bundle();
-                        usr2.putBundle("user", usr);
-                        user = new Username(usr2);
-                        b = user.wrapInBundle(new Bundle());
-
-                        id = notMeNav.getItemId();
-                    }
-                    fragment.setArguments(b);
-                    //TODO: Make BlogFragment create with username
-                    break;
-                case R.id.nav_search:
-                    fragment = new SearchFragment();
-                    if(arg.length()>0)
-                        ((SearchFragment)fragment).setSearchTerm(arg);
-                    break;
-            }
-
-            loadMainFragment(fragment, user);
-        } else {
-            //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
-            Fragment myFragment = (Fragment) getSupportFragmentManager()
-                    .findFragmentByTag(MAIN_FRAGMENT_TAG);
-            //FIXME: what do
-        }
-
-
-
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
                     public void onBackStackChanged() {
@@ -217,6 +128,98 @@ public class MainActivity extends AppCompatActivity {
                         notMeNav.setVisible(!currentName.equals(me.id()));
                     }
                 });
+
+
+        if (savedInstanceState != null) {
+            //FragmentBase mContent = (FragmentBase)getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+            Fragment myFragment = (Fragment) getSupportFragmentManager()
+                    .findFragmentByTag(MAIN_FRAGMENT_TAG);
+            //FIXME: what do
+            return;
+        }
+
+
+        try {
+            MainActivity.me = Me.fromPrefs(this);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (MainActivity.me == null) {
+            showLogin();
+        } else
+            onLogin();
+    }
+
+    public void showLogin() {
+        LoginFragment loginForm = new LoginFragment();
+        loginForm.setOnLoginListener(this);
+        loadMainFragment(loginForm, null);
+    }
+
+    @Override
+    public void onLogin() {
+        Log.d("Logged in", "id=" + me.id());
+
+        // Select default fragment
+        String idStr = SettingsManager.getString(this, "initial_fragment", R.string.default_initial_fragment);
+        int id;
+        try {
+            id = Integer.parseInt(idStr);
+            // idStr is numerical, meaning it must be a Shelf's ID instead of the name of a resource
+        } catch (Exception e) {
+            id = getResources().getIdentifier(idStr, "id", getPackageName());
+            // idStr was not numerical, therefore it must be the name of an ID
+        }
+
+        String arg = SettingsManager.getString(this, "initial_arg", "");
+        FragmentBase fragment;
+        Username user = me;
+        Bundle b;
+
+        switch(id) {
+            case R.id.nav_challenge:
+                loadChallengeFragment(me); //TODO: replace 'me' with 'user
+                return;
+            default:
+                for(String want : new String[] {idStr, Shelf.NO_SHELF_ID})
+                    for(Shelf s : shelves) {
+                        if (want.equals(s.id())) {
+                            loadShelf(s, me); //TODO: replace 'me' with 'user
+                            return;
+                        }
+                    }
+                // Falls through to Blog if (for some ungodly reason) even "All Books" isn't found
+            case R.id.nav_blog:
+                fragment = new UserFragment();
+                if(arg.length() == 0) {
+                    b = me.wrapInBundle(new Bundle());
+                } else {
+                    user = Username.create(arg);
+                    b = user.wrapInBundle(new Bundle());
+                }
+                fragment.setArguments(b);
+                break;
+            case R.id.nav_search:
+                fragment = new SearchFragment();
+                if(arg.length()>0)
+                    ((SearchFragment)fragment).setSearchTerm(arg);
+                break;
+        }
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        drawer.setFocusableInTouchMode(false);
+        toggle.syncState();
+
+        Log.d("OBL:MASTER", "token: " + me.token());
+        adapter.setSelected(id);
+        SettingsManager.init(this);
+        closeRightDrawer();
+        recreateShelvesNav();
+        loadMainFragment(fragment, user);
     }
 
     public void recreateShelvesNav() {
@@ -235,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
                         .cacheOnDisk(true)
                         .build()
         );
-
 
         // Add shelfMap to menu
         Menu shelfNav = adapter.getMenu().findItem(R.id.nav_shelves).getSubMenu();
@@ -306,19 +308,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_settings:
                 loadMainFragment(new PreferenceFragment(), MainActivity.me);
                 break;
-            case R.id.nav_logout:
-                logout();
-                return;
         }
 
         adapter.setSelected(item);
-        adapter.notifyDataSetChanged();
 
         closeLeftDrawer();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // After ManageShelvesActivity
         super.onActivityResult(requestCode, resultCode, data);
         try {
             shelves = SettingsManager.loadShelves(this);
@@ -326,26 +325,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public void logout() {
-        //Ask the primary if they want to quit
-        new AlertDialog.Builder(this)
-            .setIcon(R.drawable.warning_np17208)
-            .setTitle(R.string.menu_logout)
-            .setMessage(R.string.confirm_logout)
-            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    getSharedPreferences(Me.USER_DATA_PREFS, MODE_PRIVATE)
-                            .edit().clear().apply();
-                    startActivity(new Intent(MainActivity.this, LaunchActivity.class));
-                    MainActivity.this.finish();
-                }
-            })
-            .setNegativeButton(android.R.string.no, null)
-            .show();
     }
 
     public void openRightDrawer() {
@@ -402,33 +381,40 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadMainFragment(Fragment fragment, Username owner) {
         closeRightDrawer();
+        if(fragment instanceof LoginFragment)
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START);
 
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction();
 
         boolean wasVisible = notMeNav.isVisible();
-        if(owner!=null && me.equals(owner)) {
-            notMeNav.setVisible(false);
-        } else {
-            notMeNav.setVisible(true);
-            adapter.setSelected(notMeNav);
-            if(fragment instanceof Titleable)
-                notMeNav.setTitle(((Titleable)fragment).getTitle(getResources()));
-            if(fragment.getClass().equals(UserFragment.class))
-                notMeNav.setIcon(R.drawable.profile_np76855);
-            else
-                notMeNav.setIcon(R.drawable.shelf_np147205);
-            //transaction.add(R.id.fragment, fragment, MAIN_FRAGMENT_TAG);
+        if (owner != null) {
+            if (me.equals(owner)) {
+                notMeNav.setVisible(false);
+                if (fragment instanceof ReadingChallengeFragment) {
+                    adapter.setSelected(challengeNav);
+                }
+            } else {
+                notMeNav.setVisible(true);
+                adapter.setSelected(notMeNav);
+                if (fragment instanceof Titleable)
+                    notMeNav.setTitle(((Titleable) fragment).getTitle(getResources()));
+                if (fragment.getClass().equals(UserFragment.class))
+                    notMeNav.setIcon(R.drawable.profile_np76855);
+                else
+                    notMeNav.setIcon(R.drawable.shelf_np147205);
+                //transaction.add(R.id.fragment, fragment, MAIN_FRAGMENT_TAG);
+            }
+            if (wasVisible != notMeNav.isVisible())
+                adapter.notifyDataSetInvalidated();
         }
-        if(wasVisible!= notMeNav.isVisible())
-            adapter.notifyDataSetInvalidated();
 
         transaction.replace(R.id.fragment, fragment, MAIN_FRAGMENT_TAG); //TODO: do "add" one day
         //transaction.addToBackStack(owner.id());
         transaction.commit();
 
         if(fragment instanceof Titleable)
-            getSupportActionBar().setTitle(((Titleable)fragment).getTitle(getResources()));
+            getSupportActionBar().setTitle(((Titleable) fragment).getTitle(getResources()));
     }
 
     public void loadSideFragment(FragmentBase fragment) {
@@ -443,20 +429,7 @@ public class MainActivity extends AppCompatActivity {
         sideToolbar.setOnMenuItemClickListener(fragment);
     }
 
-    public void setMainTitle() {
-        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.fragment)).getTitle(getResources());
-        getSupportActionBar().setTitle(title);
-    }
 
-    public void setSideTitle() {
-        String title = ((FragmentBase)getSupportFragmentManager().findFragmentById(R.id.side_fragment)).getTitle(getResources());
-        ((Toolbar) findViewById(R.id.side_toolbar)).setTitle(title);
-    }
-
-
-    public static int dpToPx(int dp) {
-        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
-    }
     public int getStatusBarHeight() {
         int result = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
@@ -473,9 +446,5 @@ public class MainActivity extends AppCompatActivity {
             result = getResources().getDimensionPixelSize(tv.resourceId);
         }
         return result;
-    }
-
-    public static void optionIcon(MenuItem mi) {
-        mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
     }
 }
