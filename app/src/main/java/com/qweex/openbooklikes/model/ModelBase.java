@@ -4,21 +4,15 @@ package com.qweex.openbooklikes.model;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.widget.TextView;
 
+import com.klinker.android.link_builder.TouchableMovementMethod;
 import com.loopj.android.http.RequestParams;
-import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.notmine.MyTagHandler;
 import com.qweex.openbooklikes.notmine.URLImageParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.XMLReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,7 +117,7 @@ abstract public class ModelBase implements Parcelable {
                 URLImageParser p = new URLImageParser(tv);
                 MyTagHandler t = new MyTagHandler();
                 tv.setText(android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, t));
-                tv.setMovementMethod(LinkMovementMethod.getInstance());
+                tv.setMovementMethod(TouchableMovementMethod.getInstance());
             } else
                 tv.setText(android.text.Html.fromHtml(str.replaceAll("<p> *&nbsp; *</p>", "")));
         }

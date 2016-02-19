@@ -1,1 +1,1 @@
-include ':app', ':readingchallengeparser'
+include ':app', ':readingchallengeparser', ':linkspan'

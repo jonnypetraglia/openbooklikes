@@ -34,11 +34,12 @@
             android:layout_alignBaseline="@id/type"
             android:layout_marginLeft="10dp" />
 
-        <TextView
+        <com.klinker.android.link_builder.LinkConsumableTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
+            android:tag="unhtml"
             android:id="@id/title"
             android:layout_below="@id/date"
             android:layout_alignLeft="@id/type" />
@@ -52,11 +53,12 @@
             android:maxWidth="100dp"
             android:layout_margin="10dp" />
 
-        <TextView
+        <com.klinker.android.link_builder.LinkConsumableTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="italic"
+            android:tag="unhtml"
             android:id="@id/special"
             android:layout_below="@id/title" />
 
@@ -70,11 +72,12 @@
             android:layout_alignLeft="@id/special"
             android:layout_alignRight="@id/special" />
 
-        <TextView
+        <com.klinker.android.link_builder.LinkConsumableTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@id/desc"
+            android:tag="unhtml"
             android:layout_below="@id/special"
             android:layout_alignLeft="@id/special" />
 

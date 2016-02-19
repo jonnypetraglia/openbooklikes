@@ -40,6 +40,7 @@
     <item type="id" name="empty" />
 
     <item type="id" name="progress" />
+    <item type="id" name="progress_text" />
     <item type="id" name="background"/>
 
     <item type="id" name="fragment" />

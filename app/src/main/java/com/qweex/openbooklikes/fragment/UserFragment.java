@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,6 +20,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.qweex.linkspan.LinkSpan;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.LoadingViewManager;
@@ -43,7 +43,8 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
-public class UserFragment extends FetchFragmentBase<Username, Post> implements AdapterView.OnItemClickListener {
+public class UserFragment extends FetchFragmentBase<Username, Post> implements AdapterView.OnItemClickListener
+{
 
     ArrayList<HeaderData> headerDatas = new ArrayList<>();
 
@@ -227,7 +228,8 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         ((TextView) listView.findViewById(R.id.title)).setText(((User) primary).properName());
         TextView desc = (TextView) listView.findViewById(R.id.desc);
         ModelBase.unHTML(desc, primary.getS("blog_desc"));
-        desc.setMovementMethod(LinkMovementMethod.getInstance());
+        LinkSpan.replaceURLSpans(desc, this, this);
+
 
 
         for (HeaderData h : headerDatas)

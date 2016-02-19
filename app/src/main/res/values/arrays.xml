@@ -13,4 +13,9 @@
         <item name="10">Leather Bound</item>
         <item name="11">Online Only</item>
     </string-array>
+    <string-array name="click_link">
+        <item>Open in Browser</item>
+        <item>Copy link URL</item>
+        <item>Share link</item>
+    </string-array>
 </resources>

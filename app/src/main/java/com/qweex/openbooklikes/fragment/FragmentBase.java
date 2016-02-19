@@ -1,9 +1,15 @@
 package com.qweex.openbooklikes.fragment;
 
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -15,7 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.klinker.android.link_builder.LinkConsumableTextView;
+import com.qweex.linkspan.LinkSpan;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.LoadingViewManager;
@@ -26,7 +35,8 @@ import com.qweex.openbooklikes.model.Shareable;
 
 
 
-abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, Titleable {
+abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, Titleable,
+        LinkSpan.OnLinkClickListener, LinkSpan.OnLinkLongClickListener{
     Primary primary;
     ApiClient.ApiResponseHandler responseHandler;
     LoadingViewManager loadingManager = new LoadingViewManager();
@@ -83,6 +93,8 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     protected TextView setOrHide(View container, int tvId, String text) {
         TextView tv = ((TextView)container.findViewById(tvId));
         ModelBase.unHTML(tv, text);
+        if(tv.getTag()!=null && ((String)tv.getTag()).contains("unhtml"))
+            LinkSpan.replaceURLSpans(tv, this, this);
         tv.setVisibility(tv.getText() == null || tv.getText().length()==0 ? View.GONE : View.VISIBLE);
         return tv;
     }
@@ -127,4 +139,43 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     }
 
     public LoadingViewManager getLoadingManager() { return loadingManager; }
+
+
+    @Override
+    public void onClick(LinkSpan linkSpan, String label, String link, LinkConsumableTextView textView) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+        startActivity(browserIntent);
+    }
+
+    @Override
+    public void onLongClick(final LinkSpan linkSpan, final String label, final String link, final LinkConsumableTextView textView) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(link);
+        builder.setItems(R.array.click_link, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Object choice = ((AlertDialog)dialog).getListView().getAdapter().getItem(which);
+
+                switch(which) { //heheheheheheh
+                    default:
+                    case 0: // Open in Browser
+                        FragmentBase.this.onClick(linkSpan, label, link, textView);
+                        break;
+                    case 1: // Copy to clipboard
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText(label, link);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2: // Share
+                        Intent intent = new Intent(android.content.Intent.ACTION_SEND)
+                                .setType("text/plain")
+                                .putExtra(Intent.EXTRA_TEXT, link);
+                        startActivity(Intent.createChooser(intent, getResources().getString(R.string.option_share)));
+                        break;
+                }
+            }
+        });
+        builder.show();
+    }
 }

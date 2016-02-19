@@ -88,4 +88,5 @@
     <string name="special">Special</string>
     <string name="status">Status</string>
     <string name="create_shelf">Create Shelf</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>
