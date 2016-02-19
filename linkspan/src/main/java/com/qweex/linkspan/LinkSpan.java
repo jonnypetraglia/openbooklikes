@@ -119,6 +119,9 @@ public class LinkSpan extends TouchableBaseSpan {
     }
 
     public static void replaceURLSpans(TextView view, OnLinkClickListener shortClick, OnLinkLongClickListener longCLick) {
+        if(!(view.getText() instanceof SpannableString))
+            return; // No spans means no URLs
+
         SpannableString muhText = ((SpannableString)view.getText());
         URLSpan[] urls = muhText.getSpans(0, view.getText().length(), URLSpan.class);
         for(URLSpan url : urls) {

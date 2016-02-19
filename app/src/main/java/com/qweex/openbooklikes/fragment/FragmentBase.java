@@ -5,7 +5,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -93,7 +92,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     protected TextView setOrHide(View container, int tvId, String text) {
         TextView tv = ((TextView)container.findViewById(tvId));
         ModelBase.unHTML(tv, text);
-        if(tv.getTag()!=null && ((String)tv.getTag()).contains("unhtml"))
+        if(tv instanceof LinkConsumableTextView)
             LinkSpan.replaceURLSpans(tv, this, this);
         tv.setVisibility(tv.getText() == null || tv.getText().length()==0 ? View.GONE : View.VISIBLE);
         return tv;

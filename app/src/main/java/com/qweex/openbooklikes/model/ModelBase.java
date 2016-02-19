@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.TextView;
 
+import com.klinker.android.link_builder.LinkConsumableTextView;
 import com.klinker.android.link_builder.TouchableMovementMethod;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.notmine.MyTagHandler;
@@ -113,7 +114,7 @@ abstract public class ModelBase implements Parcelable {
         if (str == null || android.text.Html.fromHtml(str).toString().trim().length() == 0) {
             tv.setText(null);
         } else {
-            if(tv.getTag()!=null && tv.getTag().toString().contains("unhtml")) {
+            if(tv instanceof LinkConsumableTextView) {
                 URLImageParser p = new URLImageParser(tv);
                 MyTagHandler t = new MyTagHandler();
                 tv.setText(android.text.Html.fromHtml(str.replaceAll("<p>&nbsp;</p>", ""), p, t));
