@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         applicationId "com.qweex.openbooklikes"
@@ -28,15 +28,14 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:preference-v7:23.1.1'
     compile 'com.android.support:preference-v14:23.1.1'
+
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.github.johnkil.android-progressfragment:progressfragment:1.4.+'
     compile files('libs/android-async-http-1.4.9.jar')
     compile files('libs/httpclient-4.4.1.1.jar')
     compile files('libs/universal-image-loader-1.9.4.jar')
-
     compile 'com.github.jakob-grabner:Circle-Progress-View:v1.2.4'
     compile 'com.daimajia.numberprogressbar:library:1.2@aar'
     compile 'me.dm7.barcodescanner:zbar:1.8.4'
-
     compile project(':readingchallengeparser')
 }
