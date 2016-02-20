@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes.fragment;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
@@ -64,6 +67,7 @@ public class BookFragment extends FragmentBase<Book> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("onCreate", "WEEEEE");
         responseHandler = new PageResponseHandler() {
             @Override
             protected String urlPath() {
@@ -345,14 +349,13 @@ public class BookFragment extends FragmentBase<Book> {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book, container, false);
 
+        Log.d("onCreateView", "WWEEEEEEE");
+
         ImageView cover = (ImageView) view.findViewById(R.id.image_view);
         MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
 
         setOrHide(view, R.id.title, primary.getS("title"));
         setOrHide(view, R.id.author, primary.getS("author").replaceAll(",", "<br>"));
-        // And this is where I'd put a Description
-        //
-        // IF I HAD ONE
 
         String format = primary.getS("format");
         setOrHide(view, R.id.format,
@@ -366,8 +369,10 @@ public class BookFragment extends FragmentBase<Book> {
         setOrHide(view, R.id.pages, primary.getS("pages"));
         setOrHide(view, R.id.language, primary.getS("language"));
 
-
-        adjustOrientation(view, getActivity().getResources().getConfiguration());
+        ((LinearLayout)view.findViewById(R.id.orientation)).setOrientation(
+                getActivity().getResources().getConfiguration().orientation==Configuration.ORIENTATION_PORTRAIT
+                        ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL
+        );
 
         return super.createProgressView(inflater, container, view);
     }
@@ -375,84 +380,25 @@ public class BookFragment extends FragmentBase<Book> {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        adjustOrientation(getView(), newConfig);
-    }
 
-    public void adjustOrientation(View v, Configuration config) {
+        ((LinearLayout)getView().findViewById(R.id.orientation)).setOrientation(
+                newConfig.orientation==Configuration.ORIENTATION_PORTRAIT
+                ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL
+        );
 
-        int ALIGN_START = RelativeLayout.ALIGN_LEFT;
-        if(android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN)
-            ALIGN_START = RelativeLayout.ALIGN_START;
-
-        int mar = Misc.convertDpToPixel(20, v.getContext());
-        int lHeight = Misc.convertDpToPixel(config.screenHeightDp, v.getContext())
+        int mar = Misc.convertDpToPixel(20, getActivity());
+        int lHeight = Misc.convertDpToPixel(newConfig.screenHeightDp, getActivity())
                 - ((MainActivity)getActivity()).getStatusBarHeight()
                 - ((MainActivity)getActivity()).getActionBarHeight();
 
-
-        View cover = v.findViewById(R.id.image_view),
-                title = v.findViewById(R.id.title),
-                author = v.findViewById(R.id.author),
-                table = v.findViewById(R.id.table);
-        LayoutParams coverlp = (LayoutParams) cover.getLayoutParams(),
-                titlelp = (LayoutParams) title.getLayoutParams(),
-                authorlp = (LayoutParams) author.getLayoutParams(),
-                tablelp = (LayoutParams) table.getLayoutParams();
-
-
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
+        int x = Math.min(
+                IMG_SIZE,
+                lHeight - mar*2
+        );
+        Log.d("WRERE", x + "!");
 
-        if(config.orientation==Configuration.ORIENTATION_LANDSCAPE) {
-//            mar*=2;
-            coverlp.setMargins(mar, mar, 0, 0);
-            titlelp.setMargins(0, 0, mar, 0);
-            tablelp.setMargins(0, mar, 0, mar/2);
-            coverlp.height = Math.min(
-                    IMG_SIZE,
-                    lHeight - mar*2
-            );
-            Log.d("OBL", "h=" + coverlp.height);
-
-            coverlp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            coverlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            titlelp.addRule(RelativeLayout.RIGHT_OF, cover.getId());
-            titlelp.addRule(RelativeLayout.ALIGN_TOP, cover.getId());
-            authorlp.addRule(ALIGN_START, title.getId());
-            tablelp.addRule(RelativeLayout.ALIGN_LEFT, title.getId());
-
-            coverlp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
-            titlelp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
-            authorlp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
-            tablelp.addRule(RelativeLayout.CENTER_HORIZONTAL, 0);
-            titlelp.addRule(RelativeLayout.BELOW, 0);
-        } else {
-            coverlp.setMargins(mar, mar, mar, mar);
-            titlelp.setMargins(mar, 0, mar, 0);
-            tablelp.setMargins(mar, mar, mar, mar);
-            coverlp.height = IMG_SIZE;
-
-            coverlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-            coverlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
-            titlelp.addRule(RelativeLayout.RIGHT_OF, 0);
-            titlelp.addRule(RelativeLayout.ALIGN_TOP, 0);
-            authorlp.addRule(ALIGN_START, 0);
-            tablelp.addRule(RelativeLayout.ALIGN_LEFT, 0);
-
-            coverlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            titlelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            authorlp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            tablelp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            titlelp.addRule(RelativeLayout.BELOW, cover.getId());
-        }
-
-        ((ImageView) cover).setImageBitmap(null);
-        MainActivity.imageLoader.displayImage(
-                primary.getS("cover").replace("300/300", IMG_SIZE + "/" + IMG_SIZE),
-                (ImageView) cover);
-        cover.requestLayout();
-        title.requestLayout();
-        author.requestLayout();
-        table.requestLayout();
+        getView().findViewById(R.id.image_view).getLayoutParams().height = x;
     }
 
 }

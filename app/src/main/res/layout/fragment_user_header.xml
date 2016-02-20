@@ -27,7 +27,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:textSize="32sp" />
+        android:textSize="32sp"
+        android:gravity="center" />
 
     <com.klinker.android.link_builder.LinkConsumableTextView
         android:id="@id/desc"
