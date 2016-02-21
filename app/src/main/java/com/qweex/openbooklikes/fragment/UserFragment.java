@@ -23,6 +23,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.qweex.linkspan.LinkSpan;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.DownloadableImageView;
 import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
@@ -76,7 +77,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
     @Override
     public String getTitle(Resources res) {
-        if(primary instanceof Me)
+        if(primary.equals(MainActivity.me))
             return res.getString(R.string.blog);
         else
             return primary.getS("username");
@@ -212,8 +213,10 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
         placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
 
+        String imgUrl = ((User) primary).photoSize(IMG_SIZE);
+        ((DownloadableImageView)pic).setSource(((User)primary).properName(), imgUrl);
         MainActivity.imageLoader.displayImage(
-                ((User) primary).photoSize(IMG_SIZE),
+                imgUrl,
                 pic,
                 new DisplayImageOptions.Builder()
                         .showImageOnLoading(placeholder)
@@ -413,7 +416,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             primary = this.user;
-            if(wasLastFetchNull())
+            if(wasLastFetchNull() || getActivity()==null)
                 return;
             fillUi();
         }

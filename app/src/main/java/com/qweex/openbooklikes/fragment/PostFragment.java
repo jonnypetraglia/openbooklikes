@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.qweex.openbooklikes.DownloadableImageView;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.model.Post;
@@ -50,9 +51,10 @@ public class PostFragment extends FragmentBase<Post> {
         ((TextView)view.findViewById(R.id.likes)).setText(primary.getS("like_count"));
         ((TextView)view.findViewById(R.id.reblogs)).setText(primary.getS("reblog_count"));
 
-        if(primary.getS("photo_url")!=null)
+        if(primary.getS("photo_url")!=null) {
+            ((DownloadableImageView)view.findViewById(R.id.image_view)).setSource(primary.getS("title"), primary.getS("photo_url"));
             MainActivity.imageLoader.displayImage(primary.getS("photo_url"), (ImageView) view.findViewById(R.id.image_view));
-        else
+        } else
             view.findViewById(R.id.image_view).setVisibility(View.GONE);
 
         LinearLayout tags = (LinearLayout) view.findViewById(R.id.tags);

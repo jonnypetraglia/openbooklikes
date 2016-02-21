@@ -24,10 +24,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
+import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.DownloadableImageView;
 import com.qweex.openbooklikes.NavDrawerAdapter;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
@@ -81,7 +85,14 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         drawerList = (ListView) findViewById(R.id.drawer_list);
         // Init imageLoader
         imageLoader = ImageLoader.getInstance();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .diskCacheFileNameGenerator(new HashCodeFileNameGenerator() {
+                    @Override
+                    public String generate(String s) {
+                        return super.generate(s) + s.substring(s.lastIndexOf("."));
+                    }
+                })
+                .build();
         imageLoader.init(config);
 
 

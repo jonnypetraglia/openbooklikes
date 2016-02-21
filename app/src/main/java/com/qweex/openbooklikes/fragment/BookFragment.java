@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.DownloadableImageView;
 import com.qweex.openbooklikes.LoadingViewManagerDialog;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
@@ -352,7 +353,9 @@ public class BookFragment extends FragmentBase<Book> {
         Log.d("onCreateView", "WWEEEEEEE");
 
         ImageView cover = (ImageView) view.findViewById(R.id.image_view);
+        ((DownloadableImageView)cover).setSource(primary.getS("title"), primary.getS("cover"));
         MainActivity.imageLoader.displayImage(primary.getS("cover"), cover);
+        cover.getLayoutParams().height = calcImgSIze(getResources().getConfiguration().screenHeightDp);
 
         setOrHide(view, R.id.title, primary.getS("title"));
         setOrHide(view, R.id.author, primary.getS("author").replaceAll(",", "<br>"));
@@ -382,23 +385,25 @@ public class BookFragment extends FragmentBase<Book> {
         super.onConfigurationChanged(newConfig);
 
         ((LinearLayout)getView().findViewById(R.id.orientation)).setOrientation(
-                newConfig.orientation==Configuration.ORIENTATION_PORTRAIT
-                ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL
+                newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
+                        ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL
         );
 
+
+        getView().findViewById(R.id.image_view).getLayoutParams().height = calcImgSIze(newConfig.screenHeightDp);
+    }
+
+
+    int calcImgSIze(int screenHeight) {
+        int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
+
         int mar = Misc.convertDpToPixel(20, getActivity());
-        int lHeight = Misc.convertDpToPixel(newConfig.screenHeightDp, getActivity())
+        int lHeight = Misc.convertDpToPixel(screenHeight, getActivity())
                 - ((MainActivity)getActivity()).getStatusBarHeight()
                 - ((MainActivity)getActivity()).getActionBarHeight();
-
-        int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
-        int x = Math.min(
+        return Math.min(
                 IMG_SIZE,
                 lHeight - mar*2
         );
-        Log.d("WRERE", x + "!");
-
-        getView().findViewById(R.id.image_view).getLayoutParams().height = x;
     }
-
 }
