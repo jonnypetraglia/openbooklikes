@@ -3,8 +3,10 @@ package com.qweex.openbooklikes.fragment;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -300,20 +302,20 @@ public class BookFragment extends FragmentBase<Book> {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        MenuItem mi;
+        inflater.inflate(R.menu.menu_book, menu);
+        Menu bookstores;
 
-        mi = menu.add(Menu.NONE, R.id.option_update, Menu.NONE, R.string.option_update);
-        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-        mi.setIcon(R.drawable.edit_np330037);
-        optionIcon(mi);
+        for(int i=0; i<menu.size(); i++)
+            optionIcon(menu.getItem(i));
 
-        mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
-            .setIcon(R.drawable.reload_np45438);
-        optionIcon(mi);
-        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        addToShelfMenuItem = menu.findItem(R.id.option_add);
 
-        addToShelfMenuItem = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.option_add);
-        addToShelfMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        bookstores = menu.findItem(R.id.bookstores).getSubMenu();
+
+        for(int i=0; i<SettingsManager.bookstores.length; i++) {
+            bookstores.add(Menu.NONE, i, Menu.NONE, SettingsManager.bookstores[i])
+                    .setEnabled(i>7 && primary.getS("isbn_13")!=null && primary.getS("isbn_10")!=null);
+        }
 
         setHasOptionsMenu(true);
     }
@@ -330,8 +332,21 @@ public class BookFragment extends FragmentBase<Book> {
             case R.id.option_add:
                 showAddDialog();
                 break;
-            default:
-                return super.onOptionsItemSelected(item);
+            default: // Bookstore
+                int i = item.getItemId();
+                String s;
+                if(i>7)
+                    s = "'" + primary.getS("title") + "' " + primary.getS("author");
+                else if(primary.getS("isbn_13")!=null)
+                    s = primary.getS("isbn_13");
+                else
+                    s = primary.getS("isbn_10");
+                s = String.format(SettingsManager.bookstoreUrls[i], s);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s));
+                startActivity(intent);
+                break;
+            case R.id.bookstores:
+                break;
         }
         return true;
     }

@@ -42,7 +42,8 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     LoadingViewManager loadingManager = new LoadingViewManager();
 
     public static void optionIcon(MenuItem mi) {
-        mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+        if(mi.getIcon()!=null)
+            mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override

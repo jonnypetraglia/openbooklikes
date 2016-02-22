@@ -24,4 +24,39 @@
         <item>Search Google for this image</item>
         <item>Share image</item>
     </string-array>
+
+    <string-array name="bookstores">
+        <item>Amazon</item>
+        <item>IndieBound</item>
+        <item>Barnes and Noble</item>
+        <item>Hastings</item>
+        <item>Book Depository</item>
+        <item>Abebooks</item>
+        <item>Half.com</item>
+        <item>Alibris</item>
+
+        <item>Audible</item>
+        <item>Google Play</item>
+        <item>Kobo</item>
+
+        <item>Project Gutenberg</item>
+        <item>LibriVox</item>
+    </string-array>
+    <string-array name="bookstores_urls">
+        <item>http://www.amazon.com/gp/search/ref=sr_adv_b/?field-isbn=%s</item>
+        <item>http://www.indiebound.org/search/book?searchfor=%s</item>
+        <item>http://www.barnesandnoble.com/s/%s</item>
+        <item>https://gohastings.com/catalog/search_all.cmd?search=true&amp;department=AllSearch&amp;barCode=%s</item>
+        <item>https://www.bookdepository.com/search?searchTerm=%s</item>
+        <item>http://www.abebooks.com/servlet/SearchResults?isbn=%s</item>
+        <item>http://search.half.ebay.com/%s</item>
+        <item>http://www.alibris.com/booksearch?keyword=%s</item>
+
+        <item>http://www.audible.com/search?advsearchKeywords=%s</item>
+        <item>https://play.google.com/store/search?c=books&amp;q=%s</item>
+        <item>https://store.kobobooks.com/search?Query=%s</item>
+
+        <item>http://www.gutenberg.org/ebooks/search/?query=%s</item>
+        <item>https://librivox.org/search?search_form=advanced&amp;title=%s</item>
+    </string-array>
 </resources>

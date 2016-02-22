@@ -36,6 +36,8 @@ public class SettingsManager {
 
     public static Map<Integer, Object> defaultPrefs = new HashMap<>();
 
+    public static String[] bookstores, bookstoreUrls;
+
     public static void init(Context context) {
         if(hiddenShelvesIds.size()>0)
             return;
@@ -49,6 +51,9 @@ public class SettingsManager {
         defaultPrefs.put(R.string.default_shelf_view,
                 res.getIdentifier(res.getString(R.string.default_shelf_view), "id", context.getPackageName())
         );
+
+        bookstores = context.getResources().getStringArray(R.array.bookstores);
+        bookstoreUrls = context.getResources().getStringArray(R.array.bookstores_urls);
 
         String[] array = context.getResources().getStringArray(R.array.book_formats);
         for(int i=0; i<array.length; i++)

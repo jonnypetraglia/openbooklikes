@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@id/option_update"
+        android:title="@string/option_update"
+        android:icon="@drawable/edit_np330037"
+        app:showAsAction="never"/>
+
+    <item android:id="@id/option_reload"
+        android:title="@string/reload"
+        android:icon="@drawable/reload_np45438"
+        app:showAsAction="never"/>
+
+    <item android:id="@id/option_add"
+        android:title="@string/add_to_shelf"
+
+        app:showAsAction="never"/>
+
+    <item android:id="@id/bookstores"
+        android:title="@string/buy"
+        app:showAsAction="never">
+        <menu></menu>
+    </item>
+</menu>

@@ -108,4 +108,5 @@
     <item name="fab" type="id" />
 
     <item name="drawer_list" type="id" />
+    <item name="bookstores" type="id" />
 </resources>
