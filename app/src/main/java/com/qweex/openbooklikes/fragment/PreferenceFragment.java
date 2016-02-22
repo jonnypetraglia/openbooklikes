@@ -6,8 +6,10 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -47,7 +49,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
     ListPreference initialFragment, shelfView;
     EditTextPreference initialArg, expirationHours;
     CheckBoxPreference shelfBackground;
-    Preference shelfFilters;
+    Preference shelfFilters, bookstores;
     String defaultShelfFilters;
 
     @Override
@@ -59,6 +61,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         setDefaultValues();
 
         setupTheRest();
+        setupBookstores();
         setupInitialFragment();
         setupShelfView();
         setupShelfFilters();
@@ -71,6 +74,8 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         shelfBackground = (CheckBoxPreference) getPreferenceScreen().findPreference("shelf_background");
         shelfFilters = getPreferenceScreen().findPreference("shelf_filters");
         expirationHours = (EditTextPreference) getPreferenceScreen().findPreference("expiration_hours");
+
+        bookstores = getPreferenceScreen().findPreference("bookstores");
     }
 
     void setDefaultValues() {
@@ -334,6 +339,48 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters, defaultShelfFilters);
     }
 
+    void setupBookstores() {
+        bookstores.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                boolean[] results = new boolean[getResources().getStringArray(R.array.bookstores).length];
+
+                String pref = getPreferenceManager().getSharedPreferences().getString(bookstores.getKey(), "");
+                for(int i=0; i<results.length; i++)
+                    results[i] = true;
+
+
+                String[] selected = pref.split("\\|");
+                for (String s : selected) {
+                    if(s.length()>0) {
+                        results[Integer.parseInt(s)] = false;
+                    }
+                }
+
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Bookstores")
+                        .setMultiChoiceItems(R.array.bookstores, results, null)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                StringBuilder sb = new StringBuilder();
+                                for(int i=0; i<((AlertDialog)dialog).getListView().getCount(); i++) {
+                                    if(! ((AlertDialog)dialog).getListView().isItemChecked(i))
+                                        sb.append(i).append("|");
+                                }
+                                getPreferenceManager().getSharedPreferences()
+                                        .edit()
+                                        .putString(bookstores.getKey(), sb.toString())
+                                        .commit();
+                                SettingsManager.bookstores(getContext());
+                            }
+                        })
+                        .show();
+                return true;
+            }
+        });
+    }
+
     void setupTheRest() {
         String argVal = SettingsManager.getString(getActivity(), initialArg.getKey(), "");
         String expVal = SettingsManager.getIntAsStr(getActivity(), expirationHours.getKey(), R.integer.default_expiration_hours);
@@ -466,6 +513,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             }
         });
     }
+
 
     String getEntryFor(Preference pref, String s) {
         return (String) ((ListPreference) pref).getEntries()[

@@ -27,6 +27,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class SettingsManager {
@@ -52,8 +54,7 @@ public class SettingsManager {
                 res.getIdentifier(res.getString(R.string.default_shelf_view), "id", context.getPackageName())
         );
 
-        bookstores = context.getResources().getStringArray(R.array.bookstores);
-        bookstoreUrls = context.getResources().getStringArray(R.array.bookstores_urls);
+        bookstores(context);
 
         String[] array = context.getResources().getStringArray(R.array.book_formats);
         for(int i=0; i<array.length; i++)
@@ -108,6 +109,24 @@ public class SettingsManager {
                 .putString("shelves", array.toString())
                 .putString("shelves_hidden", hiddenIds.toString().replaceAll("\\[|\\]", ""))
                 .commit();
+    }
+
+    public static void bookstores(Context context) {
+        List<String> stores = new LinkedList<>(Arrays.asList(context.getResources().getStringArray(R.array.bookstores))),
+                    urls = new LinkedList<>(Arrays.asList(context.getResources().getStringArray(R.array.bookstores_urls)));
+        String pref = PreferenceManager.getDefaultSharedPreferences(context).getString("bookstores", "");
+        for (String s : pref.split("\\|")) {
+            if(s.length()>0) {
+                stores.set(Integer.parseInt(s), "");
+                urls.set(Integer.parseInt(s), "");
+            }
+        }
+        while(stores.indexOf("") >= 0) {
+            stores.remove("");
+            urls.remove("");
+        }
+        stores.toArray(SettingsManager.bookstores = new String[stores.size()]);
+        urls.toArray(SettingsManager.bookstoreUrls = new String[urls.size()]);
     }
 
     public static boolean userInfoExpired(Context c) {

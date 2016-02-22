@@ -314,7 +314,7 @@ public class BookFragment extends FragmentBase<Book> {
 
         for(int i=0; i<SettingsManager.bookstores.length; i++) {
             bookstores.add(Menu.NONE, i, Menu.NONE, SettingsManager.bookstores[i])
-                    .setEnabled(i>7 && primary.getS("isbn_13")!=null && primary.getS("isbn_10")!=null);
+                    .setEnabled(primary.getS("isbn_13")!=null && primary.getS("isbn_10")!=null);
         }
 
         setHasOptionsMenu(true);
@@ -335,9 +335,10 @@ public class BookFragment extends FragmentBase<Book> {
             default: // Bookstore
                 int i = item.getItemId();
                 String s;
-                if(i>7)
-                    s = "'" + primary.getS("title") + "' " + primary.getS("author");
-                else if(primary.getS("isbn_13")!=null)
+//                if(i>7)
+//                    s = "'" + primary.getS("title") + "' " + primary.getS("author");
+//                else
+                if(primary.getS("isbn_13")!=null)
                     s = primary.getS("isbn_13");
                 else
                     s = primary.getS("isbn_10");

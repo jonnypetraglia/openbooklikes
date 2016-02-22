@@ -36,6 +36,12 @@
         android:inputType="number"
         />
 
+    <Preference
+        android:key="bookstores"
+        android:title="@string/bookstores"
+        android:entries="@array/bookstores"
+        />
+
 
     <Preference
         android:key="logout"
