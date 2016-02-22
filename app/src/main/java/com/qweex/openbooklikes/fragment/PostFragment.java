@@ -2,19 +2,26 @@ package com.qweex.openbooklikes.fragment;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.qweex.openbooklikes.DownloadableImageView;
-import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.imagevieweractivity.ImageViewerActivity;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
+import com.qweex.openbooklikes.notmine.Misc;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class PostFragment extends FragmentBase<Post> {
     User owner;
@@ -51,11 +58,28 @@ public class PostFragment extends FragmentBase<Post> {
         ((TextView)view.findViewById(R.id.likes)).setText(primary.getS("like_count"));
         ((TextView)view.findViewById(R.id.reblogs)).setText(primary.getS("reblog_count"));
 
-        if(primary.getS("photo_url")!=null) {
-            ((DownloadableImageView)view.findViewById(R.id.image_view)).setSource(primary.getS("title"), primary.getS("photo_url"));
-            MainActivity.imageLoader.displayImage(primary.getS("photo_url"), (ImageView) view.findViewById(R.id.image_view));
-        } else
-            view.findViewById(R.id.image_view).setVisibility(View.GONE);
+
+        JSONArray a = primary.getA("photos");
+        LinearLayout images = (LinearLayout) ((ViewGroup)view.findViewById(R.id.images)).getChildAt(0);
+        try {
+            JSONObject photo = a.getJSONObject(0);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Misc.convertDpToPixel(60, getContext())
+            );
+            int m = Misc.convertDpToPixel(10, getContext());
+            lp.setMargins(m, m*2, m, m*2);
+
+            for(int i=0; i<10; i++) {
+                ImageView image = new ImageView(getContext());
+                images.addView(image, lp);
+                MainActivity.imageLoader.displayImage(photo.getString("photo_url"), image);
+                image.setOnClickListener(clickImage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            images.setVisibility(View.GONE);
+        }
 
         LinearLayout tags = (LinearLayout) view.findViewById(R.id.tags);
         tags.removeAllViews();
@@ -73,25 +97,67 @@ public class PostFragment extends FragmentBase<Post> {
         } else
             tags.setVisibility(View.GONE);
 
-        LinearLayout ratings = (LinearLayout) view.findViewById(R.id.rating);
-        ratings.removeAllViews();
-        try {
-            float r = Float.parseFloat(primary.getS("rating"));
-            while(r-- > 0.5) {
-                ImageView star = new ImageView(getActivity());
-                star.setImageResource(android.R.drawable.btn_star_big_on);
-                ratings.addView(star);
-            }
-            if(r>0) {
-                ImageView star = new ImageView(getActivity());
-                star.setImageResource(android.R.drawable.btn_star_big_off);
-                ratings.addView(star);
-            }
-            ratings.setVisibility(View.VISIBLE);
-        } catch(Exception e) {
-            ratings.setVisibility(View.GONE);
-        }
+        RatingBar rating = ((RatingBar)view.findViewById(R.id.rating));
+        float r = Float.parseFloat(primary.getS("rating"));
+        rating.setRating(r);
+        rating.setIsIndicator(true);
+        rating.setVisibility(primary.getS("is_review").equals("1") ? View.VISIBLE : View.GONE);
 
         return super.createProgressView(inflater, container, view);
     }
+
+
+    View.OnClickListener clickImage = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            JSONArray array = primary.getA("photos");
+            String[] urls = new String[array.length() * 5], //FIXME: DEBUG
+                    captions = new String[array.length() * 5]; //FIXME: DEBUG
+            int position = ((ViewGroup)v.getParent()).indexOfChild(v);
+
+            try {
+                for(int x=0;x<5; x++) // FIXME: DEBUG
+                for (int i = 0; i < array.length(); i++) {
+                    urls[i+x] = array.getJSONObject(i).getString("photo_url")
+                            .replaceFirst("photo\\/max\\/[0-9]+\\/[0-9]+\\/", "");
+                    captions[i+x] = array.getJSONObject(i).getString("photo_caption");
+                }
+            } catch(JSONException e) {
+                e.printStackTrace();
+            }
+
+            final ImageViewerActivity.ImageViewerFragment fragment = new ImageViewerActivity.ImageViewerFragment();
+            Bundle b = new Bundle();
+            b.putStringArray("urls", urls);
+            b.putStringArray("captions", captions);
+            b.putInt("selected", position);
+            fragment.setArguments(b);
+            final FragmentManager sfm = getActivity().getSupportFragmentManager();
+            sfm
+                    .beginTransaction()
+                    .add(R.id.side_fragment, fragment, "RADDA")
+                    .addToBackStack("RADDA")
+                    .commit();
+            getMainActivity().findViewById(R.id.side_toolbar).setVisibility(View.GONE);
+            sfm.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    Log.d("WEEEEEEEEEE", sfm.getBackStackEntryCount() + "bob");
+                    if(sfm.getBackStackEntryCount()>0) { // && sfm.getBackStackEntryAt(0) instanceof ImageViewerActivity.ImageViewerFragment) {
+                        getActivity().findViewById(R.id.side_toolbar).setVisibility(View.GONE);
+                    }
+                    else {
+                        getActivity().findViewById(R.id.side_toolbar).setVisibility(View.VISIBLE);
+                        sfm.removeOnBackStackChangedListener(this);
+                    }
+                }
+            });
+
+//            Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+//            intent.putExtra("urls", urls);
+//            intent.putExtra("captions", captions);
+//            intent.putExtra("selected", position);
+//            startActivity(intent);
+        }
+    };
 }

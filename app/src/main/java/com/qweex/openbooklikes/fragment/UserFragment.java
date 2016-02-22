@@ -342,10 +342,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             Post post = getItem(position);
 
             ImageView photo = (ImageView) row.findViewById(R.id.image_view);
-            if(post.getS("photo_url")!=null)
-                MainActivity.imageLoader.displayImage(post.getS("photo_url"), photo);
-            else
-                photo.setVisibility(View.GONE);
 
 
             int MAX_HEIGHT = getResources().getDimensionPixelSize(R.dimen.max_post_height);

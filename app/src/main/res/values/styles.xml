@@ -17,6 +17,11 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Fullscreen" parent="AppTheme.NoActionBar">
+        <item name="android:alertDialogTheme">@android:style/Theme.Dialog</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 
     <style name="AppTheme.ListSeparatorTextView">
         <item name="android:textSize">140sp</item>

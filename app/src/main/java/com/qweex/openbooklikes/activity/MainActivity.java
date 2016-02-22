@@ -130,15 +130,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             }
         });
 
-        getSupportFragmentManager().addOnBackStackChangedListener(
-                new FragmentManager.OnBackStackChangedListener() {
-                    public void onBackStackChanged() {
-                        //TODO: THis doesn't work for some reason
-                        // but if I can get it working, it will take away the need to do it in loadMainFragment
-                        String currentName = getSupportFragmentManager().getBackStackEntryAt(0).getName();
-                        notMeNav.setVisible(!currentName.equals(me.id()));
-                    }
-                });
+//        getSupportFragmentManager().addOnBackStackChangedListener(
+//                new FragmentManager.OnBackStackChangedListener() {
+//                    public void onBackStackChanged() {
+//                        //TODO: THis doesn't work for some reason
+//                        // but if I can get it working, it will take away the need to do it in loadMainFragment
+//
+//                        String currentName = getSupportFragmentManager().getBackStackEntryAt(0).getName();
+//                        notMeNav.setVisible(!currentName.equals(me.id()));
+//                    }
+//                });
 
 
         if (savedInstanceState != null) {
@@ -281,6 +282,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+            getSupportFragmentManager().popBackStack();
+            return;
+        }
         Log.d("onBackPressed", drawer.isDrawerOpen(GravityCompat.START) + " | " + drawer.isDrawerOpen(GravityCompat.END));
         if (drawer.isDrawerOpen(GravityCompat.END)) {
             closeRightDrawer();

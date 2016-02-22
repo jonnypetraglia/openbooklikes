@@ -30,6 +30,9 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".activity.ManageShelvesActivity"
             android:theme="@style/AppTheme"/>
+
+        <activity android:name="com.qweex.imagevieweractivity.ImageViewerActivity"
+            android:theme="@style/Fullscreen"/>
     </application>
 
 </manifest>
