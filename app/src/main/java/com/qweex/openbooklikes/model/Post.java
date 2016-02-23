@@ -99,7 +99,7 @@ public class Post extends ModelBase implements Shareable {
             try {
                 return new JSONArray(bundle.getString(f));
             } catch (JSONException e) {
-                e.printStackTrace();
+            } catch (NullPointerException npe) {
             }
         return null;
     }

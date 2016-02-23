@@ -109,4 +109,5 @@
 
     <item name="drawer_list" type="id" />
     <item name="bookstores" type="id" />
+    <item name="source" type="id" />
 </resources>

@@ -74,17 +74,29 @@
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:id="@id/separator"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/desc"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" />
+        android:layout_marginBottom="5dp"
+        />
+
+    <com.klinker.android.link_builder.LinkConsumableTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@id/source"
+        android:layout_below="@id/separator"
+        android:layout_marginBottom="15dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@id/tags"
-        android:layout_below="@id/separator"
+        android:layout_below="@id/source"
         android:orientation="horizontal"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@id/reblogs" />
@@ -99,7 +111,7 @@
         android:backgroundTint="@color/colorAccent"
         android:id="@id/likes"
         android:gravity="center"
-        android:layout_below="@id/separator"
+        android:layout_below="@id/source"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true" />
 
@@ -114,7 +126,7 @@
         android:backgroundTint="@color/colorAccent"
         android:id="@id/reblogs"
         android:gravity="center"
-        android:layout_below="@id/separator"
+        android:layout_below="@id/source"
         android:layout_toStartOf="@id/likes"
         android:layout_toLeftOf="@id/likes" />
 

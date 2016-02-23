@@ -28,7 +28,8 @@ public class PostFragment extends FragmentBase<Post> {
 
     @Override
     public String getTitle(Resources r) {
-        return owner.getS("blog_title");
+        return "[" + primary.getS("type").toUpperCase() + "] " +
+                owner.getS("blog_title");
     }
 
     @Override
@@ -54,6 +55,10 @@ public class PostFragment extends FragmentBase<Post> {
         setOrHide(view, R.id.date, primary.getS("date"));
         setOrHide(view, R.id.special, primary.getS("special"));
         setOrHide(view, R.id.desc, primary.getS("desc"));
+        String source = primary.getS("source");
+        if(source!=null)
+            source = "<a href='" + source + "'>" + source + "</a>";
+        setOrHide(view, R.id.source, source);
 
         ((TextView)view.findViewById(R.id.likes)).setText(primary.getS("like_count"));
         ((TextView)view.findViewById(R.id.reblogs)).setText(primary.getS("reblog_count"));
@@ -62,15 +67,15 @@ public class PostFragment extends FragmentBase<Post> {
         JSONArray a = primary.getA("photos");
         LinearLayout images = (LinearLayout) ((ViewGroup)view.findViewById(R.id.images)).getChildAt(0);
         try {
-            JSONObject photo = a.getJSONObject(0);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Misc.convertDpToPixel(60, getContext())
-            );
-            int m = Misc.convertDpToPixel(10, getContext());
-            lp.setMargins(m, m*2, m, m*2);
+            for(int i=0; i<a.length(); i++) {
+                JSONObject photo = a.getJSONObject(i);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        Misc.convertDpToPixel(60, getContext())
+                );
+                int m = Misc.convertDpToPixel(10, getContext());
+                lp.setMargins(m, m * 2, m, m * 2);
 
-            for(int i=0; i<10; i++) {
                 ImageView image = new ImageView(getContext());
                 images.addView(image, lp);
                 MainActivity.imageLoader.displayImage(photo.getString("photo_url"), image);
@@ -111,16 +116,15 @@ public class PostFragment extends FragmentBase<Post> {
         @Override
         public void onClick(View v) {
             JSONArray array = primary.getA("photos");
-            String[] urls = new String[array.length() * 5], //FIXME: DEBUG
-                    captions = new String[array.length() * 5]; //FIXME: DEBUG
+            String[] urls = new String[array.length()],
+                    captions = new String[array.length()];
             int position = ((ViewGroup)v.getParent()).indexOfChild(v);
 
             try {
-                for(int x=0;x<5; x++) // FIXME: DEBUG
                 for (int i = 0; i < array.length(); i++) {
-                    urls[i+x] = array.getJSONObject(i).getString("photo_url")
+                    urls[i] = array.getJSONObject(i).getString("photo_url")
                             .replaceFirst("photo\\/max\\/[0-9]+\\/[0-9]+\\/", "");
-                    captions[i+x] = array.getJSONObject(i).getString("photo_caption");
+                    captions[i] = array.getJSONObject(i).getString("photo_caption");
                 }
             } catch(JSONException e) {
                 e.printStackTrace();
