@@ -54,6 +54,8 @@ public class LoadingViewManager {
         }
 
         public void error(String error) {
+            if(error == null)
+                error = "Unknown Error"; //TODO: String; and FIXME
             errorView.setVisibility(View.VISIBLE);
             ((TextView)errorView.findViewById(R.id.title)).setText(error);
             emptyView.setVisibility(View.GONE);

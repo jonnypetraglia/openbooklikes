@@ -36,6 +36,6 @@
         android:text="Retry"
         android:id="@+id/retry"
         android:layout_below="@id/title"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignLeft="@id/title" />
 
 </RelativeLayout>

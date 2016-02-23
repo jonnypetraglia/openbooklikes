@@ -69,7 +69,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         owner = new User(a);
         //noinspection unchecked
         primary = (BookList) new Shelf(a, owner);
-        Log.d("OBL:setArgs", "shelf.id=" + primary.id());
         super.setArguments(a);
     }
 
@@ -407,9 +406,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.list_book_size);
             cover.setLayoutParams(new RelativeLayout.LayoutParams(IMG_SIZE / 2, IMG_SIZE / 2));
             MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
-
-
-            Log.d("Parent is", row.getLayoutParams().width + " vs " + ViewGroup.LayoutParams.MATCH_PARENT);
 
 
             return row;

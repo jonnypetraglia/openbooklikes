@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onLogin() {
         Log.d("Logged in", "id=" + me.id());
+        SettingsManager.init(this);
 
         // Select default fragment
         String idStr = SettingsManager.getString(this, "initial_fragment", R.string.default_initial_fragment);
@@ -182,6 +183,19 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             id = getResources().getIdentifier(idStr, "id", getPackageName());
             // idStr was not numerical, therefore it must be the name of an ID
         }
+
+
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        drawer.setFocusableInTouchMode(false);
+        toggle.syncState();
+        adapter.setSelected(id);
+        closeRightDrawer();
+        recreateShelvesNav();
 
         String arg = SettingsManager.getString(this, "initial_arg", "");
         FragmentBase fragment;
@@ -196,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                 for(String want : new String[] {idStr, Shelf.NO_SHELF_ID})
                     for(Shelf s : shelves) {
                         if (want.equals(s.id())) {
-                            loadShelf(s, me); //TODO: replace 'me' with 'user
+                            loadShelf(s, me, 0); //TODO: replace 'me' with 'user
                             return;
                         }
                     }
@@ -217,20 +231,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                     ((SearchFragment)fragment).setSearchTerm(arg);
                 break;
         }
-
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        drawer.setFocusableInTouchMode(false);
-        toggle.syncState();
-
-        Log.d("OBL:MASTER", "token: " + me.token());
-        adapter.setSelected(id);
-        SettingsManager.init(this);
-        closeRightDrawer();
-        recreateShelvesNav();
         loadMainFragment(fragment, user);
     }
 

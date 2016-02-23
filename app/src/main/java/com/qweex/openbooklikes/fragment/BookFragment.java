@@ -335,9 +335,7 @@ public class BookFragment extends FragmentBase<Book> {
             default: // Bookstore
                 int i = item.getItemId();
                 String s;
-//                if(i>7)
-//                    s = "'" + primary.getS("title") + "' " + primary.getS("author");
-//                else
+                //TODO: Find a way to do title/author for sites without ISBN support
                 if(primary.getS("isbn_13")!=null)
                     s = primary.getS("isbn_13");
                 else

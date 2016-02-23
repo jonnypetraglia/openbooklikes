@@ -43,12 +43,12 @@
         <item>LibriVox</item>
     </string-array>
     <string-array name="bookstores_urls">
-        <item>http://www.amazon.com/gp/search/ref=sr_adv_b/?field-isbn=%s</item>
+        <item>http://www.amazon.com/s/url=search-alias=stripbooks&amp;field-keywords=%s</item>
         <item>http://www.indiebound.org/search/book?searchfor=%s</item>
         <item>http://www.barnesandnoble.com/s/%s</item>
-        <item>https://gohastings.com/catalog/search_all.cmd?search=true&amp;department=AllSearch&amp;barCode=%s</item>
+        <item>https://gohastings.com/catalog/search_all.cmd?search=true&amp;department=AllSearch&amp;keywords=%s</item>
         <item>https://www.bookdepository.com/search?searchTerm=%s</item>
-        <item>http://www.abebooks.com/servlet/SearchResults?isbn=%s</item>
+        <item>http://www.abebooks.com/servlet/SearchResults?kn=%s</item>
         <item>http://search.half.ebay.com/%s</item>
         <item>http://www.alibris.com/booksearch?keyword=%s</item>
 

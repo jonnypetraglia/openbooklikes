@@ -88,15 +88,23 @@ public class ManageShelvesActivity extends AppCompatActivity {
         shelvesInProgress.remove(0);
         reloadAdapter();
 
+        View error = getLayoutInflater().inflate(R.layout.error, null);
         loadingManager = new LoadingViewManager();
         loadingManager.setInitial(
                 getLayoutInflater().inflate(R.layout.loading, null),
                 listView,
                 getLayoutInflater().inflate(R.layout.empty, null),
-                getLayoutInflater().inflate(R.layout.error, null)
+                error
+
         );
         loadingManager.content();
         loadingDialogManager = new LoadingViewManagerDialog(listView, R.string.shelf_added);
+        error.findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reload();
+            }
+        });
 
         setContentView(loadingManager.wrapInitialInLayout(this));
 
@@ -168,7 +176,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         mi = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, R.string.create_shelf)
-                .setIcon(android.R.drawable.ic_menu_agenda)
+                .setIcon(android.R.drawable.ic_menu_agenda) //TODO: Icon for Add
                 .setCheckable(true)
                 .setChecked(autoSorting);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -189,20 +197,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
                 autoSorting = !item.isChecked();
                 break;
             case R.id.option_reload:
-                loadingManager.show();
-                ApiClient.get(new ShelvesHandler(loadingManager, new ArrayList<Shelf>(), MainActivity.me) {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        super.onSuccess(statusCode, headers, response);
-                        try {
-                            SettingsManager.mergeShelves(shelvesInProgress, shelves);
-                            loadingManager.content();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            loadingManager.error(e);
-                        }
-                    }
-                });
+                reload();
                 break;
         }
         item.setChecked(!item.isChecked());
@@ -258,6 +253,23 @@ public class ManageShelvesActivity extends AppCompatActivity {
                             ? eyeHiddenColor : eyeUnhiddenColor
                     , PorterDuff.Mode.SRC_IN);
         }
+    }
+
+    void reload() {
+        loadingManager.show();
+        ApiClient.get(new ShelvesHandler(loadingManager, new ArrayList<Shelf>(), MainActivity.me) {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                try {
+                    SettingsManager.mergeShelves(shelvesInProgress, shelves);
+                    loadingManager.content();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    loadingManager.error(e);
+                }
+            }
+        });
     }
 
     ApiClient.ApiResponseHandler responseHandler = new LoadingResponseHandler(loadingDialogManager) {
