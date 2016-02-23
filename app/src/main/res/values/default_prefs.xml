@@ -2,7 +2,7 @@
 <resources>
     <item type="integer" name="default_expiration_hours">24</item>
     <item type="bool" name="default_shelf_background">true</item>
-    <item type="string" name="default_shelf_filter_label">@string/all</item>
+    <item type="string" name="default_shelf_filter_label">all</item>
 
     <item type="string" name="default_shelf_view">grid_view</item>
     <item type="string" name="default_initial_fragment">nav_blog</item>

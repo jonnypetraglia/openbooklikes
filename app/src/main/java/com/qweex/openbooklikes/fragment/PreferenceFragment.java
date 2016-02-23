@@ -6,10 +6,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -28,11 +26,11 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.LoadingViewManagerDialog;
-import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.Titleable;
+import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.handler.UserHandler;
 import com.qweex.openbooklikes.model.Shelf;
 
@@ -50,7 +48,6 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
     EditTextPreference initialArg, expirationHours;
     CheckBoxPreference shelfBackground;
     Preference shelfFilters, bookstores;
-    String defaultShelfFilters;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -87,15 +84,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         );
         shelfBackground.setDefaultValue(res.getBoolean(R.bool.default_shelf_background));
         expirationHours.setDefaultValue(res.getInteger(R.integer.default_expiration_hours));
-        try {
-            JSONObject j = new JSONObject();
-            int x = res.getIdentifier(res.getString(R.string.default_shelf_filter), "id", getActivity().getPackageName());
-            j.put(Integer.toString(x), getString(R.string.default_shelf_filter_label));
-            defaultShelfFilters = "[" + j.toString() + "]";
-            shelfFilters.setDefaultValue(defaultShelfFilters);
-        } catch(JSONException je) {
-            je.printStackTrace();
-        }
+        shelfFilters.setDefaultValue(SettingsManager.FILTER_ALL);
     }
 
     void setupInitialFragment() {
@@ -146,20 +135,31 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             }
             preference.setSummary("Show " + itemName + " on launch"); //TODO: String
             switch(resId) {
-                default: //TODO: i.e. a shelf ID
+                default:
+                    if(initialArg.isVisible())
+                        initialArg.setVisible(false);
+                    if(!shelfFilters.isVisible())
+                        shelfFilters.setVisible(true);
+                    break;
                 case R.id.nav_challenge:
                     if(initialArg.isVisible())
                         initialArg.setVisible(false);
+                    if(shelfFilters.isVisible())
+                        shelfFilters.setVisible(false);
                     break;
                 case R.id.nav_search:
                     if(!initialArg.isVisible())
                         initialArg.setVisible(true);
+                    if(shelfFilters.isVisible())
+                        shelfFilters.setVisible(false);
                     initialArg.setTitle("Search term"); //TODO: String
                     initialArg.setDialogTitle("Enter search term"); //TODO: String
                     break;
                 case R.id.nav_blog:
                     if(!initialArg.isVisible())
                         initialArg.setVisible(true);
+                    if(shelfFilters.isVisible())
+                        shelfFilters.setVisible(false);
                     initialArg.setTitle("Show Blog"); //TODO: String
                     initialArg.setDialogTitle("User's username, if other than you"); //TODO: String
                     break;
@@ -205,13 +205,16 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         ll.addView(group);
         ll.setLayoutParams(lp);
 
-        for(int i=0; i<statusMenu.size(); i++) {
+        int i;
+        for(i=0; i<statusMenu.size(); i++) {
             if(!statusMenu.getItem(i).isEnabled())
                 continue;
+
             CheckedTextView rb = (CheckedTextView) getActivity().getLayoutInflater().inflate(android.R.layout.select_dialog_singlechoice, null);
             rb.setId(android.R.id.text1);
             rb.setText(statusMenu.getItem(i).getTitle());
             rb.setEnabled(statusMenu.getItem(i).isEnabled());
+            rb.setClickable(!statusMenu.getItem(i).isEnabled());
 
             TypedArray ta = getActivity().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground});
             Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
@@ -219,7 +222,8 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
 
             FrameLayout frame = new FrameLayout(getActivity());
             frame.setLayoutParams(lp);
-            frame.setId(statusMenu.getItem(i).getItemId());
+
+            frame.setId(SettingsManager.FILTERS[i]);
             frame.addView(rb);
             frame.setForeground(drawableFromTheme);
             frame.setClickable(true);
@@ -235,12 +239,13 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
 
             group.addView(frame, lp);
         }
-        for (int i=0; i<specialMenu.size(); i++) {
+        for (int j=0; j<specialMenu.size(); j++) {
             final CheckedTextView cb = (CheckedTextView) getActivity().getLayoutInflater().inflate(android.R.layout.select_dialog_multichoice, null);
-            cb.setText(specialMenu.getItem(i).getTitle());
+            cb.setText(specialMenu.getItem(j).getTitle());
             cb.setClickable(false);
             cb.setId(android.R.id.text1);
-            cb.setEnabled(specialMenu.getItem(i).isEnabled());
+            cb.setEnabled(specialMenu.getItem(j).isEnabled());
+            cb.setClickable(!specialMenu.getItem(j).isEnabled());
 
             TypedArray ta = getActivity().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground});
             Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
@@ -248,7 +253,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
 
             FrameLayout frame = new FrameLayout(getActivity());
             frame.setLayoutParams(lp);
-            frame.setId(specialMenu.getItem(i).getItemId());
+            frame.setId(SettingsManager.FILTERS[i++]);
             frame.addView(cb);
             frame.setForeground(drawableFromTheme);
             frame.setClickable(true);
@@ -269,26 +274,19 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int p) {
-                        //((AlertDialog)dialogInterface).hide();
-                        JSONArray array = new JSONArray();
                         CheckedTextView ctv;
-                        try {
-                            for(ViewGroup vg : new ViewGroup[] {group, ll}) {
-                                for (int i = 0; i < vg.getChildCount(); i++) {
-                                    if(vg.getChildAt(i) == group)
-                                        continue;
-                                    ctv = ((CheckedTextView) vg.getChildAt(i).findViewById(android.R.id.text1));
-                                    if (ctv.isChecked()) {
-                                        JSONObject j = new JSONObject();
-                                        j.put(Integer.toString(vg.getChildAt(i).getId()), ctv.getText().toString());
-                                        array.put(j);
-                                    }
-                                }
+                        int ans = 0;
+
+                        for(ViewGroup vg : new ViewGroup[] {group, ll}) {
+                            for (int i = 0; i < vg.getChildCount(); i++) {
+                                if(vg.getChildAt(i) == group)
+                                    continue;
+                                ctv = ((CheckedTextView) vg.getChildAt(i).findViewById(android.R.id.text1));
+                                if (ctv.isChecked())
+                                    ans |= vg.getChildAt(i).getId();
                             }
-                            shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters, array.toString());
-                        } catch(JSONException e) {
-                            e.printStackTrace();
                         }
+                        shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters, ans);
                     }
                 })
                 .setView(sv)
@@ -298,16 +296,13 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         shelfFilters.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String s = getPreferenceScreen().getSharedPreferences().getString(preference.getKey(), "[]");
-                try {
-                    JSONArray a = new JSONArray(s);
-                    for (int i = 0; i < a.length(); i++) {
-                        JSONObject item = a.getJSONObject(i);
-                        int id = Integer.parseInt(item.keys().next());
-                        ((CheckedTextView) dialog.findViewById(id).findViewById(android.R.id.text1)).setChecked(true);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                int filters = getPreferenceScreen().getSharedPreferences().getInt(preference.getKey(), SettingsManager.FILTER_ALL);
+                for (int f : SettingsManager.FILTERS) {
+                    if((filters & SettingsManager.FILTER_ALL)==SettingsManager.FILTER_ALL
+                            && (filters & f) == f
+                            && f != SettingsManager.FILTER_ALL)
+                        continue;
+                    ((CheckedTextView) dialog.findViewById(f).findViewById(android.R.id.text1)).setChecked((filters & f) == f);
                 }
                 dialog.show();
                 return true;
@@ -316,27 +311,23 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         shelfFilters.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                try {
-                    JSONArray array = new JSONArray((String) o);
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < array.length(); i++) {
-                        if (i > 0) sb.append(", ");
-                        JSONObject item = array.getJSONObject(i);
-                        String id = item.keys().next();
-                        sb.append(item.getString(id));
-                    }
-                    preference.setSummary(sb.toString());
-                    getPreferenceScreen().getSharedPreferences()
-                            .edit()
-                            .putString(shelfFilters.getKey(), array.toString())
-                            .commit();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                int filter = (int) o;
+//                    StringBuilder sb = new StringBuilder();
+//                    for (int i = 0; i < array.length(); i++) {
+//                        if (i > 0) sb.append(", ");
+//                        String idName = array.getString(i);
+//                        int id = getResources().getIdentifier(idName, "id", getContext().getPackageName());
+//                        sb.append(getResources().getString(id));
+//                    }
+//                preference.setSummary(sb.toString());
+                getPreferenceScreen().getSharedPreferences()
+                        .edit()
+                        .putInt(shelfFilters.getKey(), filter)
+                        .commit();
                 return true;
             }
         });
-        shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters, defaultShelfFilters);
+        shelfFilters.getOnPreferenceChangeListener().onPreferenceChange(shelfFilters, SettingsManager.FILTER_ALL);
     }
 
     void setupBookstores() {

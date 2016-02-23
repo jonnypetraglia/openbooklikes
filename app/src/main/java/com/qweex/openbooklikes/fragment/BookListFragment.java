@@ -92,7 +92,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         responseHandler = new BookHandler(this);
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
 
-        SettingsManager.setFilters(getActivity(), statusTracker, specialTracker);
+        SettingsManager.setFilters(getActivity(), statusTracker, specialTracker, getArguments().getInt("filters", SettingsManager.FILTER_ALL));
     }
 
     @Override

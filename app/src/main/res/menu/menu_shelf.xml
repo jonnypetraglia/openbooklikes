@@ -25,12 +25,12 @@
                     android:title="@string/favourite" />
                 <item android:id="@id/filter_wishlist"
                     android:title="@string/wishlist" />
-                <item android:id="@id/filter_reviewed"
-                    android:enabled="false"
-                    android:title="@string/reviewed" />
                 <item android:id="@id/filter_private"
                     android:enabled="false"
                     android:title="@string/private_" />
+                <item android:id="@id/filter_reviewed"
+                    android:enabled="false"
+                    android:title="@string/reviewed" />
             </group>
         </menu>
     </item>

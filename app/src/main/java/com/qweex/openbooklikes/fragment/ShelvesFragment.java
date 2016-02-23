@@ -14,6 +14,7 @@ import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.handler.ShelvesHandler;
 import com.qweex.openbooklikes.model.Shelf;
 import com.qweex.openbooklikes.model.User;
@@ -82,7 +83,7 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        getMainActivity().loadShelf(adapter.getItem(i), primary);
+        getMainActivity().loadShelf(adapter.getItem(i), primary, SettingsManager.FILTER_ALL);
     }
 
     private class ShelvesAdapter extends AdapterBase<Shelf> {

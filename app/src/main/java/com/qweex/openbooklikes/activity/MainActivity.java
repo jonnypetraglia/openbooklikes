@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             case R.id.nav_all_shelf:
             default:
                 Shelf shelf = shelves.get(adapter.indexOf(item) - 4); //FIXME: Super ugly
-                loadShelf(shelf, me);
+                loadShelf(shelf, me, SettingsManager.FILTER_ALL);
                 break;
             case R.id.nav_blog:
                 loadUser(me);
@@ -362,12 +362,13 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         drawer.closeDrawer(GravityCompat.START);
     }
 
-    public void loadShelf(Shelf shelf, User user) {
+    public void loadShelf(Shelf shelf, User user, int filters) {
         Log.d("OBL", "loadShelf " + shelf.getS("name") + " | " + user.getS("username"));
 
         Bundle b = new Bundle();
         shelf.wrapInBundle(b);
         user.wrapInBundle(b);
+        b.putInt("filters", filters);
 
         BookListFragment bookListFragment = new BookListFragment();
         bookListFragment.setArguments(b);

@@ -40,6 +40,17 @@ public class SettingsManager {
 
     public static String[] bookstores, bookstoreUrls;
 
+    public static final int FILTER_ALL = 0x7,
+                            FILTER_READ = 0x3,
+                            FILTER_PLANNING = 0x5,
+                            FILTER_READING = 0x6,
+                            FILTER_FAVOURITE = 0x8,
+                            FILTER_WISHLIST = 0x10,
+                            FILTER_PRIVATE = 0x20,
+                            FILTER_REVIEWED = 0x30;
+    public static final int[] FILTERS = new int[] {FILTER_ALL, FILTER_READ, FILTER_PLANNING, FILTER_READING, FILTER_FAVOURITE, FILTER_WISHLIST, FILTER_PRIVATE, FILTER_REVIEWED};
+
+
     public static void init(Context context) {
         if(hiddenShelvesIds.size()>0)
             return;
@@ -154,27 +165,26 @@ public class SettingsManager {
         return shelves;
     }
 
-    public static void setFilters(Context context, BookListFragment.CheckTracker status, BookListFragment.CheckTracker special) {
+    public static void setFilters(Context context, BookListFragment.CheckTracker status, BookListFragment.CheckTracker special, int filters) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(filters == 0)
+            filters = prefs.getInt("shelf_filters", FILTER_ALL);
 
-        Resources res = context.getResources();
+        if((filters & FILTER_ALL)==FILTER_ALL)
+            status.checkEx(R.id.filter_all);
+        else if((filters & FILTER_READ)==FILTER_READ)
+            status.checkEx(R.id.filter_read);
+        else if((filters & FILTER_READING)==FILTER_READING)
+            status.checkEx(R.id.filter_reading);
+        else if((filters & FILTER_PLANNING)==FILTER_PLANNING)
+            status.checkEx(R.id.filter_planning);
 
-        try {
-            JSONObject j = new JSONObject();
-            int defaultId = res.getIdentifier(res.getString(R.string.default_shelf_filter), "id", context.getPackageName());
-            j.put(Integer.toString(defaultId), res.getString(R.string.default_shelf_filter_label));
-
-            JSONArray jarray = new JSONArray(prefs.getString("shelf_filters", "["+j.toString()+"]"));
-            for(int i=0; i<jarray.length(); i++) {
-                int filterId = Integer.parseInt(jarray.getJSONObject(i).keys().next());
-                if(status.has(filterId))
-                    status.checkEx(filterId);
-                else if(special.has(filterId))
-                    special.checkEx(filterId);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        if((filters & FILTER_FAVOURITE)==FILTER_FAVOURITE)
+            special.checkEx(R.id.filter_favourite);
+        if((filters & FILTER_WISHLIST)==FILTER_WISHLIST)
+            special.checkEx(R.id.filter_wishlist);
+        if((filters & FILTER_PRIVATE)==FILTER_PRIVATE)
+            special.checkEx(R.id.filter_private);
     }
 
 
