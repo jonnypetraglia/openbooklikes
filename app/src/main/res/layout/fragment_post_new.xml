@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <!--
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/type"
+        android:entries="@array/post_types"
+        android:layout_alignParentTop="true"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"
+        android:spinnerMode="dialog" />
+        -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/title"
+        android:id="@+id/title_label"
+        android:layout_below="@+id/type" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@id/title"
+        android:layout_below="@+id/title_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Special"
+        android:id="@+id/special_label"
+        android:layout_below="@id/title" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@id/special"
+        android:minLines="4"
+        android:gravity="top|start"
+        android:layout_below="@+id/special_label"
+        android:inputType="textMultiLine"
+        android:ems="10"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/text"
+        android:id="@+id/desc_label"
+        android:layout_below="@id/special" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@id/desc"
+        android:minLines="4"
+        android:gravity="top|start"
+        android:layout_below="@+id/desc_label"
+        android:inputType="textMultiLine"
+        android:ems="10" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Review"
+        android:id="@+id/review"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@id/rating"
+        android:layout_alignBottom="@id/rating"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_toLeftOf="@id/rating" />
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@id/rating"
+        android:visibility="invisible"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/desc"
+        android:numStars="5"
+        android:stepSize="0.5"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Date"
+        android:id="@+id/date_label"
+        android:layout_below="@id/rating" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:ems="10"
+        android:id="@+id/date"
+        android:layout_below="@id/date_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Source"
+        android:id="@+id/source_label"
+        android:layout_below="@+id/date" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@id/source"
+        android:layout_below="@+id/source_label" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Custom URL"
+        android:id="@+id/url_label"
+        android:layout_below="@id/source" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/url"
+        android:layout_below="@+id/url_label" />
+
+
+    <!-- TODO: tags (comma sep?), photos & captions -->
+</RelativeLayout>
+</ScrollView>

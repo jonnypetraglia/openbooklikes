@@ -59,4 +59,12 @@
         <item>http://www.gutenberg.org/ebooks/search/?query=%s</item>
         <item>https://librivox.org/search?search_form=advanced&amp;title=%s</item>
     </string-array>
+    
+    <string-array name="post_types">
+        <item>text</item>
+        <item>quote</item>
+        <item>photo</item>
+        <item>video</item>
+        <item>url</item>
+    </string-array>
 </resources>

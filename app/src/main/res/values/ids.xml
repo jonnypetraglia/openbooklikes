@@ -110,4 +110,6 @@
     <item name="drawer_list" type="id" />
     <item name="bookstores" type="id" />
     <item name="source" type="id" />
+    <item name="option_submit" type="id" />
+    <item name="option_save" type="id" />
 </resources>

@@ -100,6 +100,10 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             startActivity(browserIntent);
             return true;
         }
+        if(item.getItemId()==R.id.option_add) {
+            PostCreateFragment fragment = new PostCreateFragment();
+            getMainActivity().loadSideFragment(fragment);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -108,6 +112,11 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem item = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.option_browser);
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+        if(MainActivity.me.equals(primary))
+            menu.add(Menu.NONE, R.id.option_add, Menu.NONE, "Create") //TODO: String
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         setHasOptionsMenu(true);
     }
 
