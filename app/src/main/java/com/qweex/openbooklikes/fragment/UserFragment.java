@@ -29,7 +29,6 @@ import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
-import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
@@ -85,7 +84,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
     @Override
     public void setArguments(Bundle a) {
-        primary = new Username(a);
+        primary = User.fromData(a);
         super.setArguments(a);
     }
 
@@ -184,12 +183,10 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(primary.getClass().equals(Username.class)) {
-            reload();
-        } else if(primary instanceof User && primary.getS("following_count")!=null) {
-            Log.d("OBL:user", "Filling UI from onViewCreated");
+        if(primary instanceof User)
             fillUi();
-        }
+        else
+            reload();
     }
 
     @Override

@@ -205,6 +205,10 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
         ll.addView(group);
         ll.setLayoutParams(lp);
 
+        TypedArray ta = getActivity().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground});
+        Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
+        ta.recycle();
+
         int i;
         for(i=0; i<statusMenu.size(); i++) {
             if(!statusMenu.getItem(i).isEnabled())
@@ -215,10 +219,6 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             rb.setText(statusMenu.getItem(i).getTitle());
             rb.setEnabled(statusMenu.getItem(i).isEnabled());
             rb.setClickable(!statusMenu.getItem(i).isEnabled());
-
-            TypedArray ta = getActivity().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground});
-            Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
-            ta.recycle();
 
             FrameLayout frame = new FrameLayout(getActivity());
             frame.setLayoutParams(lp);
@@ -246,10 +246,6 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             cb.setId(android.R.id.text1);
             cb.setEnabled(specialMenu.getItem(j).isEnabled());
             cb.setClickable(!specialMenu.getItem(j).isEnabled());
-
-            TypedArray ta = getActivity().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground});
-            Drawable drawableFromTheme = ta.getDrawable(0 /* index */);
-            ta.recycle();
 
             FrameLayout frame = new FrameLayout(getActivity());
             frame.setLayoutParams(lp);

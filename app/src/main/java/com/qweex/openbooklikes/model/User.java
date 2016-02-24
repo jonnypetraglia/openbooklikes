@@ -39,4 +39,15 @@ public class User extends UserPartial {
             return getS("username");
         return getS("blog_title");
     }
+
+    public static Username fromData(Bundle b) {
+        Username u;
+        u = new User(b);
+        if(u.getS("following_count")==null) {
+            u = new UserPartial(b);
+            if(u.id()==null || u.id().length()==0)
+                u = new Username(b);
+        }
+        return u;
+    }
 }
