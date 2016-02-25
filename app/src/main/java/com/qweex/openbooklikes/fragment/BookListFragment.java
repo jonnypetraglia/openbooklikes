@@ -275,7 +275,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             }
             TextView title = ((TextView) row.findViewById(R.id.title));
             ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
-            cover.setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
+            row.findViewById(android.R.id.widget_frame).setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
 
             try {
                 title.setText(getItem(position).getS("title"));

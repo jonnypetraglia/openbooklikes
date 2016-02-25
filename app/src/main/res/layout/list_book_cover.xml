@@ -9,34 +9,48 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@id/background"
-        android:layout_alignTop="@id/image_view"
-        android:layout_alignLeft="@id/image_view"
-        android:layout_alignBottom="@id/image_view"
-        android:layout_alignRight="@id/image_view"
+        android:layout_alignTop="@android:id/widget_frame"
+        android:layout_alignLeft="@android:id/widget_frame"
+        android:layout_alignBottom="@android:id/widget_frame"
+        android:layout_alignRight="@android:id/widget_frame"
         android:src="@drawable/shelf"
         android:adjustViewBounds="false"
         android:scaleType="fitXY" />
 
-    <ImageView
-        android:id="@id/image_view"
+    <RelativeLayout
+        android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="false"
-        android:src="@drawable/abc_btn_rating_star_on_mtrl_alpha"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:gravity="center">
 
-    <TextView
-        android:id="@id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="12sp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/image_view"
+            android:adjustViewBounds="false"
+            android:src="@drawable/abc_btn_rating_star_on_mtrl_alpha"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp" />
+
+        <TextView
+            android:id="@id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentTop="false"
+            android:layout_alignTop="@id/image_view"
+            android:layout_alignLeft="@id/image_view"
+            android:layout_alignBottom="@id/image_view"
+            android:layout_alignRight="@id/image_view"
+            android:textColor="#ffffff"
+             />
+
+    </RelativeLayout>
 
 </RelativeLayout>
