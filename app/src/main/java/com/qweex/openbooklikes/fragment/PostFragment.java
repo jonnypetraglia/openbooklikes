@@ -3,6 +3,8 @@ package com.qweex.openbooklikes.fragment;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.text.SpannableString;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,14 +52,17 @@ public class PostFragment extends FragmentBase<Post> {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         Log.d("OBL:post", "createView " + primary.getS("title"));
 
-
-        setOrHide(view, R.id.title, primary.getS("title"));
-        setOrHide(view, R.id.date, primary.getS("date"));
-        setOrHide(view, R.id.special, primary.getS("special"));
-        setOrHide(view, R.id.desc, primary.getS("desc"));
         String source = primary.getS("source");
         if(source!=null)
             source = "<a href='" + source + "'>" + source + "</a>";
+
+        setOrHide(view, R.id.title, primary.getS("title"));
+        setOrHide(view, R.id.date, primary.getS("date"));
+        if(primary.getS("type").equals("video"))
+            loadVideo(view, R.id.special, primary.getS("special"));
+        else
+            setOrHide(view, R.id.special, primary.getS("special"));
+        setOrHide(view, R.id.desc, primary.getS("desc"));
         setOrHide(view, R.id.source, source);
 
         ((TextView)view.findViewById(R.id.likes)).setText(primary.getS("like_count"));
@@ -82,7 +87,6 @@ public class PostFragment extends FragmentBase<Post> {
                 image.setOnClickListener(clickImage);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             images.setVisibility(View.GONE);
         }
 
@@ -109,6 +113,11 @@ public class PostFragment extends FragmentBase<Post> {
         rating.setVisibility(primary.getS("is_review").equals("1") ? View.VISIBLE : View.GONE);
 
         return super.createProgressView(inflater, container, view);
+    }
+
+    private void loadVideo(View container, int viewId, String special) {
+        //TODO: also account for embed code
+        setOrHide(container, viewId, "<a href='" + special + "'>" + special + "</a>");
     }
 
 

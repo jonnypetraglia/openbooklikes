@@ -227,8 +227,11 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                 break;
             case R.id.nav_search:
                 fragment = new SearchFragment();
-                if(arg.length()>0)
-                    ((SearchFragment)fragment).setSearchTerm(arg);
+                if(arg.length()>0) {
+                    b = new Bundle();
+                    b.putString("q", arg);
+                    fragment.setArguments(b);
+                }
                 break;
         }
         loadMainFragment(fragment, user);

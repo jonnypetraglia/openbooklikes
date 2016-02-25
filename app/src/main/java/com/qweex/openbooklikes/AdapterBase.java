@@ -7,23 +7,18 @@ import com.qweex.openbooklikes.model.Book;
 
 import java.util.ArrayList;
 
+//TODO: replace this entire class somehow
 abstract public class AdapterBase<T> extends ArrayAdapter<T> {
-    ArrayList<T> data; //TODO: Find a different way to do this
+    ArrayList<T> data;
 
     public AdapterBase(Context context, int i, ArrayList<T> objects) {
         super(context, i, objects);
         data = objects;
     }
 
-    abstract public int perScreen();
 
     public ArrayList<T> getData() {
         return this.data;
     }
 
-    abstract public boolean noMore();
-
-    final protected int perScreen(int i) {
-        return Math.max(i, getContext().getResources().getInteger(R.integer.min_per_page));
-    }
 }

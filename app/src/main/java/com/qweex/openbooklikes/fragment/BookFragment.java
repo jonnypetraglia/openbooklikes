@@ -98,7 +98,7 @@ public class BookFragment extends FragmentBase<Book> {
                 bookProgress.setProgress(Integer.parseInt(response.getString("book_page_currently")));
                 bookProgress.setVisibility(View.VISIBLE);
             } catch(Exception e) {
-                e.printStackTrace();
+                //It's probably fine, ssshhhh
             }
         }
     }
@@ -151,16 +151,16 @@ public class BookFragment extends FragmentBase<Book> {
 
         Log.d("Test", choices.toString());
 
-        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Loading", null, false, false);
         final LoadingViewManagerDialog loadingManager = new LoadingViewManagerDialog(
                 getMainActivity().findViewById(R.id.side_fragment),
                 R.string.successfully_updated
         );
 
+        loadingManager.show();
         ApiClient.get(params, new LoadingResponseHandler(loadingManager) {
             @Override
             protected String urlPath() {
-                return "book/AddBookToShelfASDF";
+                return "book/AddBookToShelf";
             }
 
             @Override
@@ -270,8 +270,8 @@ public class BookFragment extends FragmentBase<Book> {
                         result.wish = ((CheckBox) rl.findViewById(R.id.filter_wishlist)).isChecked();
                         result.priv = ((CheckBox) rl.findViewById(R.id.filter_private)).isChecked();
                         result.priv = ((CheckBox) rl.findViewById(R.id.filter_private)).isChecked();
-                        result.pageCurrent = Integer.parseInt(((TextView) rl.findViewById(R.id.current_of_total)).getText().toString());
-                        result.pageMax = Integer.parseInt(((TextView) rl.findViewById(R.id.count)).getText().toString());
+                        result.pageCurrent = Integer.parseInt("0" + ((TextView) rl.findViewById(R.id.current_of_total)).getText().toString());
+                        result.pageMax = Integer.parseInt("0" + ((TextView) rl.findViewById(R.id.count)).getText().toString());
 
                         addToShelf(result);
                     }

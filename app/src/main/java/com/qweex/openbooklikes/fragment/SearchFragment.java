@@ -29,7 +29,6 @@ import com.qweex.openbooklikes.notmine.SimpleScannerActivity;
 public class SearchFragment extends BookListFragment<Search> {
 
     EditText editText;
-    protected Search searchTerm;
 
     @Override
     public String getTitle(Resources res) {
@@ -42,15 +41,10 @@ public class SearchFragment extends BookListFragment<Search> {
     @Override
     public void setArguments(Bundle a) {
         // Silence is golden
-        searchTerm = new Search(a);
+        primary = new Search(a);
         Log.d("setArguments", primary.id());
 
         super.setArguments(a);
-    }
-
-    public void setSearchTerm(String q) {
-        searchTerm = Search.create(q);
-        primary = searchTerm;
     }
 
     @Override
@@ -80,7 +74,7 @@ public class SearchFragment extends BookListFragment<Search> {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(searchTerm!=null)
+        if(primary!=null)
             performSearch();
     }
 
@@ -123,16 +117,17 @@ public class SearchFragment extends BookListFragment<Search> {
         if(resultCode != Activity.RESULT_OK)
             return;
         String ISBN = data.getStringExtra("barcode");
-        searchTerm = Search.create(ISBN);
+        primary = Search.create(ISBN);
         performSearch();
     }
 
     @Override
     public boolean fetchMore(int page) {
+        SearchHandler sh = ((SearchHandler)responseHandler);
         // This will not execute all of BookList's fetchMore; just FetchFragmentBase's part
         if(!super.fetchMore(page))
             return false;
-        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        RequestParams params = new ApiClient.PagedParams(page, (SearchHandler)responseHandler);
         params.put("q", primary.getS("q"));
         if(primary.getS("lng")!=null)
             params.put("lng", primary.getS("lng"));
@@ -162,7 +157,7 @@ public class SearchFragment extends BookListFragment<Search> {
         m.getSupportActionBar().setTitle(getTitle(m.getResources()));
         loadingManager.show();
         editText.clearFocus();
-        editText.setText(searchTerm.getS("q"));
+        editText.setText(primary.getS("q"));
         reload();
     }
 

@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
 
@@ -58,7 +59,10 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
 
     protected boolean fetchMore(int page) {
         lastPageFetched = page;
-        if(primary==null || adapter.noMore())
+        if(primary==null ||
+                (responseHandler instanceof LoadingResponseHandler &&
+                        ((LoadingResponseHandler)responseHandler).noMore())
+                )
             return false;
         loadingManager.show();
         return true;

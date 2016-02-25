@@ -90,8 +90,10 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         setHasOptionsMenu(true);
         responseHandler = new BookHandler(this);
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
-
-        SettingsManager.setFilters(getActivity(), statusTracker, specialTracker, getArguments().getInt("filters", SettingsManager.FILTER_ALL));
+        int filters = SettingsManager.FILTER_ALL;
+        if(getArguments()!=null)
+            filters = getArguments().getInt("filters", SettingsManager.FILTER_ALL);
+        SettingsManager.setFilters(getActivity(), statusTracker, specialTracker, filters);
     }
 
     @Override
@@ -213,7 +215,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         if(!this.getClass().equals(BookListFragment.class))
             return true;
 
-        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        RequestParams params = new ApiClient.PagedParams(page, (BookHandler)responseHandler);
         params.put("uid", owner.id());
         if(!primary.isAllBooks())
             params.put("Cat", primary.id());
@@ -237,11 +239,10 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if(position >= adapter.getCount())
+            return;
 
         Book book = adapter.getItem(position);
-
-        Log.d("OBL", "book is " + book.getS("cover"));
-
         Bundle b = new Bundle();
         int imgHeight = ((ImageView)view.findViewById(R.id.image_view)).getDrawable().getIntrinsicHeight();
         b.putInt("imgHeight", imgHeight);
@@ -313,20 +314,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         }
 
         @Override
-        public int perScreen() {
-            float IMG_SIZE = getResources().getDimension(R.dimen.list_book_size);
-            int numberOfRows = (int) Math.ceil(gridView.getHeight() / IMG_SIZE);
-            int numberPerRow = (int) Math.floor(gridView.getWidth() / IMG_SIZE);
-            Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
-            return super.perScreen(numberOfRows * numberPerRow);
-        }
-
-        @Override
-        public boolean noMore() {
-            return super.getCount() == primary.getI("book_count") || responseHandler.wasLastFetchNull();
-        }
-
-        @Override
         public boolean isEmpty() { return false; }
     }
 
@@ -350,19 +337,17 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:book.", "Success " + response.length());
-            loadingManager.content();
-            loadingManager.changeState(LoadingViewManager.State.MORE);
 
-            if(wasLastFetchNull()) {
+            if(noMoreAfterLastTime()) {
                 if(adapter.getCount()==0)
-                    this.loadingManager.empty();
+                    loadingManager.empty();
                 return;
             }
             try {
                 if (response.getInt("status") != 0 || statusCode >= 400)
                     throw new JSONException(response.getString("message"));
                 JSONArray books = response.getJSONArray("books");
-                for(int i=0; i<books.length(); i++) {
+                for (int i = 0; i < books.length(); i++) {
                     Book b = new Book(books.getJSONObject(i));
                     Log.d("OBL:book", "Book: " + b.getS("title"));
                     adapter.add(b);
@@ -372,14 +357,24 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 e.printStackTrace();
                 this.loadingManager.error(e);
             }
-            if(adapter.noMore() && adapter.getCount() == 0)
-                this.loadingManager.empty();
         }
 
         @Override
         public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject responseBody) {
             super.onFailure(statusCode, headers, error, responseBody);
             Log.e("OBL:Cat", "Failed cause " + error.getMessage());
+        }
+
+        @Override
+        public int perScreen() {
+            if(gridView.getVisibility()==View.VISIBLE) {
+                return super.perScreen(listView.getLastVisiblePosition() - listView.getFirstVisiblePosition() + 1);
+            }
+            float IMG_SIZE = getResources().getDimension(R.dimen.list_book_size);
+            int numberOfRows = (int) Math.ceil(gridView.getHeight() / IMG_SIZE);
+            int numberPerRow = (int) Math.floor(gridView.getWidth() / IMG_SIZE);
+            Log.d("OBL:fetchMore", numberOfRows + " * " + numberPerRow);
+            return super.perScreen(numberOfRows * numberPerRow);
         }
     }
 
@@ -409,16 +404,6 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
 
 
             return row;
-        }
-
-        @Override
-        public int perScreen() {
-            return super.perScreen(listView.getLastVisiblePosition() - listView.getFirstVisiblePosition() + 1);
-        }
-
-        @Override
-        public boolean noMore() {
-            return super.getCount() == primary.getI("book_count");
         }
 
         @Override

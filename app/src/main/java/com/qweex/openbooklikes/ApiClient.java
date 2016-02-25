@@ -7,6 +7,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,25 +56,30 @@ public class ApiClient {
         abstract protected String urlPath();
         abstract protected String countFieldName();
 
-        private boolean lastFetchWasNull = false;
-        public boolean wasLastFetchNull() { return lastFetchWasNull; }
-        public void reset() { lastFetchWasNull = false; }
+        protected int currentCount = Integer.MAX_VALUE, lastCount = Integer.MAX_VALUE;
+
+        public void reset() {
+            currentCount = Integer.MAX_VALUE;
+            lastCount = Integer.MAX_VALUE;
+        }
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            if(!lastFetchWasNull)
-                try {
-                    lastFetchWasNull = countFieldName()!=null && response.getInt(countFieldName())==0;
+            lastCount = currentCount;
+            try {
+                if(countFieldName()!=null) {
+                    currentCount = response.getInt(countFieldName());
+                }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    lastFetchWasNull = true;
+                    currentCount = 0;
                 }
         }
     }
 
     public static class PagedParams extends RequestParams {
-        public PagedParams(int page, AdapterBase adapter) {
-            put("PerPage", adapter.perScreen());
+        public PagedParams(int page, LoadingResponseHandler handler) {
+            put("PerPage", handler.perScreen());
             put("Page", page);
         }
     }

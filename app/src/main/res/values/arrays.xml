@@ -61,10 +61,10 @@
     </string-array>
     
     <string-array name="post_types">
-        <item>text</item>
-        <item>quote</item>
-        <item>photo</item>
-        <item>video</item>
-        <item>url</item>
+        <item>Text</item>
+        <item>Quote</item>
+        <item>Photo</item>
+        <item>Video</item>
+        <item>Url</item>
     </string-array>
 </resources>

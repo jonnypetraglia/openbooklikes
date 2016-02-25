@@ -37,7 +37,7 @@ public class ShelvesHandler extends LoadingResponseHandler {
 
     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
         super.onSuccess(statusCode, headers, response);
-        if(wasLastFetchNull())
+        if (noMoreAfterLastTime())
             return;
         Log.d("OBL:cat.", "Success " + response.length());
 

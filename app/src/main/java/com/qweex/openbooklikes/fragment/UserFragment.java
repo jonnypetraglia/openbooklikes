@@ -100,10 +100,8 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
             startActivity(browserIntent);
             return true;
         }
-        if(item.getItemId()==R.id.option_add) {
-            PostCreateFragment fragment = new PostCreateFragment();
-            getMainActivity().loadSideFragment(fragment);
-        }
+        if(item.getItemId()==R.id.option_add)
+            PostCreateFragment.showTypePicker(this, getMainActivity());
         return super.onOptionsItemSelected(item);
     }
 
@@ -203,7 +201,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         if(!super.fetchMore(page) || primary.getClass().equals(Username.class))
             return false;
         Log.d("OBL:fetchMore", "Fetching more posts, page " + page);
-        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        RequestParams params = new ApiClient.PagedParams(page, blogHandler);
         params.put("uid", primary.id());
 
         ApiClient.get(params, responseHandler = blogHandler);
@@ -211,10 +209,9 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
     }
 
     void fillUi() {
-        View v = getView();
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.profile_size);
 
-        ImageView pic = (ImageView) v.findViewById(R.id.image_view);
+        ImageView pic = (ImageView) listView.findViewById(R.id.image_view);
 
         Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
         placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
@@ -242,7 +239,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
 
         for (HeaderData h : headerDatas)
-            h.doView(v.findViewById(h.layoutId));
+            h.doView(listView.findViewById(h.layoutId));
 
         loadingManager.content();
         loadingManager.changeState(LoadingViewManager.State.MORE);
@@ -300,10 +297,9 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
-
             loadingManager.content();
 
-            if(wasLastFetchNull())
+            if(noMoreAfterLastTime())
                 return;
 
             try {
@@ -369,16 +365,6 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
             return row;
         }
-
-        @Override
-        public int perScreen() {
-            return super.perScreen(0); //FIXME?
-        }
-
-        @Override
-        public boolean noMore() {
-            return blogHandler.wasLastFetchNull();
-        }
     }
 
     @Override
@@ -418,7 +404,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             primary = this.user;
-            if(wasLastFetchNull() || getActivity()==null)
+            if(noMoreAfterLastTime() || getActivity()==null)
                 return;
             fillUi();
         }

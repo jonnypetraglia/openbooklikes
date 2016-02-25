@@ -44,7 +44,7 @@ public abstract class UserHandler extends LoadingResponseHandler {
         super.onSuccess(statusCode, headers, response);
         Log.d("OBL:user.", "Success " + response.length());
 
-        if(wasLastFetchNull())
+        if(noMoreAfterLastTime())
             return;
         try {
             user = new User(response);

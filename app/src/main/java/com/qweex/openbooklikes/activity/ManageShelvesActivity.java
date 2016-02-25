@@ -286,6 +286,7 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            super.onSuccess(statusCode, headers, response);
             // Create a new shelf for it
             Bundle b = new Bundle();
             try {
@@ -301,7 +302,6 @@ public class ManageShelvesActivity extends AppCompatActivity {
 
                 SettingsManager.saveShelves(shelvesInProgress, ManageShelvesActivity.this);
                 reloadAdapter();
-                super.onSuccess(statusCode, headers, response);
             } catch (JSONException e) {
                 super.onFailure(statusCode, headers, e, response);
             }

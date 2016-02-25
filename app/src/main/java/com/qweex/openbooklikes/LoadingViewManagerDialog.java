@@ -1,9 +1,11 @@
 package com.qweex.openbooklikes;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 public class LoadingViewManagerDialog extends LoadingViewManager {
     ProgressDialog dialog;
@@ -50,8 +52,10 @@ public class LoadingViewManagerDialog extends LoadingViewManager {
     @Override
     public void error(Throwable err) {
         dialog.dismiss();
-        Snackbar.make(fragment, err.getMessage(), Snackbar.LENGTH_LONG)
-                .show();
+        Snackbar snack = Snackbar.make(fragment, err.getMessage(), Snackbar.LENGTH_LONG);
+        ((TextView)snack.getView().findViewById(android.support.design.R.id.snackbar_text))
+                .setTextColor(Color.RED);
+        snack.show();
     }
 
     @Override

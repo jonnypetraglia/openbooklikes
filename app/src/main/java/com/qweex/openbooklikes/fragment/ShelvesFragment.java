@@ -104,15 +104,5 @@ public class ShelvesFragment extends FetchFragmentBase<User, Shelf> implements A
 
             return row;
         }
-
-        @Override
-        public int perScreen() {
-            return super.perScreen(0); // api usually fetches all shelves, so just supply default
-        }
-
-        @Override
-        public boolean noMore() {
-            return responseHandler.wasLastFetchNull();
-        }
     }
 }

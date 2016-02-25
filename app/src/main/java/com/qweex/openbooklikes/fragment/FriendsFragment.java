@@ -83,7 +83,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
     public boolean fetchMore(int page) {
         if (!super.fetchMore(page))
             return false;
-        RequestParams params = new ApiClient.PagedParams(page, adapter);
+        RequestParams params = new ApiClient.PagedParams(page, friendsHandler);
         params.put("uid", primary.id());
 
         ApiClient.get(params, friendsHandler);
@@ -135,10 +135,8 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:friends.", "Success " + response.length());
-            loadingManager.content();
-            loadingManager.changeState(LoadingViewManager.State.MORE);
 
-            if(wasLastFetchNull()) {
+            if(noMoreAfterLastTime()) {
                 if(adapter.getCount()==0)
                     loadingManager.empty();
                 return;
@@ -185,16 +183,6 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             ((TextView)row.findViewById(R.id.title)).setText(user.getS("username"));
 
             return row;
-        }
-
-        @Override
-        public int perScreen() {
-            return super.perScreen(listView.getLastVisiblePosition() - listView.getFirstVisiblePosition() + 1);
-        }
-
-        @Override
-        public boolean noMore() {
-            return getCount()==relationCount || friendsHandler.wasLastFetchNull();
         }
     }
 
