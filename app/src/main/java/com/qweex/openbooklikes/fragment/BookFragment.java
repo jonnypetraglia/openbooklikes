@@ -137,14 +137,14 @@ public class BookFragment extends FragmentBase<Book> {
         if(choices.fav)
             params.put("Favourite", choices.fav);
         if(!choices.shelfId.equals(BookListPartial.NO_SHELF_ID))
-            params.put("Cat", choices.wish);
+            params.put("Cat", choices.shelfId);
         if(choices.status!=null)
             params.put("BookStatus", choices.status);
         if(choices.pageMax > 0)
             params.put("PageMax", choices.pageMax);
         if(choices.pageCurrent > 0)
             params.put("PageCurrently", choices.pageCurrent);
-        if(choices.rating!=null)
+        if(choices.rating!=null && !choices.rating.equals("0.0"))
             params.put("BookUserRating", choices.rating);
         if(choices.priv)
             params.put("Private", choices.priv);

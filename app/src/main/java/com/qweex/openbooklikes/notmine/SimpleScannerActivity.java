@@ -36,7 +36,9 @@ public class SimpleScannerActivity extends Activity implements ZBarScannerView.R
         // Do something with the result here
         Log.v("barcode--", rawResult.getBarcodeFormat().getName() + " = " + rawResult.getContents());
 
-        if(rawResult.getBarcodeFormat().getName().startsWith("ISBN")) {
+        if(rawResult.getBarcodeFormat().getName().startsWith("ISBN")
+                ||
+                rawResult.getBarcodeFormat().getName().startsWith("UPC")) {
             Intent i = new Intent();
             i.putExtra("barcode", rawResult.getContents());
             setResult(RESULT_OK, i);

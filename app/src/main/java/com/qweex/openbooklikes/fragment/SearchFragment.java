@@ -106,7 +106,7 @@ public class SearchFragment extends BookListFragment<Search> {
             Intent i = new Intent(SearchFragment.this.getActivity(), SimpleScannerActivity.class);
             SearchFragment.this.startActivityForResult(i, 1);
             InputMethodManager mIMEMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            mIMEMgr.hideSoftInputFromWindow(item.getActionView().getWindowToken(), 0);
+            mIMEMgr.hideSoftInputFromWindow(editText.getWindowToken(), 0);
         }
         return super.onOptionsItemSelected(item);
     }

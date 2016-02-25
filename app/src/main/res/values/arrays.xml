@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="book_formats">
+        <item name="0">Unknown</item>
         <item name="1">Paperback</item>
-        <item name="2">Hardbook</item>
+        <item name="2">Hardback</item>
         <item name="3">Audiobook</item>
         <item name="4">Ebook</item>
         <item name="5">Mass Market Paperback</item>
