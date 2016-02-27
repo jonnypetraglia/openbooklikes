@@ -3,10 +3,7 @@ package com.qweex.openbooklikes.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
@@ -223,6 +220,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
         Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
         VectorDrawable vectorDrawable = (VectorDrawable) placeholder;
+        //FIXME: width & height can be -1..... I guess if WRAP_CONTENT?
         placeholder = Misc.resizeDrawable(vectorDrawable,
                 pic.getLayoutParams().width,
                 pic.getLayoutParams().height);

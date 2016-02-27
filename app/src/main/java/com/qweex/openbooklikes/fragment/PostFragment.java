@@ -1,12 +1,12 @@
 package com.qweex.openbooklikes.fragment;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.text.SpannableString;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,14 +20,14 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.qweex.imagevieweractivity.ImageViewerActivity;
 import com.qweex.openbooklikes.ApiClient;
 import com.qweex.openbooklikes.LoadingViewInterface;
-import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.LoadingViewManagerDialog;
 import com.qweex.openbooklikes.R;
-import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.activity.WebViewActivity;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
@@ -41,6 +41,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class PostFragment extends FragmentBase<Post> {
     User owner;
+    ImageView thumbnail;
 
     @Override
     public String getTitle(Resources r) {
@@ -119,6 +120,8 @@ public class PostFragment extends FragmentBase<Post> {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         Log.d("OBL:post", "createView " + primary.getS("title"));
 
+        thumbnail = (ImageView) view.findViewById(R.id.video);
+
         String source = primary.getS("source");
         if(source!=null)
             source = "<a href='" + source + "'>" + source + "</a>";
@@ -126,9 +129,11 @@ public class PostFragment extends FragmentBase<Post> {
         setOrHide(view, R.id.title, primary.getS("title"));
         setOrHide(view, R.id.date, primary.getS("date"));
         if(primary.getS("type").equals("video"))
-            loadVideo(view, R.id.special, primary.getS("special"));
-        else
+            loadVideo(primary.getS("special"));
+        else {
+            view.findViewById(R.id.video).setVisibility(View.GONE);
             setOrHide(view, R.id.special, primary.getS("special"));
+        }
         setOrHide(view, R.id.desc, primary.getS("desc"));
         setOrHide(view, R.id.source, source);
 
@@ -182,10 +187,46 @@ public class PostFragment extends FragmentBase<Post> {
         return super.createProgressView(inflater, container, view);
     }
 
-    private void loadVideo(View container, int viewId, String special) {
-        //TODO: also account for embed code
-        setOrHide(container, viewId, "<a href='" + special + "'>" + special + "</a>");
+    private void loadVideo(String special) {
+        thumbnail.setTag(special);
+
+        String playVideo = Misc.extractYTId(special);
+        if(playVideo!=null) {
+            MainActivity.imageLoader.displayImage(
+                    "http://i.ytimg.com/vi/" + playVideo + "/hqdefault.jpg",
+                    thumbnail,
+                    new DisplayImageOptions.Builder()
+                            .showImageOnLoading(R.drawable.video_np45324)
+                            .showImageForEmptyUri(R.drawable.video_np45324)
+                            .showImageOnFail(R.drawable.x_np337402)
+                            .cacheInMemory(true)
+                            .cacheOnDisk(true)
+                            .build()
+            );
+            thumbnail.setOnClickListener(openYoutube);
+        } else {
+            //TODO: Image
+            thumbnail.setImageResource(R.drawable.cover_load_np329089);
+            thumbnail.setOnClickListener(openEmbed);
+        }
     }
+
+    View.OnClickListener openYoutube = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thumbnail.getTag().toString()));
+            getActivity().startActivity(intent);
+        }
+    };
+
+    View.OnClickListener openEmbed = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), WebViewActivity.class);
+            intent.putExtra("html", thumbnail.getTag().toString());
+            getActivity().startActivity(intent);
+        }
+    };
 
 
     View.OnClickListener clickImage = new View.OnClickListener() {

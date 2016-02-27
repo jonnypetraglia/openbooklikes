@@ -7,6 +7,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.util.DisplayMetrics;
+import android.util.Log;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Misc {
 
@@ -32,5 +36,19 @@ public class Misc {
         vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         vectorDrawable.draw(canvas);
         return new BitmapDrawable(bitmap);
+    }
+
+    // http://stackoverflow.com/a/24048309/1526210
+
+    public static String extractYTId(String ytUrl) {
+        //^https?://.*(?:youtu(be\.com|\.be)\/|v/|u\/|w\/|embed\/|watch\?v=)([^#&?]*).*$
+        Pattern pattern = Pattern.compile(
+                "^https?://.*(?:youtu(be\\.com|\\.be)\\/|v/|u\\/|w\\/|embed\\/|watch\\?v=)([^#&?]*).*$",
+//              "^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$",
+                Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(ytUrl);
+        if (matcher.matches())
+            return matcher.group(2);
+        return null;
     }
 }

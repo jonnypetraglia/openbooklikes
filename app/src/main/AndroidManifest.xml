@@ -33,6 +33,7 @@
 
         <activity android:name="com.qweex.imagevieweractivity.ImageViewerActivity"
             android:theme="@style/Fullscreen"/>
+        <activity android:name=".activity.WebViewActivity" />
     </application>
 
 </manifest>

@@ -50,10 +50,11 @@
 
     </HorizontalScrollView>
 
-    <WebView
-        android:id="@+id/webview"
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/video"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/images" />
@@ -67,7 +68,7 @@
         android:textStyle="italic"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/images" />
+        android:layout_below="@+id/video" />
 
     <com.klinker.android.link_builder.LinkConsumableTextView
         android:layout_width="wrap_content"
