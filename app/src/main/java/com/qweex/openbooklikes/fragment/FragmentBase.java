@@ -3,9 +3,11 @@ package com.qweex.openbooklikes.fragment;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,13 +28,13 @@ import android.widget.Toast;
 import com.klinker.android.link_builder.LinkConsumableTextView;
 import com.qweex.linkspan.LinkSpan;
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.Titleable;
 import com.qweex.openbooklikes.LoadingViewManager;
-import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.Titleable;
+import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.model.Shareable;
-
+import com.qweex.openbooklikes.notmine.Misc;
 
 
 abstract public class FragmentBase<Primary extends ModelBase> extends Fragment implements Toolbar.OnMenuItemClickListener, Titleable,
@@ -42,8 +44,14 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
     LoadingViewManager loadingManager = new LoadingViewManager();
 
     public static void optionIcon(MenuItem mi) {
-        if(mi.getIcon()!=null)
+        if(mi.getIcon()!=null) {
             mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
+
+            if(mi.getIcon() instanceof VectorDrawable) {
+                int dp = Misc.convertDpToPixel(32);
+                mi.setIcon(Misc.resizeDrawable((VectorDrawable) mi.getIcon(), dp, dp));
+            }
+        }
     }
 
     @Override
@@ -78,7 +86,7 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         //getActivity().onCreateOptionsMenu(menu);
         if(primary instanceof  Shareable || this instanceof Shareable) {
             mi = menu.add(Menu.NONE, R.id.option_share, Menu.NONE, R.string.option_share)
-                    .setIcon(R.drawable.share_np341334);
+                    .setIcon(R.drawable.share_np48841);
             optionIcon(mi);
             mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }

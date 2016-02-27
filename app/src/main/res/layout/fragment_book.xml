@@ -6,15 +6,16 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <LinearLayout
+    <RelativeLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
     <com.daimajia.numberprogressbar.NumberProgressBar
         android:id="@id/number_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:visibility="invisible"
         android:layout_margin="10dp"
 
@@ -29,11 +30,24 @@
         custom:progress_text_visibility="visible"
         />
 
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/progress"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:layout_alignTop="@id/number_progress_bar"
+            android:layout_alignLeft="@id/number_progress_bar"
+            android:layout_alignBottom="@id/number_progress_bar"
+            android:layout_alignRight="@id/number_progress_bar" />
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/orientation">
+            android:id="@+id/orientation"
+            android:layout_below="@id/number_progress_bar">
 
             <com.qweex.openbooklikes.DownloadableImageView
             android:id="@id/image_view"
@@ -201,5 +215,5 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 </ScrollView>

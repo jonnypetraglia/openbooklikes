@@ -1,17 +1,13 @@
 package com.qweex.openbooklikes.fragment;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,7 +25,6 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.daimajia.numberprogressbar.NumberProgressBar;
@@ -54,7 +49,7 @@ import cz.msebera.android.httpclient.Header;
 public class BookFragment extends FragmentBase<Book> {
     int imgHeight;
     NumberProgressBar bookProgress;
-    MenuItem addToShelfMenuItem;
+    MenuItem addToShelfMenuItem, updateMenuItem;
 
     @Override
     public String getTitle(Resources r) {
@@ -77,7 +72,6 @@ public class BookFragment extends FragmentBase<Book> {
                 return "book/GetPageCurrent";
             }
         };
-        reload();
     }
 
     abstract class PageResponseHandler extends ApiClient.ApiResponseHandler {
@@ -89,7 +83,9 @@ public class BookFragment extends FragmentBase<Book> {
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
+            getView().findViewById(R.id.progress).setVisibility(View.GONE);
             addToShelfMenuItem.setEnabled(true);
+            updateMenuItem.setEnabled(true);
             try {
                 if(!response.has("book_page_currently") || response.getString("book_page_currently").equals("0"))
                     return;
@@ -101,22 +97,36 @@ public class BookFragment extends FragmentBase<Book> {
                 //It's probably fine, ssshhhh
             }
         }
+
+
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bookProgress = (NumberProgressBar) view.findViewById(R.id.number_progress_bar);
+        reload();
     }
 
+
+
     void reload() {
+        bookProgress.setVisibility(View.INVISIBLE);
+        getView().findViewById(R.id.progress).setVisibility(View.VISIBLE);
         addToShelfMenuItem.setEnabled(false);
+        updateMenuItem.setEnabled(false);
+
         RequestParams params = new RequestParams();
         params.put("bid", primary.id());
         ApiClient.get(params, responseHandler);
     }
 
     void update(int current, int max) {
+        bookProgress.setVisibility(View.INVISIBLE);
+        getView().findViewById(R.id.progress).setVisibility(View.VISIBLE);
+        addToShelfMenuItem.setEnabled(false);
+        updateMenuItem.setEnabled(false);
+
         RequestParams params = new RequestParams();
         params.put("bid", primary.id());
         params.put("PageCurrently", current);
@@ -183,7 +193,6 @@ public class BookFragment extends FragmentBase<Book> {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        bookProgress.setVisibility(View.INVISIBLE);
                         update(
                                 Integer.parseInt(current.getText().toString()),
                                 Integer.parseInt(max.getText().toString())
@@ -228,7 +237,7 @@ public class BookFragment extends FragmentBase<Book> {
 
         ListView listView = new ListView(getActivity());
         listView.setVerticalFadingEdgeEnabled(true);
-        listView.setFadingEdgeLength(Misc.convertPixelsToDp(25, getActivity()));
+        listView.setFadingEdgeLength(Misc.convertPixelsToDp(25));
         listView.addFooterView(rl);
         listView.setAdapter(adapter);
         listView.setItemsCanFocus(true);
@@ -309,6 +318,7 @@ public class BookFragment extends FragmentBase<Book> {
             optionIcon(menu.getItem(i));
 
         addToShelfMenuItem = menu.findItem(R.id.option_add);
+        updateMenuItem = menu.findItem(R.id.option_update);
 
         bookstores = menu.findItem(R.id.bookstores).getSubMenu();
 
@@ -323,7 +333,6 @@ public class BookFragment extends FragmentBase<Book> {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.option_reload:
-                bookProgress.setVisibility(View.INVISIBLE);
                 reload();
                 break;
             case R.id.option_update:
@@ -411,8 +420,8 @@ public class BookFragment extends FragmentBase<Book> {
     int calcImgSIze(int screenHeight) {
         int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.book_size);
 
-        int mar = Misc.convertDpToPixel(20, getActivity());
-        int lHeight = Misc.convertDpToPixel(screenHeight, getActivity())
+        int mar = Misc.convertDpToPixel(20);
+        int lHeight = Misc.convertDpToPixel(screenHeight)
                 - ((MainActivity)getActivity()).getStatusBarHeight()
                 - ((MainActivity)getActivity()).getActionBarHeight();
         return Math.min(

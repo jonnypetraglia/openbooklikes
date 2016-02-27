@@ -1,5 +1,6 @@
 package com.qweex.openbooklikes.fragment;
 
+import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
+import com.qweex.openbooklikes.notmine.Misc;
 
 import java.util.ArrayList;
 
@@ -85,7 +87,7 @@ abstract public class FetchFragmentBase<Primary extends ModelBase, T extends Mod
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem mi;
         mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
-                .setIcon(R.drawable.reload_np45438);
+                .setIcon(R.drawable.reload_np83413);
         optionIcon(mi);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }

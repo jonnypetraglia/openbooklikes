@@ -76,9 +76,9 @@ public class PostFragment extends FragmentBase<Post> {
                 JSONObject photo = a.getJSONObject(i);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
-                        Misc.convertDpToPixel(60, getContext())
+                        Misc.convertDpToPixel(60)
                 );
-                int m = Misc.convertDpToPixel(10, getContext());
+                int m = Misc.convertDpToPixel(10);
                 lp.setMargins(m, m * 2, m, m * 2);
 
                 ImageView image = new ImageView(getContext());

@@ -53,24 +53,26 @@ by author and all icons are released under the Creative Commons license: CC-BY-3
   - [Evgeniy Kozachenko](https://thenounproject.com/ekwo)
     - R.drawable.17208
   - [Golden Roof](https://thenounproject.com/goldenroof)
-      - R.drawable.barcode_np134554
+    - R.drawable.barcode_np134554
   - [Johannes Hirsekorn](https://thenounproject.com/mrheinz)
     - R.drawable.reorder_np203471
   - [lastspark](https://thenounproject.com/lastspark)
-      - R.drawable.challenge_np337224
-      - R.drawable.reblogs_np346281
+    - R.drawable.challenge_np337224
+    - R.drawable.reblogs_np346281
+  - [Mani Cheng](https://thenounproject.com/manicheng)
+    - R.drawable.reload_np61130
   - [Mike Ashley](https://thenounproject.com/mikeashley)
     - R.drawable.app_np17900
   - [Oliver Kittler](https://thenounproject.com/kittler)
     - R.drawable.x_np337402
   - [Pascual Bilotta](https://thenounproject.com/pascual.bilotta)
-      - R.drawable.search_np9509
+    - R.drawable.search_np9509
   - [Shawn Erdely](https://thenounproject.com/shawn4)
     - R.drawable.settings_np113122
   - [Simple Icons](https://thenounproject.com/SimpleIcons)
     - R.drawable.dash_np32144
   - [useiconic.com](https://thenounproject.com/useiconic.com)
-    - R.drawable.reload_np45438
+    - R.drawable.add_np45465
     
   
 Browser

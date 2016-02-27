@@ -3,8 +3,12 @@ package com.qweex.openbooklikes.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +38,7 @@ import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 import com.qweex.openbooklikes.model.Username;
+import com.qweex.openbooklikes.notmine.Misc;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -111,9 +116,12 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         MenuItem item = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.option_browser);
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
-        if(MainActivity.me.equals(primary))
-            menu.add(Menu.NONE, R.id.option_add, Menu.NONE, "Create") //TODO: String
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if(MainActivity.me.equals(primary)) {
+            item = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, "Create") //TODO: String
+                    .setIcon(R.drawable.add_np45465);
+            optionIcon(item);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
 
         setHasOptionsMenu(true);
     }
@@ -214,10 +222,14 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
         ImageView pic = (ImageView) listView.findViewById(R.id.image_view);
 
         Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
+        VectorDrawable vectorDrawable = (VectorDrawable) placeholder;
+        placeholder = Misc.resizeDrawable(vectorDrawable,
+                pic.getLayoutParams().width,
+                pic.getLayoutParams().height);
         placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
 
         String imgUrl = ((User) primary).photoSize(IMG_SIZE);
-        ((DownloadableImageView)pic).setSource(((User)primary).properName(), imgUrl);
+        ((DownloadableImageView)pic).setSource(((User) primary).properName(), imgUrl);
         MainActivity.imageLoader.displayImage(
                 imgUrl,
                 pic,

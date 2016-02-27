@@ -34,6 +34,7 @@ import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Post;
+import com.qweex.openbooklikes.notmine.Misc;
 
 import org.json.JSONObject;
 
@@ -273,10 +274,8 @@ public class PostCreateFragment extends FragmentBase {
                                     convertView = super.getView(position, convertView, parent);
 
                                     VectorDrawable v = (VectorDrawable) fragment.getResources().getDrawable(POST_ICONS[position]);
-                                    Drawable d = v;
-                                    Bitmap b = getBitmap(v);
-                                    b = Bitmap.createScaledBitmap(b, 100, 100, false);
-                                    d = new BitmapDrawable(b);
+                                    int dp = Misc.convertDpToPixel(32);
+                                    Drawable d = Misc.resizeDrawable(v, dp, dp);
 
                                     TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
                                     textView.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
@@ -289,16 +288,5 @@ public class PostCreateFragment extends FragmentBase {
                         clickType
                 )
                 .show();
-    }
-
-
-
-    private static Bitmap getBitmap(VectorDrawable vectorDrawable) {
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        vectorDrawable.draw(canvas);
-        return bitmap;
     }
 }
