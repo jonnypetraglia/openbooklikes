@@ -134,8 +134,7 @@ public class LoginFragment extends FragmentBase {
             urlParams.put("email", mEmailView.getText().toString());
             urlParams.put("password", mPasswordView.getText().toString());
 
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            hideKeyboard();
 
             ApiClient.post(urlParams, loginHandler);
         }

@@ -1,13 +1,14 @@
 package com.qweex.openbooklikes.fragment;
 
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +26,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -35,12 +38,19 @@ import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.notmine.Misc;
+import com.qweex.openbooklikes.notmine.RealPathUtil;
 
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import cz.msebera.android.httpclient.Header;
 
 public class PostCreateFragment extends FragmentBase {
+
+    final static int MAX_IMAGE_COUNT = 10;
 
     public static final int[] POST_ICONS = {
             R.drawable.text_np45364,
@@ -58,7 +68,11 @@ public class PostCreateFragment extends FragmentBase {
     CheckBox review;
     RatingBar rating;
     Button date;
+    LinearLayout imageContainer;
     int typeIndex;
+    View addImage;
+
+    final static int SOURCE = R.id.source, CAPTION = R.id.nav_title;
 
     @Override
     public void setArguments(Bundle args) {
@@ -66,7 +80,7 @@ public class PostCreateFragment extends FragmentBase {
         typeIndex = args.getInt("type");
     }
 
-    RequestParams getParams() {
+    RequestParams getParams() throws FileNotFoundException {
         RequestParams params = new RequestParams();
         params.put("PostType", POST_TYPES[typeIndex]);
         params.put("PostTitle", title.getText().toString());
@@ -78,11 +92,16 @@ public class PostCreateFragment extends FragmentBase {
         if(review.isChecked()) {
             params.put("PostIsReview", "1");
             params.put("PostRevRating", rating.getRating());
+            //params.put("PostRevRating", new DecimalFormat("#.#").format(rating.getRating()));
         } else {
             params.put("PostIsReview", "0");
         }
-        //params.put("PostRevRating", new DecimalFormat("#.#").format(rating.getRating()));
-        //TODO: Date? Tags, photos
+        for(int i=0; i<imageContainer.getChildCount(); i++) {
+            params.put("PostPhotoFile["+i+"]", new File(imageContainer.getChildAt(i).getTag(SOURCE).toString()));
+            params.put("PostPhotoFileCaption["+i+"]", imageContainer.getChildAt(i).getTag(CAPTION).toString());
+            params.setForceMultipartEntityContentType(true);
+        }
+        //TODO: Date? Tags
 
 
         switch(typeIndex) {
@@ -122,7 +141,6 @@ public class PostCreateFragment extends FragmentBase {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.d("WEEEEE", response.toString());
                 try {
                     if(response.getInt(this.countFieldName())<1)
                         throw new Exception("No post returned: " + response.toString());
@@ -158,12 +176,16 @@ public class PostCreateFragment extends FragmentBase {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        RequestParams p = getParams();
         switch(item.getItemId()) {
             case R.id.option_submit:
-                Log.d("WEEEE", p.toString());
-                loadingManager.show();
-                ApiClient.post(p, responseHandler);
+                try {
+                    RequestParams p = getParams();
+                    loadingManager.show();
+                    ApiClient.post(p, responseHandler);
+                } catch(FileNotFoundException e) {
+                    e.printStackTrace();
+                    loadingManager.error(e);
+                }
                 break;
             case R.id.option_save:
         }
@@ -183,6 +205,8 @@ public class PostCreateFragment extends FragmentBase {
         url = (EditText) v.findViewById(R.id.url);
         review = (CheckBox) v.findViewById(R.id.review);
         rating = (RatingBar) v.findViewById(R.id.rating);
+        imageContainer = (LinearLayout) v.findViewById(R.id.images);
+        addImage = v.findViewById(R.id.addImage);
 
         date = (Button) v.findViewById(R.id.date);
         //TODO: Show DatePickerDialog on click
@@ -198,6 +222,16 @@ public class PostCreateFragment extends FragmentBase {
 
         TextView specialL = (TextView) v.findViewById(R.id.special_label),
                 descL = (TextView) v.findViewById(R.id.desc_label);
+
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0); //TODO: String
+            }
+        });
 
         switch(typeIndex) {
             default:
@@ -221,20 +255,24 @@ public class PostCreateFragment extends FragmentBase {
                 special.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 break;
         }
+        if(typeIndex==2) {
+            imageContainer.setVisibility(View.VISIBLE);
+            addImage.setVisibility(View.VISIBLE);
+        } else {
+            imageContainer.setVisibility(View.GONE);
+            addImage.setVisibility(View.GONE);
+        }
         switch(typeIndex) {
             default:
             case 0: //text
                 descL.setText("Text"); //TODO: String
-                // + photos
                 break;
             case 1: //quote
                 descL.setText("Source"); //TODO: String
                 specialL.setText("Quote"); //TODO: String
-                // - photos
                 break;
             case 2: //photo
                 descL.setText("Description"); //TODO: String
-                // + photos
                 break;
             case 3: //video
                 descL.setText("Description"); //TODO: String
@@ -249,11 +287,84 @@ public class PostCreateFragment extends FragmentBase {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri _uri = data.getData();
+        if(resultCode != Activity.RESULT_OK || _uri == null)
+            return;
+
+        final View cont;
+
+//        final ImageView iv = new ImageView(getContext());
+//        iv.setBackgroundColor(0xff99cc00);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.WRAP_CONTENT,
+//                Misc.convertDpToPixel(128));
+//        int dp = Misc.convertDpToPixel(32);
+//        lp.setMargins(dp, dp, dp, dp);
+//        iv.setLayoutParams(lp);
+//        iv.setAdjustViewBounds(true);
+//      cont = iv;
+
+        cont = getLayoutInflater(null).inflate(R.layout.post_image, null);
+        ImageView iv = (ImageView) cont.findViewById(R.id.image_view);
+
+        try {
+            InputStream input = getContext().getContentResolver().openInputStream(data.getData());
+            iv.setImageBitmap(BitmapFactory.decodeStream(input));
+            cont.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showCaptionDialog(cont);
+                }
+            });
+
+            cont.setTag(SOURCE, RealPathUtil.get(getContext(), _uri));
+            cont.setTag(CAPTION, "");
+            imageContainer.addView(cont);
+            addImage.setEnabled(imageContainer.getChildCount() < MAX_IMAGE_COUNT);
+            showCaptionDialog(cont);
+        } catch (Exception e) { //FileNotFoundException
+            e.printStackTrace();
+        }
+    }
+
+    void showCaptionDialog(final View view) {
+        final EditText caption = new EditText(getContext());
+        caption.setText(view.getTag(CAPTION).toString());
+        final AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle("Set caption")
+                .setView(caption)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ((TextView) view.findViewById(R.id.title)).setText(caption.getText());
+                        view.setTag(CAPTION, caption.getText().toString());
+                    }
+                })
+                .setNeutralButton(android.R.string.cancel, null)
+                .setNegativeButton("Remove", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        imageContainer.removeView(view);
+                        addImage.setEnabled(imageContainer.getChildCount() < MAX_IMAGE_COUNT);
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        hideKeyboard();
+                    }
+                })
+                .create();
+        showKeyboard(alertDialog.getWindow(), caption);
+        alertDialog.show();
+    }
+
+    @Override
     public String getTitle(Resources resources) {
         return POST_TYPES[typeIndex].toUpperCase();
     }
-
-
 
     static public void showTypePicker(final FragmentBase fragment, final MainActivity activity) {
         DialogInterface.OnClickListener clickType = new DialogInterface.OnClickListener() {
@@ -277,14 +388,15 @@ public class PostCreateFragment extends FragmentBase {
                                     convertView = super.getView(position, convertView, parent);
 
                                     VectorDrawable v = (VectorDrawable) fragment.getResources().getDrawable(POST_ICONS[position]);
-                                    int dp = Misc.convertDpToPixel(32);
+                                    int dp = Misc.convertDpToPixel(32),
+                                            lineHeight = Misc.convertDpToPixel(48);;
                                     Drawable d = Misc.resizeDrawable(v, dp, dp);
 
                                     TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
                                     textView.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
                                     textView.setCompoundDrawablePadding(
                                             (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getContext().getResources().getDisplayMetrics()));
-                                    textView.getLayoutParams().height = 100;
+                                    textView.getLayoutParams().height = lineHeight;
                                     return convertView;
                                 }
                             },

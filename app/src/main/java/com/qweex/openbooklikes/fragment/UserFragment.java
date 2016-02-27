@@ -118,7 +118,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
 
         if(MainActivity.me.equals(primary)) {
             item = menu.add(Menu.NONE, R.id.option_add, Menu.NONE, "Create") //TODO: String
-                    .setIcon(R.drawable.add_np45465);
+                    .setIcon(R.drawable.add_np45467);
             optionIcon(item);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
