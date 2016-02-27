@@ -13,6 +13,10 @@ public class Book extends ModelBase implements Shareable {
             STRING_FIELDS = new String[] {"title", "author", "cover", "isbn_10", "isbn_13", "format", "publisher", "language",
             "pages", "publish_date"}; // These should be better data types
 
+    public String coverSize(int size) {
+        return getS("cover").replace("300/300", size + "/" + size);
+    }
+
     @Override
     protected String[] idFields() {
         return new String[0];

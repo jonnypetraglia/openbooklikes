@@ -112,4 +112,5 @@
     <item name="source" type="id" />
     <item name="option_submit" type="id" />
     <item name="option_save" type="id" />
+    <item name="option_delete" type="id" />
 </resources>

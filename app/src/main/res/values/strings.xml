@@ -29,7 +29,7 @@
     <string name="option_share">Share</string>
 
     <string name="menu_logout">Logout</string>
-    <string name="confirm_logout">Really logout?</string>
+    <string name="confirm_dialog">Are you sure?</string>
     <string name="search">Search</string>
     <string name="empty">Nothing to show</string>
 

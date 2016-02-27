@@ -1,12 +1,17 @@
 package com.qweex.openbooklikes.fragment;
 
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,9 +19,15 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.loopj.android.http.RequestParams;
 import com.qweex.imagevieweractivity.ImageViewerActivity;
+import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
+import com.qweex.openbooklikes.LoadingViewManagerDialog;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.SettingsManager;
 import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Post;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.notmine.Misc;
@@ -24,6 +35,8 @@ import com.qweex.openbooklikes.notmine.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 
 public class PostFragment extends FragmentBase<Post> {
     User owner;
@@ -44,6 +57,59 @@ public class PostFragment extends FragmentBase<Post> {
     public void setArguments(Bundle a) {
         primary = new Post(a, owner = new User(a));
         super.setArguments(a);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.option_delete) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Delete post")
+                    .setMessage(R.string.confirm_dialog)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            RequestParams params = new RequestParams();
+                            params.put("pid", primary.id());
+                            LoadingViewManager lvm = new LoadingViewManagerDialog(
+                                    getView(),
+                                    "Deleted"
+                            );
+                            lvm.show();
+                            ApiClient.get(params, new LoadingResponseHandler(lvm) {
+                                @Override
+                                protected String urlPath() {
+                                    return "post/PostDelete";
+                                }
+
+                                @Override
+                                protected String countFieldName() {
+                                    return null;
+                                }
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    super.onSuccess(statusCode, headers, response);
+                                    getMainActivity().closeRightDrawer();
+                                }
+                            });
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if(owner.equals(MainActivity.me)) {
+            MenuItem mi = menu.add(Menu.NONE, R.id.option_delete, Menu.NONE, R.string.option_share)
+                    .setIcon(R.drawable.delete_np45336);
+            optionIcon(mi);
+            mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
     }
 
     @Override

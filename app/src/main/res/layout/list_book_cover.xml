@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
-    android:orientation="vertical">
+    android:layout_marginTop="5dp">
 
     <ImageView
         android:layout_width="wrap_content"
@@ -25,16 +24,27 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:gravity="center">
+        >
 
-        <ImageView
+
+        <android.support.v7.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:id="@+id/cardView"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:focusable="true">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:id="@id/image_view"
             android:adjustViewBounds="false"
             android:src="@drawable/abc_btn_rating_star_on_mtrl_alpha"
-            android:paddingBottom="16dp"
-            android:paddingTop="16dp" />
+             />
+        </android.support.v7.widget.CardView>
 
         <TextView
             android:id="@id/title"
@@ -44,10 +54,10 @@
             android:textSize="12sp"
             android:layout_alignParentLeft="false"
             android:layout_alignParentTop="false"
-            android:layout_alignTop="@id/image_view"
-            android:layout_alignLeft="@id/image_view"
-            android:layout_alignBottom="@id/image_view"
-            android:layout_alignRight="@id/image_view"
+            android:layout_alignTop="@id/cardView"
+            android:layout_alignLeft="@id/cardView"
+            android:layout_alignBottom="@id/cardView"
+            android:layout_alignRight="@id/cardView"
             android:textColor="#ffffff"
              />
 

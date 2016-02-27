@@ -43,11 +43,11 @@ import cz.msebera.android.httpclient.Header;
 public class PostCreateFragment extends FragmentBase {
 
     public static final int[] POST_ICONS = {
-            R.drawable.settings_np113122,
-            R.drawable.reorder_np203471,
-            R.drawable.likes_np131693,
-            R.drawable.shelf_np147205,
-            R.drawable.profile_np76855
+            R.drawable.text_np45364,
+            R.drawable.quote_np45804,
+            R.drawable.photo_np45924,
+            R.drawable.video_np45324,
+            R.drawable.url_np45588
     };
 
     static final String[] POST_TYPES = {
@@ -144,13 +144,16 @@ public class PostCreateFragment extends FragmentBase {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem mi;
 
-        menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Submit") //TODO: String
-                //TODO: Icon
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        mi = menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Submit") //TODO: String
+                .setIcon(R.drawable.submit_np45903);
+        optionIcon(mi);
+        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Save") //TODO: String
-                //TODO: Icon
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                //TODO: Icon?
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
     }
 
     @Override

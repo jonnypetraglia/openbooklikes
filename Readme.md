@@ -46,8 +46,6 @@ by author and all icons are released under the Creative Commons license: CC-BY-3
     - R.drawable.profile_np76855
   - [Andrew Koszkalda](https://thenounproject.com/andrew.koszkalda)
     - R.drawable.shelf_np147205
-  - [Creative Stall](https://thenounproject.com/creativestall)
-      - R.drawable.likes_np131693
   - [Edward Boatman](https://thenounproject.com/edward)
     - R.drawable.hide_np421
   - [Evgeniy Kozachenko](https://thenounproject.com/ekwo)
@@ -63,6 +61,8 @@ by author and all icons are released under the Creative Commons license: CC-BY-3
     - R.drawable.app_np17900
   - [Nadir Balcikli](https://thenounproject.com/logorado)
     - R.drawable.reload_np83413
+  - [Okan Benn](https://thenounproject.com/Okan%20Benn)
+    - R.drawable>likes_np130262
   - [Oliver Kittler](https://thenounproject.com/kittler)
     - R.drawable.x_np337402
   - [Pascual Bilotta](https://thenounproject.com/pascual.bilotta)
@@ -73,12 +73,13 @@ by author and all icons are released under the Creative Commons license: CC-BY-3
     - R.drawable.dash_np32144
   - [useiconic.com](https://thenounproject.com/useiconic.com)
     - R.drawable.add_np45465
-    
   
 Browser
 Cover fail & load
 !!Share
 Star*
+
+ ? Switch to https://thenounproject.com/useiconic.com/collection/iconic/
     
    
 

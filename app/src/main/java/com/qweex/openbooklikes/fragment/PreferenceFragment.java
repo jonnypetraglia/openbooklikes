@@ -451,7 +451,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements Titl
             public boolean onPreferenceClick(Preference preference) {
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.logout)
-                        .setMessage(R.string.confirm_logout)
+                        .setMessage(R.string.confirm_dialog)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
