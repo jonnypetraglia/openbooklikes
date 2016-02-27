@@ -45,12 +45,11 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
 
     public static void optionIcon(MenuItem mi) {
         if(mi.getIcon()!=null) {
-            mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
-
             if(mi.getIcon() instanceof VectorDrawable) {
                 int dp = Misc.convertDpToPixel(32);
                 mi.setIcon(Misc.resizeDrawable((VectorDrawable) mi.getIcon(), dp, dp));
             }
+            mi.getIcon().setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
         }
     }
 

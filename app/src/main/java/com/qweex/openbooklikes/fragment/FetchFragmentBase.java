@@ -1,6 +1,5 @@
 package com.qweex.openbooklikes.fragment;
 
-import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +15,6 @@ import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.ModelBase;
 import com.qweex.openbooklikes.notmine.EndlessScrollListener;
-import com.qweex.openbooklikes.notmine.Misc;
 
 import java.util.ArrayList;
 

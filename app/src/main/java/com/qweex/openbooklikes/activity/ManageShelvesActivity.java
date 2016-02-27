@@ -164,14 +164,13 @@ public class ManageShelvesActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem mi;
 
-        mi = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.auto_sort)
-//                .setIcon(android.R.drawable.ic_menu_agenda) //TODO: Icon for autosort?
+        mi = menu.add(Menu.NONE, R.id.option_browser, Menu.NONE, R.string.auto_sort) //TODO: Icon for autosort?
                 .setCheckable(true)
                 .setChecked(autoSorting);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
         mi = menu.add(Menu.NONE, R.id.option_reload, Menu.NONE, R.string.reload)
-                .setIcon(R.drawable.reload_np61130);
+                .setIcon(R.drawable.reload_np83413);
         FragmentBase.optionIcon(mi);
         mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 

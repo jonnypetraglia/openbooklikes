@@ -3,17 +3,13 @@ package com.qweex.openbooklikes;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.fragment.BookListFragment;
-import com.qweex.openbooklikes.fragment.LoginFragment;
 import com.qweex.openbooklikes.model.Me;
 import com.qweex.openbooklikes.model.Shelf;
 

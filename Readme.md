@@ -59,10 +59,10 @@ by author and all icons are released under the Creative Commons license: CC-BY-3
   - [lastspark](https://thenounproject.com/lastspark)
     - R.drawable.challenge_np337224
     - R.drawable.reblogs_np346281
-  - [Mani Cheng](https://thenounproject.com/manicheng)
-    - R.drawable.reload_np61130
   - [Mike Ashley](https://thenounproject.com/mikeashley)
     - R.drawable.app_np17900
+  - [Nadir Balcikli](https://thenounproject.com/logorado)
+    - R.drawable.reload_np83413
   - [Oliver Kittler](https://thenounproject.com/kittler)
     - R.drawable.x_np337402
   - [Pascual Bilotta](https://thenounproject.com/pascual.bilotta)
