@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-public class LoadingViewManagerDialog extends LoadingViewManager {
+public class LoadingViewManagerDialog implements LoadingViewInterface {
     ProgressDialog dialog;
     String successMsg;
     View fragment;
@@ -61,5 +61,9 @@ public class LoadingViewManagerDialog extends LoadingViewManager {
     @Override
     public void hide() {
         dialog.dismiss();
+    }
+
+    @Override
+    public void changeState(State s) {
     }
 }

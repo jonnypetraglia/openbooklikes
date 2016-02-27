@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.imagevieweractivity.ImageViewerActivity;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewInterface;
 import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.LoadingViewManagerDialog;
 import com.qweex.openbooklikes.R;
@@ -70,7 +71,7 @@ public class PostFragment extends FragmentBase<Post> {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             RequestParams params = new RequestParams();
                             params.put("pid", primary.id());
-                            LoadingViewManager lvm = new LoadingViewManagerDialog(
+                            LoadingViewInterface lvm = new LoadingViewManagerDialog(
                                     getView(),
                                     "Deleted"
                             );

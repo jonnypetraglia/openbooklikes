@@ -8,13 +8,13 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputType;
-import android.util.Log;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
@@ -73,6 +74,7 @@ public class PostCreateFragment extends FragmentBase {
     View addImage;
 
     final static int SOURCE = R.id.source, CAPTION = R.id.nav_title;
+    MenuItem submitMenuItem;
 
     @Override
     public void setArguments(Bundle args) {
@@ -127,6 +129,18 @@ public class PostCreateFragment extends FragmentBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadingManager = new LoadingViewManager() {
+            @Override
+            public void error(Throwable err) {
+                content();
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Error")
+                        .setMessage(err.getMessage())
+                        .setIcon(R.drawable.warning_np17208)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+            }
+        };
         responseHandler = new LoadingResponseHandler(this) {
             @Override
             protected String urlPath() {
@@ -140,8 +154,11 @@ public class PostCreateFragment extends FragmentBase {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
                 try {
+                    super.onSuccess(statusCode, headers, response);
+                    loadingManager.show();
+                    if(currentCount<0)
+                        return; //Exception was handled by super
                     if(response.getInt(this.countFieldName())<1)
                         throw new Exception("No post returned: " + response.toString());
                     Post post = new Post(response.getJSONArray("posts").getJSONObject(0), MainActivity.me);
@@ -162,12 +179,11 @@ public class PostCreateFragment extends FragmentBase {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        MenuItem mi;
-
-        mi = menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Submit") //TODO: String
-                .setIcon(R.drawable.submit_np45903);
-        optionIcon(mi);
-        mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        submitMenuItem = menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Submit") //TODO: String
+                .setIcon(R.drawable.submit_np45903)
+                .setEnabled(false);
+        optionIcon(submitMenuItem);
+        submitMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         menu.add(Menu.NONE, R.id.option_submit, Menu.NONE, "Save") //TODO: String
                 //TODO: Icon?
@@ -180,6 +196,7 @@ public class PostCreateFragment extends FragmentBase {
             case R.id.option_submit:
                 try {
                     RequestParams p = getParams();
+                    hideKeyboard();
                     loadingManager.show();
                     ApiClient.post(p, responseHandler);
                 } catch(FileNotFoundException e) {
@@ -266,47 +283,60 @@ public class PostCreateFragment extends FragmentBase {
             default:
             case 0: //text
                 descL.setText("Text"); //TODO: String
+                desc.addTextChangedListener(requiredField);
+                // req: desc
                 break;
             case 1: //quote
                 descL.setText("Source"); //TODO: String
                 specialL.setText("Quote"); //TODO: String
+                special.addTextChangedListener(requiredField);
                 break;
             case 2: //photo
                 descL.setText("Description"); //TODO: String
+                // req: photo
                 break;
             case 3: //video
                 descL.setText("Description"); //TODO: String
                 specialL.setText("Video"); //TODO: String
+                special.addTextChangedListener(requiredField);
                 break;
             case 4: //url
                 descL.setText("Description"); //TODO: String
                 specialL.setText("URL"); //TODO: String
+                special.addTextChangedListener(requiredField);
                 break;
         }
-        return super.createProgressView(inflater, container, v);
+
+        loadingManager.setInitial(
+                inflater.inflate(R.layout.loading, null),
+                v,
+                new View(getContext()),
+                new View(getContext())
+        );
+        return loadingManager.wrapInitialInLayout(getContext());
     }
+
+    TextWatcher requiredField = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            submitMenuItem.setEnabled(s.length()>0);
+        }
+    };
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Uri _uri = data.getData();
-        if(resultCode != Activity.RESULT_OK || _uri == null)
+        if(resultCode != Activity.RESULT_OK || data == null)
             return;
 
-        final View cont;
-
-//        final ImageView iv = new ImageView(getContext());
-//        iv.setBackgroundColor(0xff99cc00);
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.WRAP_CONTENT,
-//                Misc.convertDpToPixel(128));
-//        int dp = Misc.convertDpToPixel(32);
-//        lp.setMargins(dp, dp, dp, dp);
-//        iv.setLayoutParams(lp);
-//        iv.setAdjustViewBounds(true);
-//      cont = iv;
-
-        cont = getLayoutInflater(null).inflate(R.layout.post_image, null);
+        final View cont = getLayoutInflater(null).inflate(R.layout.post_image, null);
         ImageView iv = (ImageView) cont.findViewById(R.id.image_view);
 
         try {
@@ -319,7 +349,7 @@ public class PostCreateFragment extends FragmentBase {
                 }
             });
 
-            cont.setTag(SOURCE, RealPathUtil.get(getContext(), _uri));
+            cont.setTag(SOURCE, RealPathUtil.get(getContext(), data.getData()));
             cont.setTag(CAPTION, "");
             imageContainer.addView(cont);
             addImage.setEnabled(imageContainer.getChildCount() < MAX_IMAGE_COUNT);
@@ -397,6 +427,9 @@ public class PostCreateFragment extends FragmentBase {
                                     textView.setCompoundDrawablePadding(
                                             (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getContext().getResources().getDisplayMetrics()));
                                     textView.getLayoutParams().height = lineHeight;
+
+                                    //convertView.setEnabled(POST_ICONS[position] != R.drawable.url_np45588);
+
                                     return convertView;
                                 }
                             },

@@ -124,23 +124,11 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
         View emptyView = inflater.inflate(R.layout.empty, null),
              errorView = inflater.inflate(R.layout.error, null);
 
-
-        childView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
-        LinearLayout linearLayout = new LinearLayout(getActivity());
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-
-        linearLayout.addView(loadingView);
-        linearLayout.addView(emptyView);
-        linearLayout.addView(errorView);
-        linearLayout.addView(childView);
-
         loadingManager.setInitial(loadingView, childView, emptyView, errorView);
         loadingManager.changeState(LoadingViewManager.State.INITIAL);
         loadingManager.content();
 
-        return linearLayout;
+        return loadingManager.wrapInitialInLayout(getContext());
     }
 
     @Override

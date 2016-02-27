@@ -65,6 +65,14 @@ public class ApiClient {
 
         @Override
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            try {
+                if(response.getInt("status")>0)
+                    throw new Exception(response.getString("message"));
+            } catch (Exception e) {
+                this.onFailure(statusCode, headers, e, response);
+                currentCount = -1;
+                return;
+            }
             lastCount = currentCount;
             try {
                 if(countFieldName()!=null) {

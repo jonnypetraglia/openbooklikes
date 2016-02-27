@@ -3,6 +3,7 @@ package com.qweex.openbooklikes.handler;
 import android.app.Activity;
 import android.util.Log;
 
+import com.qweex.openbooklikes.LoadingViewInterface;
 import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.fragment.FragmentBase;
@@ -19,7 +20,7 @@ public abstract class UserHandler extends LoadingResponseHandler {
     protected User user;
     Activity activity;
 
-    public UserHandler(LoadingViewManager v, Activity context) {
+    public UserHandler(LoadingViewInterface v, Activity context) {
         super(v);
         this.activity = context;
     }

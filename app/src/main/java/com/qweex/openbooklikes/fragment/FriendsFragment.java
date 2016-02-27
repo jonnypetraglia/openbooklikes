@@ -151,7 +151,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
                     Log.d("OBL:friends", "User: " + f.id() + " | " + adapter.getCount());
                 }
             } catch (JSONException e) {
-                Log.e("OBL:friends!", "Failed cause " + e.getMessage() + " " + loadingManager.isInitial());
+                Log.e("OBL:friends!", "Failed cause " + e.getMessage());
                 e.printStackTrace();
                 loadingManager.error(e);
             }

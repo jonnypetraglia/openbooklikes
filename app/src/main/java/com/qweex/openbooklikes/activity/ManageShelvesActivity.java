@@ -18,6 +18,7 @@ import android.widget.ImageView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewInterface;
 import com.qweex.openbooklikes.fragment.FragmentBase;
 import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.LoadingViewManager;

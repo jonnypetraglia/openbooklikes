@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class LoadingViewManager {
+public class LoadingViewManager implements LoadingViewInterface {
 
     private class LoadingView {
         View loadingView, contentView, emptyView, errorView;
@@ -76,6 +76,7 @@ public class LoadingViewManager {
             LinearLayout layout = new LinearLayout(c);
             ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             layout.setLayoutParams(lparams);
+            layout.setOrientation(LinearLayout.VERTICAL);
             layout.addView(contentView, lparams);
             layout.addView(loadingView, lparams);
             layout.addView(emptyView, lparams);
@@ -84,11 +85,6 @@ public class LoadingViewManager {
         }
     }
 
-
-    public enum State {
-        INITIAL,
-        MORE
-    }
     State currentState;
     LoadingView initial;
     ArrayList<LoadingView> mores = new ArrayList<>();
