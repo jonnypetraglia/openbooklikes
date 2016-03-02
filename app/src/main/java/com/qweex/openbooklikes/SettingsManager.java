@@ -187,6 +187,7 @@ public class SettingsManager {
     public static void logout(MainActivity a) {
         a.getSharedPreferences(Me.USER_DATA_PREFS, Activity.MODE_PRIVATE)
                 .edit().clear().apply();
+        MainActivity.me = null;
         a.showLogin();
     }
 
