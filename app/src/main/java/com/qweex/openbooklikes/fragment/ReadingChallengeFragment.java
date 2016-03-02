@@ -113,7 +113,7 @@ public class ReadingChallengeFragment extends FragmentBase implements TabLayout.
         ll.addView(empty);
         ll.addView(errorView);
 
-        loadingManager.addMore(loadingMore, content, empty, errorView);
+        loadingManager.setMore(loadingMore, content, empty, errorView);
 
         View superView = super.createProgressView(inflater, container, ll);
         superView.findViewById(R.id.retry).setOnClickListener(retry);

@@ -5,7 +5,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,14 +23,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.cache.disc.naming.FileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.DownloadableImageView;
 import com.qweex.openbooklikes.NavDrawerAdapter;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
@@ -156,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if (MainActivity.me == null) {
+        if (MainActivity.me == null || SettingsManager.userInfoExpired(this)) {
             showLogin();
         } else
             onLogin();
@@ -242,16 +239,13 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         ((TextView) drawerList.findViewById(R.id.nav_subtitle)).setText(me.getS("domain"));
         Drawable placeholder = getResources().getDrawable(R.drawable.profile_np76855);
         placeholder.setColorFilter(0xff333333, PorterDuff.Mode.SRC_ATOP);
-        imageLoader.displayImage(
+        MainActivity.displayImage(
                 me.getS("photo"),
                 (ImageView) drawerList.findViewById(R.id.image_view),
-                new DisplayImageOptions.Builder()
-                        .showImageOnLoading(placeholder)
-                        .showImageForEmptyUri(placeholder)
-                        .showImageOnFail(placeholder)
-                        .cacheInMemory(true)
-                        .cacheOnDisk(true)
-                        .build()
+                placeholder,
+                placeholder,
+                placeholder,
+                null
         );
 
         // Add shelfMap to menu
@@ -449,6 +443,36 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         sideToolbar.setOnMenuItemClickListener(fragment);
     }
 
+
+    public static void displayImage(String uri, ImageView view, Drawable loading, Drawable empty, Drawable fail, ImageLoadingListener listener) {
+        imageLoader.displayImage(
+                uri,
+                view,
+                new DisplayImageOptions.Builder()
+                        .showImageOnLoading(loading)
+                        .showImageForEmptyUri(empty)
+                        .showImageOnFail(fail)
+                        .cacheInMemory(true)
+                        .cacheOnDisk(true)
+                        .build(),
+                listener
+        );
+    }
+
+    public static void displayImage(String uri, ImageView view, int loading, int empty, int fail, ImageLoadingListener listener) {
+        imageLoader.displayImage(
+                uri,
+                view,
+                new DisplayImageOptions.Builder()
+                        .showImageOnLoading(loading)
+                        .showImageForEmptyUri(empty)
+                        .showImageOnFail(fail)
+                        .cacheInMemory(true)
+                        .cacheOnDisk(true)
+                        .build(),
+                listener
+        );
+    }
 
     public int getStatusBarHeight() {
         int result = 0;

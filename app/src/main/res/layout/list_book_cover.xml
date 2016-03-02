@@ -52,12 +52,11 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="12sp"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false"
             android:layout_alignTop="@id/cardView"
             android:layout_alignLeft="@id/cardView"
             android:layout_alignBottom="@id/cardView"
             android:layout_alignRight="@id/cardView"
+            android:elevation="9001dp"
             android:textColor="#ffffff"
              />
 

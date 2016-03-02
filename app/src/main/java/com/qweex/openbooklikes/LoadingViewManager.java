@@ -3,15 +3,16 @@ package com.qweex.openbooklikes;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 public class LoadingViewManager implements LoadingViewInterface {
+
+    public State getState() {
+        return currentState;
+    }
 
     private class LoadingView {
         View loadingView, contentView, emptyView, errorView;
@@ -87,7 +88,7 @@ public class LoadingViewManager implements LoadingViewInterface {
 
     State currentState;
     LoadingView initial;
-    ArrayList<LoadingView> mores = new ArrayList<>();
+    LoadingView more;
 
     public LoadingViewManager() {
         currentState = State.INITIAL;
@@ -104,59 +105,56 @@ public class LoadingViewManager implements LoadingViewInterface {
         //content();
     }
 
-    public boolean isInitial() {
-        return currentState==State.INITIAL;
-    }
-
-    public void addMore(View loadingView, View contentView, View emptyView, View errorView) {
-        mores.add(new LoadingView(loadingView, contentView, emptyView, errorView));
+    public void setMore(View loadingView, View contentView, View emptyView, View errorView) {
+        more = new LoadingView(loadingView, contentView, emptyView, errorView);
     }
 
 
     public void show(String loadingText) {
         Log.d("LoadingManager", "Showing loading " + (currentState == State.MORE ? "more" : "Init"));
-        if(currentState==State.MORE)
-            for(LoadingView v : mores)
-                v.loading(loadingText);
-        else
+        if(currentState==State.MORE) {
+            if (more != null)
+                more.loading(loadingText);
+        } else {
             initial.loading(loadingText);
+        }
     }
 
     public void show() { show(null); }
 
     public void content() {
         Log.d("LoadingManager", "Showing content " + (currentState == State.MORE ? "more" : "Init"));
-        if(currentState==State.MORE)
-            for(LoadingView v : mores)
-                v.content();
-        else
+        if(currentState==State.MORE) {
+            if (more != null)
+                more.content();
+        } else
             initial.content();
     }
 
     public void empty() {
-        Log.d("LoadingManager", "Showing empty " + (currentState==State.MORE ? "more" : "Init") );
-        if(currentState==State.MORE)
-            for(LoadingView v : mores)
-                v.empty();
-        else
+        Log.d("LoadingManager", "Showing empty " + (currentState == State.MORE ? "more" : "Init"));
+        if(currentState==State.MORE) {
+            if (more != null)
+                more.empty();
+        } else
             initial.empty();
     }
 
     public void error(Throwable err) {
-        if(currentState==State.MORE)
-            for(LoadingView v : mores)
-                v.error(err.getMessage());
-        else
+        if(currentState==State.MORE) {
+            if (more != null)
+                more.error(err.getMessage());
+        } else
             initial.error(err.getMessage());
         Log.e("OBL", "LoadingViewManager error");
         err.printStackTrace();
     }
 
     public void hide() {
-        if(currentState==State.MORE)
-            for(LoadingView v : mores)
-                v.nothing();
-        else
+        if(currentState==State.MORE) {
+            if (more != null)
+                more.nothing();
+        } else
             initial.nothing();
     }
 

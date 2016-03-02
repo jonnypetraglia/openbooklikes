@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewInterface;
 import com.qweex.openbooklikes.LoadingViewManager;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
@@ -41,7 +42,6 @@ public class LoginFragment extends FragmentBase {
     private OnLoginListener onLoginListener;
 
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login, null);
@@ -91,6 +91,14 @@ public class LoginFragment extends FragmentBase {
         return loadingManager.wrapInitialInLayout(getActivity());
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (MainActivity.me == null)
+            attemptLogin();
+        else
+            startApp();
+    }
 
     public void attemptLogin() {
         // Reset errors.
@@ -192,12 +200,8 @@ public class LoginFragment extends FragmentBase {
         return r.getString(R.string.app_name);
     }
 
-
-
-
-
     public void startApp() {
-        Log.d("OBL", "startApp");
+        Log.d("OBL", "startApp " + (loadingManager.getState()== LoadingViewInterface.State.INITIAL));
         loadingManager.show("Fetching user data");
         boolean forceFetch = SettingsManager.userInfoExpired(getActivity());
         if(forceFetch) {
@@ -209,7 +213,6 @@ public class LoginFragment extends FragmentBase {
                     // Parent class(es) show content because they assume it's what we want
                     //   in this case content is the login form, so it needs to stay hidden
                     //FIXME: Probably don't need both hide & show & two changeStates
-                    Log.d("Success login", "WEEEEEE");
                     loadingManager.show();
                     loadingManager.changeState(LoadingViewManager.State.INITIAL);
                     loadingManager.show();
@@ -243,7 +246,6 @@ public class LoginFragment extends FragmentBase {
                                     SettingsManager.loadShelves(getActivity()), shelves
                             ), getActivity()
                     );
-                    Log.d("Saved shelves", "WEEEEEE");
                     onLoginListener.onLogin();
                 } catch (JSONException e) {
                     e.printStackTrace();

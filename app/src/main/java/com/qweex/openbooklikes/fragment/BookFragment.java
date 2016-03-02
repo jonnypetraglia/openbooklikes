@@ -381,16 +381,13 @@ public class BookFragment extends FragmentBase<Book> {
 
         String coverUrl = primary.coverSize(cover.getLayoutParams().height);
         ((DownloadableImageView)cover).setSource(primary.getS("title"), coverUrl);
-        MainActivity.imageLoader.displayImage(
+        MainActivity.displayImage(
                 coverUrl,
                 cover,
-                new DisplayImageOptions.Builder()
-                        .showImageOnLoading(R.drawable.book_np26681)
-                        .showImageForEmptyUri(R.drawable.book_np26681)
-                        .showImageOnFail(R.drawable.cover_fail_np347201)
-                        .cacheInMemory(true)
-                        .cacheOnDisk(true)
-                        .build()
+                R.drawable.book_np26681,
+                R.drawable.book_np26681,
+                R.drawable.cover_fail_np347201,
+                null
         );
 
         setOrHide(view, R.id.title, primary.getS("title"));

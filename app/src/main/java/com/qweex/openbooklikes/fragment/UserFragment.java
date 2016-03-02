@@ -160,7 +160,7 @@ public class UserFragment extends FetchFragmentBase<Username, Post> implements A
                 v,
                 dummy,
                 inflater.inflate(R.layout.error, null));
-        loadingManager.addMore(listViewFooter, moreEmpty, dummy, footerError); //FIXME: emptyView
+        loadingManager.setMore(listViewFooter, moreEmpty, dummy, footerError); //FIXME: emptyView
         footerError.findViewById(R.id.retry).setOnClickListener(retryLoad);
         footerError.findViewById(R.id.retry).setOnClickListener(retryLoad);
 

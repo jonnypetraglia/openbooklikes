@@ -15,10 +15,9 @@ import android.widget.TextView;
 import com.loopj.android.http.RequestParams;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
-import com.qweex.openbooklikes.LoadingViewManager;
-import com.qweex.openbooklikes.handler.LoadingResponseHandler;
-import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.User;
 import com.qweex.openbooklikes.model.UserPartial;
 
@@ -108,7 +107,7 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
 
         errorView.findViewById(R.id.retry).setOnClickListener(retryLoad);
 
-        loadingManager.addMore(loadingView, listView, emptyView, errorView);
+        loadingManager.setMore(loadingView, listView, emptyView, errorView);
 
         listView.setAdapter(adapter);
         return super.createProgressView(inflater, container, listView);
@@ -178,7 +177,14 @@ public class FriendsFragment extends FetchFragmentBase<User, UserPartial> implem
             }
             UserPartial user = getItem(position);
 
-            MainActivity.imageLoader.displayImage(user.getS("photo"), (ImageView) row.findViewById(R.id.image_view));
+            MainActivity.displayImage(
+                    user.getS("photo"),
+                    (ImageView) row.findViewById(R.id.image_view),
+                    R.drawable.profile_np76855,
+                    R.drawable.profile_np76855,
+                    R.drawable.profile_np76855,
+                    null
+            );
 
             ((TextView)row.findViewById(R.id.title)).setText(user.getS("username"));
 

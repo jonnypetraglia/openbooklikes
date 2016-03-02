@@ -2,7 +2,7 @@ package com.qweex.openbooklikes.fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.PorterDuff;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,20 +14,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.loopj.android.http.RequestParams;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.qweex.openbooklikes.AdapterBase;
 import com.qweex.openbooklikes.ApiClient;
+import com.qweex.openbooklikes.LoadingViewInterface;
 import com.qweex.openbooklikes.LoadingViewManager;
-import com.qweex.openbooklikes.handler.LoadingResponseHandler;
-import com.qweex.openbooklikes.activity.MainActivity;
 import com.qweex.openbooklikes.R;
 import com.qweex.openbooklikes.SettingsManager;
+import com.qweex.openbooklikes.activity.MainActivity;
+import com.qweex.openbooklikes.handler.LoadingResponseHandler;
 import com.qweex.openbooklikes.model.Book;
 import com.qweex.openbooklikes.model.BookListPartial;
 import com.qweex.openbooklikes.model.Shelf;
@@ -49,6 +51,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     HeaderFooterGridView gridView;
 
     static CheckTracker statusTracker, specialTracker;
+    LoadingViewManager gridLoadingManager = new LoadingViewManager(), listLoadingManager = new LoadingViewManager();
 
     static {
         statusTracker = new BookListFragment.CheckTracker();
@@ -79,21 +82,23 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
             reload();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        responseHandler = new BookHandler(this);
         adapter = new CoverAdapter(getActivity(), new ArrayList<Book>());
         int filters = SettingsManager.FILTER_ALL;
         if(getArguments()!=null)
             filters = getArguments().getInt("filters", SettingsManager.FILTER_ALL);
         SettingsManager.setFilters(getActivity(), statusTracker, specialTracker, filters);
+    }
+
+    FrameLayout wrapInFrame(View v) {
+        FrameLayout fl = new FrameLayout(getContext());
+        fl.addView(v, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+        return fl;
     }
 
     @Override
@@ -106,8 +111,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
              emptyGrid = inflater.inflate(R.layout.empty, null),
              emptyList = inflater.inflate(R.layout.empty, null),
              errorGrid = inflater.inflate(R.layout.error, null),
-             errorList = inflater.inflate(R.layout.error, null);
-
+                errorList = inflater.inflate(R.layout.error, null);
 
 
         gridView = (HeaderFooterGridView) view.findViewById(R.id.grid_view);
@@ -124,36 +128,55 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         listView = (ListView) view.findViewById(R.id.list_view);
         listView.setOnScrollListener(scrollMuch);
         listView.setOnItemClickListener(this);
-        listView.addFooterView(loadingList);
-        listView.addFooterView(emptyList);
-        listView.addFooterView(errorList);
+        listView.addFooterView(wrapInFrame(loadingList));
+        listView.addFooterView(wrapInFrame(emptyList));
+        listView.addFooterView(wrapInFrame(errorList));
 
         errorGrid.findViewById(R.id.retry).setOnClickListener(retryLoad);
         errorList.findViewById(R.id.retry).setOnClickListener(retryLoad);
 
+        View loadingView = inflater.inflate(R.layout.loading, null),
+                emptyView = inflater.inflate(R.layout.empty, null),
+                errorView = inflater.inflate(R.layout.error, null);
 
-        loadingManager.addMore(loadingGrid, gridView, emptyGrid, errorGrid);
-        loadingManager.addMore(loadingList, listView, emptyList, errorList);
+        gridLoadingManager.setInitial(loadingView, view, emptyView, errorView);
+        gridLoadingManager.setMore(loadingGrid, gridView, emptyGrid, errorGrid);
+        gridLoadingManager.changeState(LoadingViewManager.State.INITIAL);
+        gridLoadingManager.content();
+        listLoadingManager.setInitial(loadingView, view, emptyView, errorView);
+        listLoadingManager.setMore(loadingList, listView, emptyList, errorList);
+        listLoadingManager.changeState(LoadingViewManager.State.INITIAL);
+        listLoadingManager.content();
+
 
         int id = SettingsManager.getId(getActivity(), "shelf_view", R.string.default_shelf_view);
         changeWidget((AbsListView) view.findViewById(id));
 
-        return super.createProgressView(inflater, container, view);
+        return gridLoadingManager.wrapInitialInLayout(getContext());
     }
 
     public void changeWidget(AbsListView choice) {
+        LoadingViewManager otherManager;
+        AbsListView otherView;
         if(choice==listView) {
+            loadingManager = listLoadingManager;
+            otherManager = gridLoadingManager;
             adapter = new DetailsAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is ugly
-            gridView.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-            listView.setAdapter(adapter);
+            otherView = gridView;
         } else if(choice==gridView) {
+            loadingManager = gridLoadingManager;
+            otherManager = listLoadingManager;
             adapter = new CoverAdapter(getActivity(), adapter!=null ? adapter.getData() : new ArrayList<Book>()); //FIXME: This is also ugly
-            listView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
-            gridView.setAdapter(adapter);
+            otherView = listView;
         } else
             throw new RuntimeException("Tried to change to an unknown widget");
+
+        choice.setAdapter(adapter);
+        otherView.setVisibility(View.GONE);
+        choice.setVisibility(View.VISIBLE);
+        responseHandler = new BookHandler(loadingManager);
+        loadingManager.changeState(otherManager.getState());
+        loadingManager.content();
     }
 
     @Override
@@ -254,73 +277,14 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         getMainActivity().loadSideFragment(bookFragment);
     }
 
-    class CoverAdapter extends AdapterBase<Book> {
-
-        public CoverAdapter(Context context, ArrayList<Book> books) {
-            super(context, 0, books);
-        }
-
-        @Override
-        public int getCount() {
-            // fill in any extras with a blank
-            int n = super.getCount(), x = gridView.getNumColumns();
-            return (n+x-1) / x * x;
-        }
-
-        @Override
-        public View getView(int position, View row, ViewGroup parent) {
-            if(row == null || row.findViewById(R.id.title)==null) { //FIXME: cause bug in HeaderFooterGridView, apparently
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.list_book_cover, parent, false);
-            }
-            TextView title = ((TextView) row.findViewById(R.id.title));
-            ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
-            row.findViewById(android.R.id.widget_frame).setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
-
-            try {
-                title.setText(getItem(position).getS("title"));
-                if(getItem(position).getS("cover").endsWith("upload/books/book.jpg"))
-                    title.setVisibility(View.VISIBLE);
-                else
-                    title.setVisibility(View.GONE);
-
-                Drawable loading = getResources().getDrawable(R.drawable.spin_loading_io),
-                        empty = getResources().getDrawable(R.drawable.book_np26681),
-                        fail = getResources().getDrawable(R.drawable.cover_fail_np347201);
-                loading.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
-                empty.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
-                fail.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_ATOP);
-
-                MainActivity.imageLoader.displayImage(
-                        getItem(position).getS("cover"),
-                        cover,
-                        new DisplayImageOptions.Builder()
-                                .showImageOnLoading(loading)
-                                .showImageForEmptyUri(empty)
-                                .showImageOnFail(fail)
-                                .cacheInMemory(true)
-                                .cacheOnDisk(true)
-                                .build()
-                );
-            } catch(IndexOutOfBoundsException e) {
-                title.setText("");
-                cover.setImageDrawable(null);
-            }
-
-            boolean showBg = SettingsManager.getBool(getActivity(), "shelf_background", R.bool.default_shelf_background);
-            row.findViewById(R.id.background).setVisibility(showBg ? View.VISIBLE : View.GONE);
-
-            return row;
-        }
-
-        @Override
-        public boolean isEmpty() { return false; }
-    }
-
     protected class BookHandler extends LoadingResponseHandler {
 
         public BookHandler(FragmentBase f) {
             super(f);
+        }
+
+        public BookHandler(LoadingViewInterface lvm) {
+            super(lvm);
         }
 
         @Override
@@ -337,6 +301,8 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             super.onSuccess(statusCode, headers, response);
             Log.d("OBL:book.", "Success " + response.length());
+            if(getActivity() == null)
+                return;
 
             if(noMoreAfterLastTime()) {
                 if(adapter.getCount()==0)
@@ -379,35 +345,114 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
     }
 
 
-    class DetailsAdapter extends AdapterBase<Book> {
+    abstract class BookListAdapter extends AdapterBase<Book> {
+        int layoutId;
+        SimpleImageLoadingListener imageLoadListener = null;
+
+        public BookListAdapter(Context context, int i, ArrayList<Book> objects, int resId) {
+            super(context, i, objects);
+            layoutId = resId;
+        }
+
+        @Override
+        public boolean isEmpty() { return false; }
+
+        @Override
+        public View getView(final int position, View row, final ViewGroup parent) {
+            if (row==null || row.findViewById(R.id.title)==null) { //FIXME: cause bug in HeaderFooterGridView, apparently
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                row = inflater.inflate(layoutId, parent, false);
+            }
+            TextView title = ((TextView) row.findViewById(R.id.title));
+            ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
+
+            if(position >= super.getCount()) {
+                title.setText("");
+                cover.setImageDrawable(null);
+                return row;
+            }
+
+            title.setText(getItem(position).getS("title"));
+            title.setVisibility(View.VISIBLE);
+
+            Drawable loading = getResources().getDrawable(R.drawable.book2_np3698),
+                    empty = getResources().getDrawable(R.drawable.book2_np3698),
+                    fail = getResources().getDrawable(R.drawable.cover_fail_np347201);
+//                loading.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//            empty.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+//            fail.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+
+            MainActivity.displayImage(
+                    getItem(position).getS("cover"),
+                    cover,
+                    loading,
+                    empty,
+                    fail,
+                    imageLoadListener
+            );
+            final View finalRow = row;
+            row.findViewById(R.id.cardView).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    gridView.getOnItemClickListener().onItemClick((AdapterView<?>) parent, finalRow, position, finalRow.getId());
+                }
+            });
+            return row;
+        }
+    }
+
+    class CoverAdapter extends BookListAdapter {
+
+        public CoverAdapter(Context context, ArrayList<Book> books) {
+            super(context, 0, books, R.layout.list_book_cover);
+            imageLoadListener = new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    super.onLoadingComplete(imageUri, view, loadedImage);
+                    TextView title = (TextView) ((ViewGroup)view.getParent().getParent()).findViewById(R.id.title);
+                    title.setVisibility(
+                            imageUri.endsWith("upload/books/book.jpg") ? View.VISIBLE : View.GONE
+                    );
+                }
+            };
+        }
+
+        @Override
+        public int getCount() {
+            // fill in any extras with a blank
+            int n = super.getCount(), x = gridView.getNumColumns();
+            return (n+x-1) / x * x;
+        }
+
+        @Override
+        public View getView(int position, View row, final ViewGroup parent) {
+            row = super.getView(position, row, parent);
+            row.findViewById(android.R.id.widget_frame).setLayoutParams(new RelativeLayout.LayoutParams(gridView.getColumnWidth(), gridView.getColumnWidth()));
+
+            boolean showBg = SettingsManager.getBool(getActivity(), "shelf_background", R.bool.default_shelf_background);
+            row.findViewById(R.id.background).setVisibility(showBg ? View.VISIBLE : View.GONE);
+            return row;
+        }
+    }
+
+    class DetailsAdapter extends BookListAdapter {
 
         public DetailsAdapter(Context context, ArrayList<Book> objects) {
-            super(context, 0, objects);
+            super(context, 0, objects, R.layout.list_book_details);
         }
 
         @Override
         public View getView(int position, View row, ViewGroup parent) {
-            if (row == null) {
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                row = inflater.inflate(R.layout.list_book_details, parent, false);
-            }
-            TextView title = ((TextView) row.findViewById(R.id.title));
-            title.setText(getItem(position).getS("title"));
-
+            row = super.getView(position, row, parent);
             TextView author = ((TextView) row.findViewById(R.id.author));
             author.setText(getItem(position).getS("author"));
 
             ImageView cover = ((ImageView) row.findViewById(R.id.image_view));
             int IMG_SIZE = getResources().getDimensionPixelSize(R.dimen.list_book_size);
             cover.setLayoutParams(new RelativeLayout.LayoutParams(IMG_SIZE / 2, IMG_SIZE / 2));
-            MainActivity.imageLoader.displayImage(getItem(position).getS("cover"), cover);
-
 
             return row;
         }
-
-        @Override
-        public boolean isEmpty() { return false; }
     }
 
     public static class CheckTracker { //FIXME: find an alternative to this class
