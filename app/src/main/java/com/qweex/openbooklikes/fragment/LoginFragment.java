@@ -1,17 +1,17 @@
 package com.qweex.openbooklikes.fragment;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,7 +40,14 @@ public class LoginFragment extends FragmentBase {
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private OnLoginListener onLoginListener;
+    private EditText username;
+    private MenuItem registerMenuItem;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +61,7 @@ public class LoginFragment extends FragmentBase {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.ime_login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    getView().findViewById(R.id.email_sign_in_button).callOnClick();
                     return true;
                 }
                 return false;
@@ -64,7 +71,6 @@ public class LoginFragment extends FragmentBase {
         View loadingView = inflater.inflate(R.layout.loading, null),
              emptyView = inflater.inflate(R.layout.empty, null),
              errorView = inflater.inflate(R.layout.error, null);
-//        ((TextView)loadingView.findViewById(R.id.progress_text)).setText(R.string.signing_in);
 
         loadingManager.setInitial(loadingView, v, emptyView, errorView);
         loadingManager.changeState(LoadingViewManager.State.INITIAL);
@@ -84,23 +90,47 @@ public class LoginFragment extends FragmentBase {
         Button mEmailSignInButton = (Button) v.findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 attemptLogin();
             }
         });
+        username = (EditText) v.findViewById(R.id.username);
         return loadingManager.wrapInitialInLayout(getActivity());
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (MainActivity.me == null)
-            attemptLogin();
-        else
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        registerMenuItem = menu.add(Menu.NONE, R.id.register, Menu.NONE, "Register");
+        registerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        if (MainActivity.me != null)
             startApp();
+//        else
+//            attemptLogin();
     }
 
-    public void attemptLogin() {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()!=R.id.register)
+            return super.onOptionsItemSelected(item);
+
+        Button signIn = (Button) getView().findViewById(R.id.email_sign_in_button);
+        if(username.getVisibility() == View.VISIBLE) {
+            username.setVisibility(View.GONE);
+            signIn.setText("Login");
+            item.setTitle("Register");
+        } else {
+            username.setVisibility(View.VISIBLE);
+            signIn.setText("Register");
+            item.setTitle("Login");
+            username.requestFocus();
+        }
+        return true;
+    }
+
+    void attemptLogin() {
+        registerMenuItem.setEnabled(false);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -134,6 +164,7 @@ public class LoginFragment extends FragmentBase {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            registerMenuItem.setEnabled(true);
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the primary login attempt.
@@ -144,7 +175,12 @@ public class LoginFragment extends FragmentBase {
 
             hideKeyboard();
 
-            ApiClient.post(urlParams, loginHandler);
+            if(username.getVisibility() == View.VISIBLE) {
+                urlParams.put("username", username.getText().toString());
+                ApiClient.get(urlParams, loginHandler);
+            } else {
+                ApiClient.post(urlParams, loginHandler);
+            }
         }
     }
 
@@ -152,7 +188,8 @@ public class LoginFragment extends FragmentBase {
 
         @Override
         protected String urlPath() {
-            return "user/login";
+            return "user/" +
+                    (username.getVisibility() == View.VISIBLE ? "register" : "login");
         }
 
         @Override
@@ -180,6 +217,7 @@ public class LoginFragment extends FragmentBase {
                 e.printStackTrace();
                 loadingManager.content();
                 mPasswordView.setError(statusCode + ": " + e.getMessage());
+                registerMenuItem.setEnabled(true);
             }
         }
 
@@ -191,8 +229,8 @@ public class LoginFragment extends FragmentBase {
     };
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+//        return email.contains("@");
+        return true;
     }
 
     @Override
