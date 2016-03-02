@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -46,7 +47,7 @@ import cz.msebera.android.httpclient.Header;
 import jp.co.recruit_mp.android.widget.HeaderFooterGridView;
 
 
-public class BookListFragment<BookList extends BookListPartial> extends FetchFragmentBase<BookList, Book> implements AdapterView.OnItemClickListener {
+public class BookListFragment<BookList extends BookListPartial> extends FetchFragmentBase<BookList, Book> implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     User owner;
     HeaderFooterGridView gridView;
 
@@ -118,6 +119,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         gridView.setColumnWidth((int) getResources().getDimension(R.dimen.list_book_size));
         gridView.setOnScrollListener(scrollMuch);
         gridView.setOnItemClickListener(this);
+        gridView.setOnItemLongClickListener(this);
         gridView.setHorizontalSpacing(0);
         gridView.setVerticalSpacing(0);
         gridView.addFooterView(loadingGrid);
@@ -128,6 +130,7 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         listView = (ListView) view.findViewById(R.id.list_view);
         listView.setOnScrollListener(scrollMuch);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
         listView.addFooterView(wrapInFrame(loadingList));
         listView.addFooterView(wrapInFrame(emptyList));
         listView.addFooterView(wrapInFrame(errorList));
@@ -277,6 +280,18 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
         getMainActivity().loadSideFragment(bookFragment);
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Toast.makeText(
+                getContext(),
+                "\"" +
+                android.text.Html.fromHtml(adapter.getItem(position).getS("title")) +
+                "\"\n" +
+                android.text.Html.fromHtml(adapter.getItem(position).getS("author")),
+                Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
     protected class BookHandler extends LoadingResponseHandler {
 
         public BookHandler(FragmentBase f) {
@@ -395,6 +410,12 @@ public class BookListFragment<BookList extends BookListPartial> extends FetchFra
                 @Override
                 public void onClick(View v) {
                     gridView.getOnItemClickListener().onItemClick((AdapterView<?>) parent, finalRow, position, finalRow.getId());
+                }
+            });
+            row.findViewById(R.id.cardView).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return gridView.getOnItemLongClickListener().onItemLongClick((AdapterView<?>) parent, finalRow, position, finalRow.getId());
                 }
             });
             return row;
