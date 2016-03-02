@@ -88,10 +88,11 @@ public class BookFragment extends FragmentBase<Book> {
             addToShelfMenuItem.setEnabled(true);
             updateMenuItem.setEnabled(true);
             try {
+                if(response.has("book_page_max"))
+                    bookProgress.setMax(Integer.parseInt(response.getString("book_page_max")));
                 if(!response.has("book_page_currently") || response.getString("book_page_currently").equals("0"))
                     return;
                 Log.d("Hello", response.getString("book_page_max") + "!");
-                bookProgress.setMax(Integer.parseInt(response.getString("book_page_max")));
                 bookProgress.setProgress(Integer.parseInt(response.getString("book_page_currently")));
                 bookProgress.setVisibility(View.VISIBLE);
             } catch(Exception e) {

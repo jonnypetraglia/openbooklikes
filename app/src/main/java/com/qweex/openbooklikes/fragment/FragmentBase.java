@@ -120,8 +120,8 @@ abstract public class FragmentBase<Primary extends ModelBase> extends Fragment i
 
     protected View createProgressView(LayoutInflater inflater, ViewGroup container, View childView) {
 
-        ViewGroup loadingView = (ViewGroup) inflater.inflate(R.layout.loading, null);
-        View emptyView = inflater.inflate(R.layout.empty, null),
+        View loadingView = inflater.inflate(R.layout.loading, null),
+             emptyView = inflater.inflate(R.layout.empty, null),
              errorView = inflater.inflate(R.layout.error, null);
 
         loadingManager.setInitial(loadingView, childView, emptyView, errorView);

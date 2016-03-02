@@ -61,10 +61,10 @@ public class LoginFragment extends FragmentBase {
             }
         });
 
-        ViewGroup loadingView = (ViewGroup) inflater.inflate(R.layout.loading, null);
-        View emptyView = inflater.inflate(R.layout.empty, null),
-                errorView = inflater.inflate(R.layout.error, null);
-        ((TextView)loadingView.findViewById(R.id.progress_text)).setText(R.string.signing_in);
+        View loadingView = inflater.inflate(R.layout.loading, null),
+             emptyView = inflater.inflate(R.layout.empty, null),
+             errorView = inflater.inflate(R.layout.error, null);
+//        ((TextView)loadingView.findViewById(R.id.progress_text)).setText(R.string.signing_in);
 
         loadingManager.setInitial(loadingView, v, emptyView, errorView);
         loadingManager.changeState(LoadingViewManager.State.INITIAL);
